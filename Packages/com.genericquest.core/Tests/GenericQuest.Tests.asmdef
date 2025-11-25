@@ -1,0 +1,16 @@
+{
+    "name": "GenericQuest.Tests",
+    "rootNamespace": "GenericQuest.Tests",
+    "references": [
+        "GenericQuest.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ]
+}

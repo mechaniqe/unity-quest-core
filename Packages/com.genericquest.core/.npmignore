@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Build
+build/
+dist/
+*.log
+
+# Tests (optional - include in package)
+# Tests/
+
+# Documentation source (optional - exclude if large)
+# Documentation/src/
+
+# Samples (optional - include for reference implementations)
+# Samples~/
+
+# Node/NPM (if using npm scripts)
+node_modules/
+package-lock.json
+npm-debug.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor temp files
+*.bak
+*.tmp
+*.meta~ 
+*.orig

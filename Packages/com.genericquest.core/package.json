@@ -1,27 +1,29 @@
 {
-  "name": "GenericQuestCore",
+  "name": "com.genericquest.core",
   "version": "0.1.0",
   "displayName": "Generic Quest Core",
-  "description": "A Unity-first, designer-friendly, event-driven quest system for game development",
+  "description": "A Unity-first, designer-friendly, event-driven quest system",
   "unity": "2021.3",
+  "unityRelease": "0f1",
+  "documentationUrl": "https://github.com/your-org/generic-quest-core/wiki",
+  "changelogUrl": "https://github.com/your-org/generic-quest-core/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/your-org/generic-quest-core/blob/main/LICENSE",
   "keywords": [
     "quest",
     "mission",
-    "game-design",
+    "gameplay",
     "designer-tools",
-    "event-driven"
+    "event-driven",
+    "extensible"
   ],
-  "category": "Gameplay",
   "author": {
     "name": "Your Studio",
     "email": "contact@example.com",
     "url": "https://example.com"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-org/unity-quest-core"
-  },
-  "readme": "README.md",
+  "type": "tool",
+  "hideInEditor": false,
+  "dependencies": {},
   "samples": [
     {
       "displayName": "Basic Quest Example",

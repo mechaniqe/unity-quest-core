@@ -19,43 +19,43 @@
 ### 🎯 Core Runtime System (18 files)
 
 **Data Model**
-- `Assets/GenericQuestCore/Runtime/Core/QuestAsset.cs` – Quest definition
-- `Assets/GenericQuestCore/Runtime/Core/ObjectiveAsset.cs` – Objective definition
-- `Assets/GenericQuestCore/Runtime/Core/ConditionAsset.cs` – Base condition class
-- `Assets/GenericQuestCore/Runtime/Core/ConditionGroupAsset.cs` – Composite conditions
+- `Packages/com.genericquest.core/Runtime/Core/QuestAsset.cs` – Quest definition
+- `Packages/com.genericquest.core/Runtime/Core/ObjectiveAsset.cs` – Objective definition
+- `Packages/com.genericquest.core/Runtime/Core/ConditionAsset.cs` – Base condition class
+- `Packages/com.genericquest.core/Runtime/Core/ConditionGroupAsset.cs` – Composite conditions
 
 **Status & State**
-- `Assets/GenericQuestCore/Runtime/Core/QuestStatus.cs` – Status enums
-- `Assets/GenericQuestCore/Runtime/Core/QuestState.cs` – Runtime quest state
-- `Assets/GenericQuestCore/Runtime/Core/ObjectiveState.cs` – Runtime objective state
-- `Assets/GenericQuestCore/Runtime/Core/QuestLog.cs` – Active quests registry
+- `Packages/com.genericquest.core/Runtime/Core/QuestStatus.cs` – Status enums
+- `Packages/com.genericquest.core/Runtime/Core/QuestState.cs` – Runtime quest state
+- `Packages/com.genericquest.core/Runtime/Core/ObjectiveState.cs` – Runtime objective state
+- `Packages/com.genericquest.core/Runtime/Core/QuestLog.cs` – Active quests registry
 
 **Condition System**
-- `Assets/GenericQuestCore/Runtime/Core/IConditionInstance.cs` – Condition interface
-- `Assets/GenericQuestCore/Runtime/Core/ConditionGroupInstance.cs` – Composite AND/OR
-- `Assets/GenericQuestCore/Runtime/Core/ItemCollectedConditionAsset.cs` – Example 1
-- `Assets/GenericQuestCore/Runtime/Core/ItemCollectedConditionInstance.cs` – Example 1 instance
-- `Assets/GenericQuestCore/Runtime/Core/TimeElapsedConditionAsset.cs` – Example 2
-- `Assets/GenericQuestCore/Runtime/Core/TimeElapsedConditionInstance.cs` – Example 2 instance
+- `Packages/com.genericquest.core/Runtime/Core/IConditionInstance.cs` – Condition interface
+- `Packages/com.genericquest.core/Runtime/Core/ConditionGroupInstance.cs` – Composite AND/OR
+- `Packages/com.genericquest.core/Runtime/Core/ItemCollectedConditionAsset.cs` – Example 1
+- `Packages/com.genericquest.core/Runtime/Core/ItemCollectedConditionInstance.cs` – Example 1 instance
+- `Packages/com.genericquest.core/Runtime/Core/TimeElapsedConditionAsset.cs` – Example 2
+- `Packages/com.genericquest.core/Runtime/Core/TimeElapsedConditionInstance.cs` – Example 2 instance
 
 **Infrastructure**
-- `Assets/GenericQuestCore/Runtime/Core/IQuestEventBus.cs` – Event interface
-- `Assets/GenericQuestCore/Runtime/Core/QuestContext.cs` – Service container
-- `Assets/GenericQuestCore/Runtime/Core/QuestManager.cs` – Orchestrator
-- `Assets/GenericQuestCore/Runtime/Core/QuestPlayerRef.cs` – Context builder
+- `Packages/com.genericquest.core/Runtime/Core/IQuestEventBus.cs` – Event interface
+- `Packages/com.genericquest.core/Runtime/Core/QuestContext.cs` – Service container
+- `Packages/com.genericquest.core/Runtime/Core/QuestManager.cs` – Orchestrator
+- `Packages/com.genericquest.core/Runtime/Core/QuestPlayerRef.cs` – Context builder
 
 ### 🔌 Event System Adapter (1 file)
 
-- `Assets/GenericQuestCore/Runtime/EventManagementAdapter/EventManagementQuestBus.cs` – Mechaniqe adapter (stub)
+- `Packages/com.genericquest.core/Runtime/EventManagementAdapter/EventManagementQuestBus.cs` – Mechaniqe adapter (stub)
 
 ### 🧪 Testing Infrastructure (6 files)
 
-- `Tests/FakeEventBus.cs` – In-memory event bus for tests
-- `Tests/QuestBuilder.cs` – Fluent quest builder
-- `Tests/ObjectiveBuilder.cs` – Fluent objective builder
-- `Tests/MockCondition.cs` – Controllable mock condition
-- `Tests/QuestSystemTests.cs` – Unit tests (6 scenarios)
-- `Tests/TestRunner.cs` – Test entry point
+- `Packages/com.genericquest.core/Tests/FakeEventBus.cs` – In-memory event bus for tests
+- `Packages/com.genericquest.core/Tests/QuestBuilder.cs` – Fluent quest builder
+- `Packages/com.genericquest.core/Tests/ObjectiveBuilder.cs` – Fluent objective builder
+- `Packages/com.genericquest.core/Tests/MockCondition.cs` – Controllable mock condition
+- `Packages/com.genericquest.core/Tests/QuestSystemTests.cs` – Unit tests (6 scenarios)
+- `Packages/com.genericquest.core/Tests/TestRunner.cs` – Test entry point
 
 ### 📚 Documentation (6 files)
 
@@ -93,9 +93,15 @@
 ```
 unity-quest-core/
 │
-├─ Assets/
-│  └─ GenericQuestCore/
+├─ Packages/
+│  └─ com.genericquest.core/
+│     ├─ package.json (Unity package manifest)
+│     ├─ README.md
+│     ├─ CHANGELOG.md
+│     ├─ LICENSE.md
+│     │
 │     ├─ Runtime/
+│     │  ├─ GenericQuest.Core.asmdef
 │     │  ├─ Core/
 │     │  │  ├─ QuestAsset.cs
 │     │  │  ├─ ObjectiveAsset.cs
@@ -120,6 +126,7 @@ unity-quest-core/
 │     │     └─ EventManagementQuestBus.cs
 │     │
 │     ├─ Editor/
+│     │  ├─ GenericQuest.Editor.asmdef
 │     │  ├─ Inspectors/
 │     │  │  ├─ QuestAssetEditor.cs [TODO]
 │     │  │  ├─ ObjectiveListDrawer.cs [TODO]
@@ -128,24 +135,27 @@ unity-quest-core/
 │     │  └─ Windows/
 │     │     └─ QuestDebuggerWindow.cs [TODO]
 │     │
-│     └─ package.json
-│
-├─ Tests/
-│  ├─ FakeEventBus.cs
-│  ├─ QuestBuilder.cs
-│  ├─ ObjectiveBuilder.cs
-│  ├─ MockCondition.cs
-│  ├─ QuestSystemTests.cs
-│  └─ TestRunner.cs
+│     ├─ Tests/
+│     │  ├─ GenericQuest.Tests.asmdef
+│     │  ├─ FakeEventBus.cs
+│     │  ├─ QuestBuilder.cs
+│     │  ├─ ObjectiveBuilder.cs
+│     │  ├─ MockCondition.cs
+│     │  ├─ QuestSystemTests.cs
+│     │  └─ TestRunner.cs
+│     │
+│     └─ Documentation/
+│        ├─ API_REFERENCE.md
+│        └─ IMPLEMENTATION.md
 │
 ├─ .gitignore
-├─ README.md
-├─ API_REFERENCE.md
-├─ IMPLEMENTATION.md
-├─ PROGRESS.md
-├─ COMPLETE.md
+├─ README.md (Project overview)
+├─ IMPLEMENTATION.md (Tech docs)
+├─ PROGRESS.md (Development status)
+├─ COMPLETE.md (Summary)
+├─ NEXT_STEPS.md (Roadmap)
 ├─ INDEX.md (this file)
-└─ specs.md
+└─ specs.md (Original specification)
 
 ```
 
