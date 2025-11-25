@@ -5,9 +5,9 @@
   "description": "A Unity-first, designer-friendly, event-driven quest system",
   "unity": "2021.3",
   "unityRelease": "0f1",
-  "documentationUrl": "https://github.com/your-org/generic-quest-core/wiki",
-  "changelogUrl": "https://github.com/your-org/generic-quest-core/blob/main/CHANGELOG.md",
-  "licensesUrl": "https://github.com/your-org/generic-quest-core/blob/main/LICENSE",
+  "documentationUrl": "https://github.com/mechaniqe/unity-quest-core/wiki",
+  "changelogUrl": "https://github.com/mechaniqe/unity-quest-core/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/mechaniqe/unity-quest-core/blob/main/LICENSE",
   "keywords": [
     "quest",
     "mission",

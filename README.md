@@ -1,232 +1,250 @@
-# Unity Quest Core
+# DynamicBox Quest Core
 
-🎯 **A production-ready Unity package providing a designer-friendly, event-driven quest system**
+A Unity-first, designer-friendly, event-driven quest system for game development.
 
-[![Unity Version](https://img.shields.io/badge/Unity-2021.3+-blue.svg)](https://unity3d.com/get-unity/download)
-[![Package Version](https://img.shields.io/badge/Package-0.1.0-green.svg)]()
-[![License](https://img.shields.io/badge/License-MIT-orange.svg)](LICENSE.md)
+## Overview
 
-## ✨ Features
+DynamicBox Quest Core provides a complete, extensible framework for creating quest systems in Unity. It's designed to be:
 
-- **🎨 Designer-Friendly** - Visual ScriptableObject-based authoring with custom editors
-- **⚡ Event-Driven** - Efficient condition evaluation through decoupled event system
-- **🔧 Production-Ready** - Thread-safe event bus, comprehensive testing, optimized performance  
-- **🎯 Extensible** - Easy custom condition creation with clean interfaces
-- **🛠️ Developer Tools** - Quest debugger window, validation, and sample content
-- **📦 Zero Dependencies** - Works out of the box with any Unity project
+- **Designer-Friendly** – Create quests entirely in the inspector with no coding required
+- **Event-Driven** – Conditions evaluate based on game events for efficiency
+- **Extensible** – Easy to add custom condition types for your game's needs
+- **Testable** – Pure C# core with comprehensive unit tests
+- **Production-Ready** – Clean architecture suitable for commercial projects
 
-## 🚀 Quick Start
+## Features
 
-### Installation
+✨ **Designer-Authored Quests**
+- Create quests and objectives as ScriptableObjects
+- Define conditions visually without code
+- Support for prerequisites and optional objectives
 
-#### Option 1: Package Manager (Local)
-1. Download or clone this repository
-2. In Unity, open **Package Manager**
-3. Click **"+"** → **"Add package from disk..."**
-4. Navigate to `Packages/net.dynamicbox.quest.core/package.json`
+⚡ **Event-Driven Architecture**
+- Conditions respond to game events in real-time
+- Optional polling for continuous conditions (time-based, sensor-based, etc.)
+- Efficient batch evaluation with dirty queue pattern
 
-#### Option 2: Manual Installation
-1. Copy `Packages/net.dynamicbox.quest.core/` to your Unity project's `Packages/` folder
-2. Unity will automatically import the package
+🎯 **Logical Composition**
+- Combine conditions with AND/OR operators
+- Build complex quest logic from simple pieces
+- Reuse conditions across multiple quests
 
-### Basic Usage
+🔧 **Extensible Design**
+- Add custom conditions by implementing `ConditionAsset` and `IConditionInstance`
+- Integrate with your game's event system
+- Inject services via `QuestContext`
 
-```csharp
-// 1. Setup the quest system
-var eventBus = new EventManagementQuestBus();
-questManager.SetEventBus(eventBus);
+## Installation
 
-// 2. Start a quest
-questManager.StartQuest(questAsset);
+### Via Git URL (UPM)
 
-// 3. Publish events from your game
-eventBus.Publish(new ItemCollectedEvent("sword", 1));
+In Unity Package Manager, click the `+` button and select "Add package from git URL":
 
-// 4. Listen for quest completion
-questManager.OnQuestCompleted += OnQuestCompleted;
+```
+https://github.com/your-org/generic-quest-core.git#upm
 ```
 
-### Import Sample
-
-1. Open **Package Manager** in Unity
-2. Select **"DynamicBox Quest Core"** from **"In Project"**
-3. Expand **"Samples"** and import **"Basic Quest Example"**
-4. Study the sample code and run the example scene
-
-## 📚 Documentation
-
-- **[API Reference](Packages/net.dynamicbox.quest.core/Documentation/API_REFERENCE.md)** - Complete API documentation
-- **[Implementation Guide](Packages/net.dynamicbox.quest.core/Documentation/IMPLEMENTATION.md)** - Architecture and integration guide
-- **[Sample README](Packages/net.dynamicbox.quest.core/Samples~/BasicQuestExample/README.md)** - Step-by-step sample walkthrough
-
-## 🛠️ Editor Tools
-
-- **Quest Asset Editor** - Visual quest configuration with validation
-- **Condition Group Editor** - Drag-and-drop condition management  
-- **Quest Debugger** - Runtime quest monitoring (**Tools > DynamicBox Quest > Quest Debugger**)
-
-## 📖 Creating Your First Quest
-
-1. **Create Quest Asset**: Right-click → **Create > DynamicBox Quest > Quest Asset**
-2. **Create Objective**: Right-click → **Create > DynamicBox Quest > Objective Asset**  
-3. **Create Conditions**: Right-click → **Create > DynamicBox Quest > Conditions > [Type]**
-4. **Configure in Inspector**: Use the custom editors to set up your quest logic
-5. **Start Quest**: Call `questManager.StartQuest(questAsset)` in your code
-
-## 🧩 Built-in Condition Types
-
-- **Item Collected** - Track when players collect specific items
-- **Time Elapsed** - Time-based objectives and delays
-- **Area Entered** - Location-based objectives  
-- **Custom Flag** - Generic gameplay state conditions
-
-## 🔧 Extending the System
-
-Create custom conditions by extending `ConditionAsset`:
-
-```csharp
-[CreateAssetMenu(menuName = "DynamicBox Quest/Conditions/My Custom Condition")]
-public class MyConditionAsset : ConditionAsset
-{
-    public override IConditionInstance CreateInstance(QuestContext context)
-    {
-        return new MyConditionInstance(this, context);
-    }
-}
-```
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
-## 🤝 Contributing
-
-This is a Unity package project. To contribute:
+### Manual Installation
 
 1. Clone the repository
-2. Open the project in Unity 2021.3+
-3. Make changes to files in `Packages/net.dynamicbox.quest.core/`
-4. Test your changes using the included test suite
-5. Submit a pull request
-
-## 📞 Support
-
-For questions, issues, or feature requests, please open an issue on the project repository.
-
----
-
-*Made with ❤️ for the Unity community*
-
-🎯 **A production-ready Unity package providing a designer-friendly, event-driven quest system**
-
-[![Unity Version](https://img.shields.io/badge/Unity-2021.3+-blue.svg)](https://unity3d.com/get-unity/download)
-[![Package Version](https://img.shields.io/badge/Package-0.1.0-green.svg)]()
-[![License](https://img.shields.io/badge/License-MIT-orange.svg)](Packages/net.dynamicbox.quest.core/LICENSE.md)
-
-## ✨ Features
-
-- **🎨 Designer-Friendly**: Visual ScriptableObject-based authoring with custom editors
-- **⚡ Event-Driven**: Efficient condition evaluation through decoupled event system
-- **🔧 Production-Ready**: Thread-safe event bus, comprehensive testing, optimized performance  
-- **🎯 Extensible**: Easy custom condition creation with clean interfaces
-- **🛠️ Developer Tools**: Quest debugger window, validation, and sample content
-- **📦 Zero Dependencies**: Works out of the box with any Unity project
-
-## 🚀 Quick Start
-
-### Installation
-1. **Package Manager**: Add package from git URL: 
-   ```
-   https://github.com/your-org/unity-quest-core.git?path=/Packages/net.dynamicbox.quest.core
-   ```
-2. **Local Development**: Copy `Packages/net.dynamicbox.quest.core/` to your Unity project's `Packages/` folder
-
-### Basic Usage
-```csharp
-// 1. Setup event bus
-var eventBus = new EventManagementQuestBus();
-
-// 2. Configure quest manager  
-questManager.SetEventBus(eventBus);
-
-// 3. Start a quest
-questManager.StartQuest(questAsset);
-
-// 4. Publish game events
-eventBus.Publish(new ItemCollectedEvent("sword", 1));
-```
-
-### Sample Content
-Import the **Basic Quest Example** sample via Package Manager to see a complete working implementation.
-
-## 📚 Documentation
-
-- **[API Reference](Packages/net.dynamicbox.quest.core/Documentation/API_REFERENCE.md)** - Complete API documentation
-- **[Implementation Guide](Packages/net.dynamicbox.quest.core/Documentation/IMPLEMENTATION.md)** - Architecture and integration details
-- **[Sample README](Packages/net.dynamicbox.quest.core/Samples~/BasicQuestExample/README.md)** - Step-by-step usage guide
-
-## 🏗️ Architecture
-
-- **ScriptableObject Authoring** - Designer-friendly quest creation
-- **Event-Driven Conditions** - Efficient, decoupled evaluation
-- **Composite Logic** - AND/OR condition groups
-- **Thread-Safe Event Bus** - Production-ready messaging
-- **Unity Package Manager** - Proper package structure and tooling
-
-## 📋 Requirements
-
-- **Unity 2021.3+**
-- **No external dependencies**
-
-## 📄 License
-
-MIT License - See [LICENSE.md](Packages/net.dynamicbox.quest.core/LICENSE.md) for details
-
----
-
-**Ready for production use in Unity projects** 🎮
-- **Tested**: Comprehensive unit test coverage
+2. Copy the `Packages/net.dynamicbox.quest.core` folder to your project's `Packages/` directory
 
 ## Quick Start
 
-### 1. Create a Quest
-Right-click in Project → Create → Quests → Quest
+### 1. Create a Quest in Inspector
 
-### 2. Add Quest Manager
-Add `QuestManager` component to a GameObject in your scene
+```
+Right-click → Create → Quests → Quest
+├─ Quest ID: "collect_sword"
+├─ Display Name: "Find the Sword"
+└─ Add Objective:
+    ├─ Objective ID: "obj_1"
+    ├─ Completion Condition:
+    │   └─ Create → Quests → Conditions → Item Collected
+    │       ├─ Item ID: "sword"
+    │       └─ Required Count: 1
+```
 
-### 3. Start Quest
+### 2. Wire Quest Manager
+
 ```csharp
 [SerializeField] private QuestManager questManager;
 [SerializeField] private QuestAsset myQuest;
 
 void Start() {
+    questManager.OnQuestCompleted += HandleComplete;
     questManager.StartQuest(myQuest);
+}
+
+void HandleComplete(QuestState quest) {
+    Debug.Log($"✓ {quest.Definition.DisplayName}");
 }
 ```
 
-### 4. Publish Events
+### 3. Publish Events
+
 ```csharp
-// From your game systems
+// In your inventory/loot system
 eventBus.Publish(new ItemCollectedEvent("sword", 1));
+```
+
+## Building Custom Conditions
+
+```csharp
+// 1. Create the asset
+[CreateAssetMenu(menuName = "Quests/Conditions/Area Entered")]
+public class AreaEnteredConditionAsset : ConditionAsset
+{
+    [SerializeField] private string areaId;
+    
+    public override IConditionInstance CreateInstance()
+    {
+        return new AreaEnteredConditionInstance(areaId);
+    }
+}
+
+// 2. Create the instance
+public class AreaEnteredConditionInstance : IConditionInstance
+{
+    private readonly string _areaId;
+    private bool _isMet;
+    private Action _onChanged;
+
+    public bool IsMet => _isMet;
+
+    public void Bind(IQuestEventBus eventBus, QuestContext context, Action onChanged)
+    {
+        _onChanged = onChanged;
+        eventBus.Subscribe<AreaEnteredEvent>(OnAreaEntered);
+    }
+
+    public void Unbind(IQuestEventBus eventBus, QuestContext context)
+    {
+        eventBus.Unsubscribe<AreaEnteredEvent>(OnAreaEntered);
+    }
+
+    private void OnAreaEntered(AreaEnteredEvent evt)
+    {
+        if (evt.AreaId == _areaId && !_isMet)
+        {
+            _isMet = true;
+            _onChanged?.Invoke();
+        }
+    }
+}
 ```
 
 ## Documentation
 
-Complete documentation is available in the package:
-- `Documentation/API_REFERENCE.md` - Full API documentation
-- `Documentation/IMPLEMENTATION.md` - Architecture details
+- **[API Reference](Documentation/API_REFERENCE.md)** – Complete API documentation
+- **[Architecture](Documentation/IMPLEMENTATION.md)** – Technical deep dive
+- **[Examples](Samples~/)** – Sample projects and quests
+
+## Testing
+
+The package includes comprehensive unit tests:
+
+```csharp
+GenericQuest.Tests.QuestSystemTests.RunAllTests();
+```
+
+## Architecture
+
+```
+Game Event (ItemCollected)
+    ↓
+IQuestEventBus.Publish()
+    ↓
+ConditionInstance.OnItemCollected()
+    ↓
+QuestManager.MarkDirty()
+    ↓
+QuestManager.ProcessDirtyQueue()
+    ↓
+OnQuestCompleted event
+```
+
+## Core Types
+
+### Assets (Designer-Authored Data)
+- `QuestAsset` – Quest definition
+- `ObjectiveAsset` – Objective definition
+- `ConditionAsset` – Base condition (inherit to create custom conditions)
+- `ConditionGroupAsset` – Composite conditions (AND/OR)
+
+### State (Runtime)
+- `QuestState` – Quest progress
+- `ObjectiveState` – Objective progress
+- `QuestLog` – Active quests registry
+
+### Conditions
+- `IConditionInstance` – Event-driven condition interface
+- `IPollingConditionInstance` – Optional polling interface
+- `ConditionGroupInstance` – AND/OR logic
+- `ItemCollectedConditionInstance` – Example condition
+- `TimeElapsedConditionInstance` – Example polling condition
+
+### Infrastructure
+- `QuestManager` – Main MonoBehaviour orchestrator
+- `QuestContext` – Service container
+- `IQuestEventBus` – Event bus interface
+- `QuestPlayerRef` – Context builder
 
 ## Requirements
 
-- Unity 2021.3 or later
+- **Unity**: 2021.3 or later
+- **C#**: 9.0+
 
-## Status
+## Known Limitations (v0.1)
 
-Version 0.1.0 - Foundation complete with core quest system functionality.
+- No persistence/save system (planned as separate package)
+- No multi-actor/party support (single player focus)
+- EventManagementQuestBus is a stub (requires mechaniqe library integration)
 
-Note: EventManagementQuestBus requires integration with your event system.
+## Roadmap
+
+### 0.2.0 (Planned)
+- Event system integration (mechaniqe)
+- Custom editor inspectors
+- Quest debugger window
+- Additional example conditions
+
+### 0.3.0+
+- Performance optimization
+- Save/load system integration
+- Multi-actor support
+- Graph editor for quest composition
+
+## Support
+
+For questions or issues:
+
+1. Check the [API Reference](Documentation/API_REFERENCE.md)
+2. Review [Architecture Documentation](Documentation/IMPLEMENTATION.md)
+3. Study the [Unit Tests](Tests/)
+4. Create an issue on GitHub
 
 ## License
 
-MIT License - see LICENSE.md
+MIT License – see [LICENSE.md](LICENSE.md)
+
+## Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. Create a feature branch (`git checkout -b feature/your-feature`)
+2. Commit your changes (`git commit -am 'Add feature'`)
+3. Push to the branch (`git push origin feature/your-feature`)
+4. Create a Pull Request
+
+## Credits
+
+Developed by [Your Studio Name]
+
+Part of the DynamicBox Quest Core project – A mission to make quest systems accessible and extensible.
+
+---
+
+**Version**: 0.1.0  
+**Last Updated**: 2025-11-25  
+**Unity Version**: 2021.3+
