@@ -156,13 +156,13 @@ namespace DynamicBox.Quest.Editor
             var conditionGroup = target as ConditionGroupAsset;
             if (conditionGroup == null) return;
 
-            if (conditionGroup.Conditions == null || conditionGroup.Conditions.Length == 0)
+            if (conditionGroup.Conditions == null || conditionGroup.Conditions.Count == 0)
             {
                 EditorGUILayout.HelpBox("Condition group needs at least one condition.", MessageType.Error);
                 return;
             }
 
-            for (int i = 0; i < conditionGroup.Conditions.Length; i++)
+            for (int i = 0; i < conditionGroup.Conditions.Count; i++)
             {
                 if (conditionGroup.Conditions[i] == null)
                 {

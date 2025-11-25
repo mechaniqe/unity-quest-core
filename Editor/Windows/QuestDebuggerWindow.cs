@@ -75,9 +75,9 @@ namespace DynamicBox.Quest.Editor.Windows
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
-            foreach (var questLog in _questManager.ActiveQuests.Values)
+            foreach (var questState in _questManager.ActiveQuests)
             {
-                DrawQuestLog(questLog);
+                DrawQuestLog(questState);
             }
 
             EditorGUILayout.EndScrollView();
