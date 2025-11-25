@@ -43,3 +43,6 @@ coverage/
 
 # Local development
 local.settings.json
+
+# Development files
+.development/

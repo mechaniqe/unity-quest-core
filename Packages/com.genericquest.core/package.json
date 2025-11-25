@@ -17,11 +17,10 @@
     "extensible"
   ],
   "author": {
-    "name": "Your Studio",
-    "email": "contact@example.com",
-    "url": "https://example.com"
+    "name": "Dynamic Box",
+    "email": "hello@dynamicbox.net",
+    "url": "https://dynamicbox.net"
   },
-  "type": "tool",
   "hideInEditor": false,
   "dependencies": {},
   "samples": [
@@ -29,11 +28,6 @@
       "displayName": "Basic Quest Example",
       "description": "Simple quest with item collection objective",
       "path": "Samples~/BasicQuestExample"
-    },
-    {
-      "displayName": "Advanced Quest Example",
-      "description": "Complex quest with prerequisites and condition groups",
-      "path": "Samples~/AdvancedQuestExample"
     }
   ]
 }
