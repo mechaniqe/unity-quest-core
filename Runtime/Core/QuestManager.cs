@@ -2,13 +2,13 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DynamicBox.Quest.EventManagement;
 
 namespace DynamicBox.Quest.Core
 {
     public class QuestManager : MonoBehaviour
     {
         [Header("Wiring")]
-        [SerializeField] private MonoBehaviour eventManagerSource; // reference to concrete EventManager
         [SerializeField] private QuestPlayerRef playerRef;          // builds QuestContext
 
         [Header("Polling (optional)")]
@@ -28,18 +28,17 @@ namespace DynamicBox.Quest.Core
 
         private void Awake()
         {
-            // eventManagerSource must be cast/wrapped into concrete adapter in game code
-            _eventBus = CreateEventBus(eventManagerSource);
+            // Create event bus - can be replaced with external event management systems
+            _eventBus = CreateEventBus();
             _log = new QuestLog();
             _context = playerRef.BuildContext();
         }
 
-        private IQuestEventBus CreateEventBus(MonoBehaviour source)
+        private IQuestEventBus CreateEventBus()
         {
-            // This method can be overridden or changed to use DI.
-            // For now, assume source has an EventManager component.
-            var eventManager = source.GetComponent<Mechaniqe.EventManagement.EventManager>();
-            return new GenericQuest.EventManagement.EventManagementQuestBus(eventManager);
+            // Using the built-in event bus implementation.
+            // This can be overridden or changed to use DI/external systems.
+            return new EventManagementQuestBus();
         }
 
         private void Update()

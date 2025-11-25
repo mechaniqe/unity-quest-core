@@ -15,9 +15,9 @@ namespace DynamicBox.Quest.Core.Conditions
         public bool ExpectedValue => _expectedValue;
         public string Description => _description;
 
-        public override IConditionInstance CreateInstance(QuestContext context)
+        public override IConditionInstance CreateInstance()
         {
-            return new CustomFlagConditionInstance(this, context);
+            return new CustomFlagConditionInstance(this);
         }
 
         private void OnValidate()
@@ -32,26 +32,40 @@ namespace DynamicBox.Quest.Core.Conditions
     public class CustomFlagConditionInstance : IConditionInstance
     {
         private readonly CustomFlagConditionAsset _asset;
-        private readonly QuestContext _context;
+        private QuestContext _context;
+        private IQuestEventBus _eventBus;
         private bool _isCompleted;
+        private System.Action _onChanged;
 
-        public bool IsCompleted => _isCompleted;
+        public bool IsMet => _isCompleted;
 
-        public CustomFlagConditionInstance(CustomFlagConditionAsset asset, QuestContext context)
+        public CustomFlagConditionInstance(CustomFlagConditionAsset asset)
         {
             _asset = asset;
+        }
+
+        public void Bind(IQuestEventBus eventBus, QuestContext context, System.Action onChanged)
+        {
+            _eventBus = eventBus;
             _context = context;
+            _onChanged = onChanged;
             
             // Subscribe to flag change events
-            context.EventBus.Subscribe<FlagChangedEvent>(OnFlagChanged);
+            _eventBus.Subscribe<FlagChangedEvent>(OnFlagChanged);
             
             // Check current flag state
             CheckCurrentState();
         }
 
-        public void Dispose()
+        public void Unbind(IQuestEventBus eventBus, QuestContext context)
         {
-            _context.EventBus.Unsubscribe<FlagChangedEvent>(OnFlagChanged);
+            if (_eventBus != null)
+            {
+                _eventBus.Unsubscribe<FlagChangedEvent>(OnFlagChanged);
+                _eventBus = null;
+            }
+            _context = null;
+            _onChanged = null;
         }
 
         private void OnFlagChanged(FlagChangedEvent evt)
@@ -76,12 +90,14 @@ namespace DynamicBox.Quest.Core.Conditions
             if (shouldComplete && !_isCompleted)
             {
                 _isCompleted = true;
+                _onChanged?.Invoke();
                 Debug.Log($"Custom flag condition completed: {_asset.FlagId} = {currentValue}");
             }
             else if (!shouldComplete && _isCompleted)
             {
                 // Handle flag changing back (if needed)
                 _isCompleted = false;
+                _onChanged?.Invoke();
             }
         }
 

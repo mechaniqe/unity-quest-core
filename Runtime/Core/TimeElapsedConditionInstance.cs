@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace DynamicBox.Quest.Core.Conditions
 {
@@ -33,16 +34,10 @@ namespace DynamicBox.Quest.Core.Conditions
                 return;
 
             float oldTime = _elapsedTime;
-            _elapsedTime += UnityEngine.Time.deltaTime;
+            _elapsedTime += Time.deltaTime;
 
             if (oldTime < _requiredSeconds && _elapsedTime >= _requiredSeconds)
                 onChanged?.Invoke();
         }
-    }
-
-    // Helper for Mathf.Max reference
-    internal static class Mathf
-    {
-        public static float Max(float a, float b) => a > b ? a : b;
     }
 }

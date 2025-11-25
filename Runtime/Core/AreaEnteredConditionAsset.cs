@@ -13,9 +13,9 @@ namespace DynamicBox.Quest.Core.Conditions
         public string AreaId => _areaId;
         public string AreaDescription => _areaDescription;
 
-        public override IConditionInstance CreateInstance(QuestContext context)
+        public override IConditionInstance CreateInstance()
         {
-            return new AreaEnteredConditionInstance(this, context);
+            return new AreaEnteredConditionInstance(this);
         }
 
         private void OnValidate()
@@ -30,23 +30,37 @@ namespace DynamicBox.Quest.Core.Conditions
     public class AreaEnteredConditionInstance : IConditionInstance
     {
         private readonly AreaEnteredConditionAsset _asset;
-        private readonly QuestContext _context;
+        private QuestContext _context;
+        private IQuestEventBus _eventBus;
         private bool _isCompleted;
+        private System.Action _onChanged;
 
-        public bool IsCompleted => _isCompleted;
+        public bool IsMet => _isCompleted;
 
-        public AreaEnteredConditionInstance(AreaEnteredConditionAsset asset, QuestContext context)
+        public AreaEnteredConditionInstance(AreaEnteredConditionAsset asset)
         {
             _asset = asset;
-            _context = context;
-            
-            // Subscribe to area entry events
-            context.EventBus.Subscribe<AreaEnteredEvent>(OnAreaEntered);
         }
 
-        public void Dispose()
+        public void Bind(IQuestEventBus eventBus, QuestContext context, System.Action onChanged)
         {
-            _context.EventBus.Unsubscribe<AreaEnteredEvent>(OnAreaEntered);
+            _eventBus = eventBus;
+            _context = context;
+            _onChanged = onChanged;
+            
+            // Subscribe to area entry events
+            _eventBus.Subscribe<AreaEnteredEvent>(OnAreaEntered);
+        }
+
+        public void Unbind(IQuestEventBus eventBus, QuestContext context)
+        {
+            if (_eventBus != null)
+            {
+                _eventBus.Unsubscribe<AreaEnteredEvent>(OnAreaEntered);
+                _eventBus = null;
+            }
+            _context = null;
+            _onChanged = null;
         }
 
         private void OnAreaEntered(AreaEnteredEvent evt)
@@ -54,6 +68,7 @@ namespace DynamicBox.Quest.Core.Conditions
             if (evt.AreaId == _asset.AreaId && !_isCompleted)
             {
                 _isCompleted = true;
+                _onChanged?.Invoke();
                 Debug.Log($"Area entered condition completed: {_asset.AreaId}");
             }
         }
