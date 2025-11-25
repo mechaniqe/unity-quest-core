@@ -23,6 +23,10 @@ namespace DynamicBox.Quest.Core
         public string Description => description;
         public bool IsOptional => isOptional;
 
+        // Additional properties for editor support
+        public string DisplayName => !string.IsNullOrEmpty(title) ? title : objectiveId;
+        public ConditionGroupAsset ConditionGroup => completionCondition as ConditionGroupAsset;
+
         public IReadOnlyList<ObjectiveAsset> Prerequisites => prerequisites;
         public ConditionAsset CompletionCondition => completionCondition;
         public ConditionAsset FailCondition => failCondition;

@@ -23,14 +23,14 @@ namespace DynamicBox.Quest.Core
                 );
         }
 
-        internal void SetStatus(QuestStatus status)
+        public void SetStatus(QuestStatus status)
         {
             Status = status;
         }
 
-        internal IEnumerable<ObjectiveState> GetObjectiveStates() => _objectives.Values;
+        public IEnumerable<ObjectiveState> GetObjectiveStates() => _objectives.Values;
 
-        internal bool TryGetObjective(string objectiveId, out ObjectiveState state)
+        public bool TryGetObjective(string objectiveId, out ObjectiveState state)
             => _objectives.TryGetValue(objectiveId, out state);
     }
 }

@@ -83,22 +83,22 @@ namespace DynamicBox.Quest.Editor.Windows
             EditorGUILayout.EndScrollView();
         }
 
-        private void DrawQuestLog(QuestLog questLog)
+        private void DrawQuestLog(QuestState questState)
         {
-            var quest = questLog.QuestAsset;
+            var quest = questState.Definition;
             
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             
             // Quest header
             EditorGUILayout.BeginHorizontal();
-            var statusColor = GetStatusColor(questLog.Status);
+            var statusColor = GetStatusColor(questState.Status);
             var originalColor = GUI.color;
             GUI.color = statusColor;
             
             EditorGUILayout.LabelField($"● {quest.DisplayName}", EditorStyles.boldLabel);
             GUI.color = originalColor;
             
-            EditorGUILayout.LabelField($"[{questLog.Status}]", GUILayout.Width(80));
+            EditorGUILayout.LabelField($"[{questState.Status}]", GUILayout.Width(80));
             EditorGUILayout.EndHorizontal();
             
             // Quest info
@@ -111,24 +111,23 @@ namespace DynamicBox.Quest.Editor.Windows
             EditorGUILayout.Space();
             
             // Objectives
-            if (quest.Objectives != null && quest.Objectives.Length > 0)
+            if (quest.Objectives != null && quest.Objectives.Count > 0)
             {
                 EditorGUILayout.LabelField("Objectives:", EditorStyles.miniLabel);
                 EditorGUI.indentLevel++;
                 
-                for (int i = 0; i < quest.Objectives.Length; i++)
+                for (int i = 0; i < quest.Objectives.Count; i++)
                 {
                     var objective = quest.Objectives[i];
                     if (objective == null) continue;
                     
-                    var objState = questLog.ObjectiveStates.ContainsKey(objective.ObjectiveId) 
-                        ? questLog.ObjectiveStates[objective.ObjectiveId] 
-                        : ObjectiveState.NotStarted;
+                    questState.TryGetObjective(objective.ObjectiveId, out var objState);
+                    var status = objState?.Status ?? ObjectiveStatus.NotStarted;
                     
-                    var objColor = GetObjectiveColor(objState);
+                    var objColor = GetObjectiveColor(status);
                     GUI.color = objColor;
                     
-                    string statusSymbol = GetObjectiveSymbol(objState);
+                    string statusSymbol = GetObjectiveSymbol(status);
                     EditorGUILayout.LabelField($"{statusSymbol} {objective.DisplayName} [{objState}]");
                     
                     GUI.color = originalColor;
@@ -142,14 +141,14 @@ namespace DynamicBox.Quest.Editor.Windows
             // Debug actions
             EditorGUILayout.BeginHorizontal();
             
-            if (questLog.Status == QuestStatus.Active && GUILayout.Button("Complete", GUILayout.Width(80)))
+            if (questState.Status == QuestStatus.InProgress && GUILayout.Button("Complete", GUILayout.Width(80)))
             {
-                _questManager.CompleteQuest(quest.QuestId);
+                _questManager.CompleteQuest(questState);
             }
             
-            if (questLog.Status == QuestStatus.Active && GUILayout.Button("Fail", GUILayout.Width(80)))
+            if (questState.Status == QuestStatus.InProgress && GUILayout.Button("Fail", GUILayout.Width(80)))
             {
-                _questManager.FailQuest(quest.QuestId);
+                _questManager.FailQuest(questState);
             }
             
             if (GUILayout.Button("Details", GUILayout.Width(80)))
@@ -168,33 +167,33 @@ namespace DynamicBox.Quest.Editor.Windows
             switch (status)
             {
                 case QuestStatus.NotStarted: return Color.gray;
-                case QuestStatus.Active: return Color.yellow;
+                case QuestStatus.InProgress: return Color.yellow;
                 case QuestStatus.Completed: return Color.green;
                 case QuestStatus.Failed: return Color.red;
                 default: return Color.white;
             }
         }
 
-        private Color GetObjectiveColor(ObjectiveState state)
+        private Color GetObjectiveColor(ObjectiveStatus status)
         {
-            switch (state)
+            switch (status)
             {
-                case ObjectiveState.NotStarted: return Color.gray;
-                case ObjectiveState.Active: return Color.yellow;
-                case ObjectiveState.Completed: return Color.green;
-                case ObjectiveState.Failed: return Color.red;
+                case ObjectiveStatus.NotStarted: return Color.gray;
+                case ObjectiveStatus.InProgress: return Color.yellow;
+                case ObjectiveStatus.Completed: return Color.green;
+                case ObjectiveStatus.Failed: return Color.red;
                 default: return Color.white;
             }
         }
 
-        private string GetObjectiveSymbol(ObjectiveState state)
+        private string GetObjectiveSymbol(ObjectiveStatus status)
         {
-            switch (state)
+            switch (status)
             {
-                case ObjectiveState.NotStarted: return "○";
-                case ObjectiveState.Active: return "●";
-                case ObjectiveState.Completed: return "✓";
-                case ObjectiveState.Failed: return "✗";
+                case ObjectiveStatus.NotStarted: return "○";
+                case ObjectiveStatus.InProgress: return "●";
+                case ObjectiveStatus.Completed: return "✓";
+                case ObjectiveStatus.Failed: return "✗";
                 default: return "?";
             }
         }

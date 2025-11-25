@@ -22,6 +22,9 @@ namespace DynamicBox.Quest.Core
         private readonly Queue<(QuestState quest, ObjectiveState obj)> _dirtyQueue = new();
         private float _pollTimer;
 
+        // Public properties for editor and debugging
+        public IReadOnlyList<QuestState> ActiveQuests => _log.Active;
+
         public event Action<QuestState> OnQuestCompleted;
         public event Action<QuestState> OnQuestFailed;
         public event Action<ObjectiveState> OnObjectiveStatusChanged;
@@ -65,6 +68,23 @@ namespace DynamicBox.Quest.Core
 
         public void StopQuest(QuestState questState)
         {
+            UnbindQuestConditions(questState);
+            _log.RemoveQuest(questState);
+        }
+
+        // Additional methods for editor/debugging support
+        public void CompleteQuest(QuestState questState)
+        {
+            questState.SetStatus(QuestStatus.Completed);
+            OnQuestCompleted?.Invoke(questState);
+            UnbindQuestConditions(questState);
+            _log.RemoveQuest(questState);
+        }
+
+        public void FailQuest(QuestState questState)
+        {
+            questState.SetStatus(QuestStatus.Failed);
+            OnQuestFailed?.Invoke(questState);
             UnbindQuestConditions(questState);
             _log.RemoveQuest(questState);
         }

@@ -16,6 +16,9 @@ namespace DynamicBox.Quest.Core
         [SerializeField] private ConditionOperator @operator = ConditionOperator.And;
         [SerializeField] private List<ConditionAsset> children = new();
 
+        public ConditionOperator Operator => @operator;
+        public IReadOnlyList<ConditionAsset> Conditions => children;
+
         public override IConditionInstance CreateInstance()
         {
             var instances = children

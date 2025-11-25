@@ -19,7 +19,7 @@ namespace DynamicBox.Quest.Core
                 FailInstance = definition.FailCondition.CreateInstance();
         }
 
-        internal void SetStatus(ObjectiveStatus status)
+        public void SetStatus(ObjectiveStatus status)
         {
             Status = status;
         }

@@ -128,13 +128,13 @@ namespace DynamicBox.Quest.Editor
                 EditorGUILayout.HelpBox("Display Name is required for UI purposes.", MessageType.Warning);
             }
 
-            if (quest.Objectives == null || quest.Objectives.Length == 0)
+            if (quest.Objectives == null || quest.Objectives.Count == 0)
             {
                 EditorGUILayout.HelpBox("Quest requires at least one objective.", MessageType.Error);
             }
             else
             {
-                for (int i = 0; i < quest.Objectives.Length; i++)
+                for (int i = 0; i < quest.Objectives.Count; i++)
                 {
                     if (quest.Objectives[i] == null)
                     {
