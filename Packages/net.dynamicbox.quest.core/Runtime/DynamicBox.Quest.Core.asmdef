@@ -1,0 +1,12 @@
+{
+    "name": "DynamicBox.Quest.Core",
+    "rootNamespace": "DynamicBox.Quest.Core",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

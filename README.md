@@ -23,10 +23,10 @@
 1. Download or clone this repository
 2. In Unity, open **Package Manager**
 3. Click **"+"** → **"Add package from disk..."**
-4. Navigate to `Packages/com.genericquest.core/package.json`
+4. Navigate to `Packages/net.dynamicbox.quest.core/package.json`
 
 #### Option 2: Manual Installation
-1. Copy `Packages/com.genericquest.core/` to your Unity project's `Packages/` folder
+1. Copy `Packages/net.dynamicbox.quest.core/` to your Unity project's `Packages/` folder
 2. Unity will automatically import the package
 
 ### Basic Usage
@@ -49,27 +49,27 @@ questManager.OnQuestCompleted += OnQuestCompleted;
 ### Import Sample
 
 1. Open **Package Manager** in Unity
-2. Select **"Generic Quest Core"** from **"In Project"**
+2. Select **"DynamicBox Quest Core"** from **"In Project"**
 3. Expand **"Samples"** and import **"Basic Quest Example"**
 4. Study the sample code and run the example scene
 
 ## 📚 Documentation
 
-- **[API Reference](Packages/com.genericquest.core/Documentation/API_REFERENCE.md)** - Complete API documentation
-- **[Implementation Guide](Packages/com.genericquest.core/Documentation/IMPLEMENTATION.md)** - Architecture and integration guide
-- **[Sample README](Packages/com.genericquest.core/Samples~/BasicQuestExample/README.md)** - Step-by-step sample walkthrough
+- **[API Reference](Packages/net.dynamicbox.quest.core/Documentation/API_REFERENCE.md)** - Complete API documentation
+- **[Implementation Guide](Packages/net.dynamicbox.quest.core/Documentation/IMPLEMENTATION.md)** - Architecture and integration guide
+- **[Sample README](Packages/net.dynamicbox.quest.core/Samples~/BasicQuestExample/README.md)** - Step-by-step sample walkthrough
 
 ## 🛠️ Editor Tools
 
 - **Quest Asset Editor** - Visual quest configuration with validation
 - **Condition Group Editor** - Drag-and-drop condition management  
-- **Quest Debugger** - Runtime quest monitoring (**Tools > Generic Quest > Quest Debugger**)
+- **Quest Debugger** - Runtime quest monitoring (**Tools > DynamicBox Quest > Quest Debugger**)
 
 ## 📖 Creating Your First Quest
 
-1. **Create Quest Asset**: Right-click → **Create > Generic Quest > Quest Asset**
-2. **Create Objective**: Right-click → **Create > Generic Quest > Objective Asset**  
-3. **Create Conditions**: Right-click → **Create > Generic Quest > Conditions > [Type]**
+1. **Create Quest Asset**: Right-click → **Create > DynamicBox Quest > Quest Asset**
+2. **Create Objective**: Right-click → **Create > DynamicBox Quest > Objective Asset**  
+3. **Create Conditions**: Right-click → **Create > DynamicBox Quest > Conditions > [Type]**
 4. **Configure in Inspector**: Use the custom editors to set up your quest logic
 5. **Start Quest**: Call `questManager.StartQuest(questAsset)` in your code
 
@@ -85,7 +85,7 @@ questManager.OnQuestCompleted += OnQuestCompleted;
 Create custom conditions by extending `ConditionAsset`:
 
 ```csharp
-[CreateAssetMenu(menuName = "Generic Quest/Conditions/My Custom Condition")]
+[CreateAssetMenu(menuName = "DynamicBox Quest/Conditions/My Custom Condition")]
 public class MyConditionAsset : ConditionAsset
 {
     public override IConditionInstance CreateInstance(QuestContext context)
@@ -105,7 +105,7 @@ This is a Unity package project. To contribute:
 
 1. Clone the repository
 2. Open the project in Unity 2021.3+
-3. Make changes to files in `Packages/com.genericquest.core/`
+3. Make changes to files in `Packages/net.dynamicbox.quest.core/`
 4. Test your changes using the included test suite
 5. Submit a pull request
 
@@ -121,7 +121,7 @@ For questions, issues, or feature requests, please open an issue on the project 
 
 [![Unity Version](https://img.shields.io/badge/Unity-2021.3+-blue.svg)](https://unity3d.com/get-unity/download)
 [![Package Version](https://img.shields.io/badge/Package-0.1.0-green.svg)]()
-[![License](https://img.shields.io/badge/License-MIT-orange.svg)](Packages/com.genericquest.core/LICENSE.md)
+[![License](https://img.shields.io/badge/License-MIT-orange.svg)](Packages/net.dynamicbox.quest.core/LICENSE.md)
 
 ## ✨ Features
 
@@ -137,9 +137,9 @@ For questions, issues, or feature requests, please open an issue on the project 
 ### Installation
 1. **Package Manager**: Add package from git URL: 
    ```
-   https://github.com/your-org/unity-quest-core.git?path=/Packages/com.genericquest.core
+   https://github.com/your-org/unity-quest-core.git?path=/Packages/net.dynamicbox.quest.core
    ```
-2. **Local Development**: Copy `Packages/com.genericquest.core/` to your Unity project's `Packages/` folder
+2. **Local Development**: Copy `Packages/net.dynamicbox.quest.core/` to your Unity project's `Packages/` folder
 
 ### Basic Usage
 ```csharp
@@ -161,9 +161,9 @@ Import the **Basic Quest Example** sample via Package Manager to see a complete 
 
 ## 📚 Documentation
 
-- **[API Reference](Packages/com.genericquest.core/Documentation/API_REFERENCE.md)** - Complete API documentation
-- **[Implementation Guide](Packages/com.genericquest.core/Documentation/IMPLEMENTATION.md)** - Architecture and integration details
-- **[Sample README](Packages/com.genericquest.core/Samples~/BasicQuestExample/README.md)** - Step-by-step usage guide
+- **[API Reference](Packages/net.dynamicbox.quest.core/Documentation/API_REFERENCE.md)** - Complete API documentation
+- **[Implementation Guide](Packages/net.dynamicbox.quest.core/Documentation/IMPLEMENTATION.md)** - Architecture and integration details
+- **[Sample README](Packages/net.dynamicbox.quest.core/Samples~/BasicQuestExample/README.md)** - Step-by-step usage guide
 
 ## 🏗️ Architecture
 
@@ -180,7 +180,7 @@ Import the **Basic Quest Example** sample via Package Manager to see a complete 
 
 ## 📄 License
 
-MIT License - See [LICENSE.md](Packages/com.genericquest.core/LICENSE.md) for details
+MIT License - See [LICENSE.md](Packages/net.dynamicbox.quest.core/LICENSE.md) for details
 
 ---
 
