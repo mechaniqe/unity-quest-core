@@ -1,0 +1,45 @@
+# Logs
+*.log
+*.logs
+
+# Unity generated
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+*.csproj
+*.sln
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.sublime-workspace
+
+# Node (if using npm scripts)
+node_modules/
+npm-debug.log
+
+# Test results
+TestResults/
+coverage/
+*.trx
+
+# Local development
+local.settings.json

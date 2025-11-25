@@ -1,0 +1,37 @@
+{
+  "name": "GenericQuestCore",
+  "version": "0.1.0",
+  "displayName": "Generic Quest Core",
+  "description": "A Unity-first, designer-friendly, event-driven quest system for game development",
+  "unity": "2021.3",
+  "keywords": [
+    "quest",
+    "mission",
+    "game-design",
+    "designer-tools",
+    "event-driven"
+  ],
+  "category": "Gameplay",
+  "author": {
+    "name": "Your Studio",
+    "email": "contact@example.com",
+    "url": "https://example.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/unity-quest-core"
+  },
+  "readme": "README.md",
+  "samples": [
+    {
+      "displayName": "Basic Quest Example",
+      "description": "Simple quest with item collection objective",
+      "path": "Samples~/BasicQuestExample"
+    },
+    {
+      "displayName": "Advanced Quest Example",
+      "description": "Complex quest with prerequisites and condition groups",
+      "path": "Samples~/AdvancedQuestExample"
+    }
+  ]
+}
