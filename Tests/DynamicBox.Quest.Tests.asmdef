@@ -2,7 +2,9 @@
     "name": "DynamicBox.Quest.Tests",
     "rootNamespace": "DynamicBox.Quest.Tests",
     "references": [
-        "DynamicBox.Quest.Core"
+        "DynamicBox.Quest.Core",
+        "DynamicBox.Quest.GameEvents",
+        "DynamicBox.EventManagement"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

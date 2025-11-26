@@ -1,6 +1,8 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core
 {
@@ -24,20 +26,20 @@ namespace DynamicBox.Quest.Core
             _pollingChildren = _children.OfType<IPollingConditionInstance>().ToList();
         }
 
-        public void Bind(IQuestEventBus eventBus, QuestContext context, Action onChanged)
+        public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
         {
             _onChanged = onChanged;
 
             foreach (var child in _children)
-                child.Bind(eventBus, context, ChildChanged);
+                child.Bind(eventManager, context, ChildChanged);
 
             Recompute();
         }
 
-        public void Unbind(IQuestEventBus eventBus, QuestContext context)
+        public void Unbind(EventManager eventManager, QuestContext context)
         {
             foreach (var child in _children)
-                child.Unbind(eventBus, context);
+                child.Unbind(eventManager, context);
 
             _onChanged = null;
         }

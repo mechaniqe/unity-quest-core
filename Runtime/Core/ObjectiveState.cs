@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace DynamicBox.Quest.Core
 {
     public sealed class ObjectiveState

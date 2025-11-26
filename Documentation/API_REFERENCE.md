@@ -187,13 +187,14 @@ MonoBehaviour that orchestrates quest evaluation.
 
 ```
 Wiring
-├─ Event Manager Source    (MonoBehaviour)
 └─ Player Ref             (QuestPlayerRef)
 
 Polling (optional)
 ├─ Enable Polling         (bool, default: true)
 └─ Polling Interval       (float, default: 0.25s)
 ```
+
+**Note**: QuestManager automatically uses `EventManager.Instance` - no manual EventManager reference needed.
 
 #### Public Methods
 
@@ -220,6 +221,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
+        // QuestManager automatically uses EventManager.Instance
         questManager.OnQuestCompleted += OnQuestComplete;
         questManager.StartQuest(mainQuest);
     }
@@ -227,6 +229,12 @@ public class GameController : MonoBehaviour
     private void OnQuestComplete(QuestState quest)
     {
         Debug.Log($"Completed: {quest.Definition.DisplayName}");
+    }
+    
+    // Publish events through EventManager singleton
+    private void CollectItem(string itemId)
+    {
+        EventManager.Instance.Raise(new ItemCollectedEvent(itemId, 1));
     }
 }
 ```

@@ -1,5 +1,7 @@
 using UnityEngine;
 using DynamicBox.Quest.Core;
+using DynamicBox.Quest.GameEvents;
+using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core.Conditions
 {
@@ -33,9 +35,10 @@ namespace DynamicBox.Quest.Core.Conditions
     {
         private readonly CustomFlagConditionAsset _asset;
         private QuestContext _context;
-        private IQuestEventBus _eventBus;
+        private EventManager _eventManager;
         private bool _isCompleted;
         private System.Action _onChanged;
+        private EventManager.EventDelegate<FlagChangedEvent> _eventHandler;
 
         public bool IsMet => _isCompleted;
 
@@ -44,25 +47,29 @@ namespace DynamicBox.Quest.Core.Conditions
             _asset = asset;
         }
 
-        public void Bind(IQuestEventBus eventBus, QuestContext context, System.Action onChanged)
+        public void Bind(EventManager eventManager, QuestContext context, System.Action onChanged)
         {
-            _eventBus = eventBus;
+            _eventManager = eventManager;
             _context = context;
             _onChanged = onChanged;
             
+            // Create and store the event handler delegate
+            _eventHandler = OnFlagChanged;
+            
             // Subscribe to flag change events
-            _eventBus.Subscribe<FlagChangedEvent>(OnFlagChanged);
+            _eventManager.AddListener<FlagChangedEvent>(_eventHandler);
             
             // Check current flag state
             CheckCurrentState();
         }
 
-        public void Unbind(IQuestEventBus eventBus, QuestContext context)
+        public void Unbind(EventManager eventManager, QuestContext context)
         {
-            if (_eventBus != null)
+            if (_eventManager != null && _eventHandler != null)
             {
-                _eventBus.Unsubscribe<FlagChangedEvent>(OnFlagChanged);
-                _eventBus = null;
+                _eventManager.RemoveListener<FlagChangedEvent>(_eventHandler);
+                _eventManager = null;
+                _eventHandler = null;
             }
             _context = null;
             _onChanged = null;
@@ -105,23 +112,6 @@ namespace DynamicBox.Quest.Core.Conditions
         {
             string expectedText = _asset.ExpectedValue ? "true" : "false";
             return _asset.Description ?? $"Set flag '{_asset.FlagId}' to {expectedText}";
-        }
-    }
-
-    /// <summary>
-    /// Event published when a gameplay flag changes value.
-    /// </summary>
-    public class FlagChangedEvent
-    {
-        public string FlagId { get; set; }
-        public bool NewValue { get; set; }
-        public bool OldValue { get; set; }
-
-        public FlagChangedEvent(string flagId, bool newValue, bool oldValue = false)
-        {
-            FlagId = flagId;
-            NewValue = newValue;
-            OldValue = oldValue;
         }
     }
 }

@@ -1,3 +1,5 @@
+#nullable enable
+
 namespace DynamicBox.Quest.Core
 {
     // Marker holder for whatever services the game offers to conditions.

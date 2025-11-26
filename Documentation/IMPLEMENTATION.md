@@ -34,9 +34,10 @@ This is the initial implementation scaffold for the DynamicBox Quest Core system
 
 ### Event Management Adapter (`Assets/GenericQuestCore/Runtime/EventManagementAdapter/`)
 
-⚠️ **EventManagementQuestBus.cs** - Placeholder adapter
-- Currently a stub; needs integration with actual `mechaniqe/event-management` library
-- TODO: Map to the real EventManager API
+✅ **EventManagementQuestBus.cs** - Production adapter
+- Integrates with DynamicBox EventManagement library
+- Automatically detects EventManager in scene or via explicit reference
+- Requires EventManager to be available (no fallback)
 
 ### Testing (`Tests/`)
 
@@ -89,9 +90,9 @@ QuestManager
 
 ### Immediate TODOs
 
-1. **EventManagementQuestBus Integration**
-   - Get actual mechaniqe/event-management API
-   - Implement Subscribe/Unsubscribe/Publish mappings
+1. **EventManagementQuestBus Integration** ✅ **COMPLETED**
+   - Integrated with DynamicBox EventManagement package
+   - Automatic EventManager detection and fallback support
 
 2. **Editor Support**
    - Create `QuestAssetEditor.cs` with reorderable objective list

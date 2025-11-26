@@ -1,11 +1,13 @@
 using System;
 using DynamicBox.Quest.Core;
 using DynamicBox.Quest.Core.Conditions;
+using DynamicBox.Quest.GameEvents;
+using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Tests
 {
     /// <summary>
-    /// Unit tests for the quest system using a FakeEventBus and programmatic builders.
+    /// Unit tests for the quest system using EventManager.Instance and programmatic builders.
     /// </summary>
     public static class QuestSystemTests
     {
@@ -25,21 +27,21 @@ namespace DynamicBox.Quest.Tests
         {
             Console.WriteLine("\n[TEST] Item Collected Condition Completion");
 
-            var eventBus = new FakeEventBus();
+            var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
 
             // Create a simple condition
             var condition = new ItemCollectedConditionInstance("sword", 1);
             bool changeTriggered = false;
 
-            condition.Bind(eventBus, context, () => changeTriggered = true);
+            condition.Bind(eventManager, context, () => changeTriggered = true);
 
             // Verify not met initially
             if (condition.IsMet)
                 throw new Exception("Condition should not be met initially");
 
             // Publish the event
-            eventBus.Publish(new ItemCollectedEvent("sword", 1));
+            eventManager.Raise(new ItemCollectedEvent("sword", 1));
 
             if (!condition.IsMet)
                 throw new Exception("Condition should be met after event");
@@ -54,7 +56,7 @@ namespace DynamicBox.Quest.Tests
         {
             Console.WriteLine("\n[TEST] Fail Condition Triggers Quest Failure");
 
-            var eventBus = new FakeEventBus();
+            var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
 
             // Create objective with fail condition
@@ -80,8 +82,7 @@ namespace DynamicBox.Quest.Tests
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             failField?.SetValue(objState, failCondition);
 
-            bool questFailed = false;
-            failCondition.Bind(eventBus, context, () => { });
+            failCondition.Bind(eventManager, context, () => { });
 
             // Trigger fail condition
             failCondition.SetMet(true);
@@ -96,7 +97,7 @@ namespace DynamicBox.Quest.Tests
         {
             Console.WriteLine("\n[TEST] Condition Group AND Logic");
 
-            var eventBus = new FakeEventBus();
+            var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
 
             var cond1 = new MockConditionAsset().CreateInstance() as MockConditionInstance;
@@ -105,7 +106,7 @@ namespace DynamicBox.Quest.Tests
             var group = new ConditionGroupInstance(ConditionOperator.And, new System.Collections.Generic.List<IConditionInstance> { cond1, cond2 });
             bool changeTriggered = false;
 
-            group.Bind(eventBus, context, () => changeTriggered = true);
+            group.Bind(eventManager, context, () => changeTriggered = true);
 
             if (group.IsMet)
                 throw new Exception("AND group should not be met when both are false");
@@ -128,7 +129,7 @@ namespace DynamicBox.Quest.Tests
         {
             Console.WriteLine("\n[TEST] Condition Group OR Logic");
 
-            var eventBus = new FakeEventBus();
+            var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
 
             var cond1 = new MockConditionAsset().CreateInstance() as MockConditionInstance;
@@ -137,7 +138,7 @@ namespace DynamicBox.Quest.Tests
             var group = new ConditionGroupInstance(ConditionOperator.Or, new System.Collections.Generic.List<IConditionInstance> { cond1, cond2 });
             bool changeTriggered = false;
 
-            group.Bind(eventBus, context, () => changeTriggered = true);
+            group.Bind(eventManager, context, () => changeTriggered = true);
 
             if (group.IsMet)
                 throw new Exception("OR group should not be met when both are false");

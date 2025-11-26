@@ -41,13 +41,24 @@ DynamicBox Quest Core provides a complete, extensible framework for creating que
 In Unity Package Manager, click the `+` button and select "Add package from git URL":
 
 ```
-https://github.com/your-org/generic-quest-core.git#upm
+https://github.com/mechaniqe/unity-quest-core.git
 ```
+
+**Dependencies**: The DynamicBox EventManagement package will be automatically installed.
 
 ### Manual Installation
 
 1. Clone the repository
 2. Copy the `Packages/net.dynamicbox.quest.core` folder to your project's `Packages/` directory
+3. Ensure the DynamicBox EventManagement dependency is available
+
+### Setup
+
+The Quest System automatically uses `EventManager.Instance` - no manual setup required!
+
+1. Add a QuestManager component to a GameObject in your scene
+2. Assign a QuestPlayerRef to provide quest context
+3. Start creating quests!
 
 ## Quick Start
 
@@ -194,12 +205,14 @@ OnQuestCompleted event
 
 - **Unity**: 2021.3 or later
 - **C#**: 9.0+
+- **Dependencies**: 
+  - [DynamicBox EventManagement](https://github.com/mechaniqe/event-management) (for production event handling)
 
 ## Known Limitations (v0.1)
 
 - No persistence/save system (planned as separate package)
 - No multi-actor/party support (single player focus)
-- EventManagementQuestBus is a stub (requires mechaniqe library integration)
+- Requires DynamicBox EventManagement package to function
 
 ## Roadmap
 

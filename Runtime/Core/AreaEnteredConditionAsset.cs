@@ -1,5 +1,7 @@
 using UnityEngine;
 using DynamicBox.Quest.Core;
+using DynamicBox.Quest.GameEvents;
+using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core.Conditions
 {
@@ -31,9 +33,10 @@ namespace DynamicBox.Quest.Core.Conditions
     {
         private readonly AreaEnteredConditionAsset _asset;
         private QuestContext _context;
-        private IQuestEventBus _eventBus;
+        private EventManager _eventManager;
         private bool _isCompleted;
         private System.Action _onChanged;
+        private EventManager.EventDelegate<AreaEnteredEvent> _eventHandler;
 
         public bool IsMet => _isCompleted;
 
@@ -42,22 +45,26 @@ namespace DynamicBox.Quest.Core.Conditions
             _asset = asset;
         }
 
-        public void Bind(IQuestEventBus eventBus, QuestContext context, System.Action onChanged)
+        public void Bind(EventManager eventManager, QuestContext context, System.Action onChanged)
         {
-            _eventBus = eventBus;
+            _eventManager = eventManager;
             _context = context;
             _onChanged = onChanged;
             
+            // Create and store the event handler delegate
+            _eventHandler = OnAreaEntered;
+            
             // Subscribe to area entry events
-            _eventBus.Subscribe<AreaEnteredEvent>(OnAreaEntered);
+            _eventManager.AddListener<AreaEnteredEvent>(_eventHandler);
         }
 
-        public void Unbind(IQuestEventBus eventBus, QuestContext context)
+        public void Unbind(EventManager eventManager, QuestContext context)
         {
-            if (_eventBus != null)
+            if (_eventManager != null && _eventHandler != null)
             {
-                _eventBus.Unsubscribe<AreaEnteredEvent>(OnAreaEntered);
-                _eventBus = null;
+                _eventManager.RemoveListener<AreaEnteredEvent>(_eventHandler);
+                _eventManager = null;
+                _eventHandler = null;
             }
             _context = null;
             _onChanged = null;
@@ -76,23 +83,6 @@ namespace DynamicBox.Quest.Core.Conditions
         public override string ToString()
         {
             return $"Enter area: {_asset.AreaDescription ?? _asset.AreaId}";
-        }
-    }
-
-    /// <summary>
-    /// Event published when the player enters a specific area/zone.
-    /// </summary>
-    public class AreaEnteredEvent
-    {
-        public string AreaId { get; set; }
-        public Vector3 Position { get; set; }
-        public string AreaName { get; set; }
-
-        public AreaEnteredEvent(string areaId, Vector3 position = default, string areaName = null)
-        {
-            AreaId = areaId;
-            Position = position;
-            AreaName = areaName ?? areaId;
         }
     }
 }

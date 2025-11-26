@@ -1,5 +1,7 @@
+#nullable enable
 using System;
 using UnityEngine;
+using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core.Conditions
 {
@@ -17,13 +19,13 @@ namespace DynamicBox.Quest.Core.Conditions
             _elapsedTime = 0f;
         }
 
-        public void Bind(IQuestEventBus eventBus, QuestContext context, Action onChanged)
+        public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
         {
             _onChanged = onChanged;
             _elapsedTime = 0f;
         }
 
-        public void Unbind(IQuestEventBus eventBus, QuestContext context)
+        public void Unbind(EventManager eventManager, QuestContext context)
         {
             _onChanged = null;
         }

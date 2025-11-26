@@ -1,29 +1,18 @@
+#nullable enable
 using System;
+using DynamicBox.Quest.GameEvents;
+using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core.Conditions
 {
-    /// <summary>
-    /// Event class that conditions can listen to when an item is collected.
-    /// Games will publish this event from their item pickup systems.
-    /// </summary>
-    public sealed class ItemCollectedEvent
-    {
-        public string ItemId { get; }
-        public int Amount { get; }
-
-        public ItemCollectedEvent(string itemId, int amount = 1)
-        {
-            ItemId = itemId;
-            Amount = amount;
-        }
-    }
-
     public sealed class ItemCollectedConditionInstance : IConditionInstance
     {
         private readonly string _itemId;
         private readonly int _requiredCount;
         private int _currentCount;
         private Action? _onChanged;
+        private EventManager _eventManager;
+        private EventManager.EventDelegate<ItemCollectedEvent> _eventHandler;
 
         public bool IsMet => _currentCount >= _requiredCount;
 
@@ -34,15 +23,22 @@ namespace DynamicBox.Quest.Core.Conditions
             _currentCount = 0;
         }
 
-        public void Bind(IQuestEventBus eventBus, QuestContext context, Action onChanged)
+        public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
         {
+            _eventManager = eventManager;
             _onChanged = onChanged;
-            eventBus.Subscribe<ItemCollectedEvent>(OnItemCollected);
+            _eventHandler = OnItemCollected;
+            eventManager.AddListener<ItemCollectedEvent>(_eventHandler);
         }
 
-        public void Unbind(IQuestEventBus eventBus, QuestContext context)
+        public void Unbind(EventManager eventManager, QuestContext context)
         {
-            eventBus.Unsubscribe<ItemCollectedEvent>(OnItemCollected);
+            if (_eventManager != null && _eventHandler != null)
+            {
+                eventManager.RemoveListener<ItemCollectedEvent>(_eventHandler);
+                _eventManager = null;
+                _eventHandler = null;
+            }
             _onChanged = null;
         }
 

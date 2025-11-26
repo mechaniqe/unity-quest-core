@@ -1,6 +1,6 @@
 {
   "name": "net.dynamicbox.quest.core",
-  "version": "0.1.1",
+  "version": "0.3.0",
   "displayName": "DynamicBox Quest Core",
   "description": "A Unity-first, designer-friendly, event-driven quest system",
   "unity": "2021.3",
@@ -22,7 +22,9 @@
     "url": "https://dynamicbox.net"
   },
   "hideInEditor": false,
-  "dependencies": {},
+  "dependencies": {
+    "net.dynamicbox.eventmanagement": "https://github.com/mechaniqe/event-management.git"
+  },
   "samples": [
     {
       "displayName": "Basic Quest Example",

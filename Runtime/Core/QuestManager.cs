@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DynamicBox.Quest.EventManagement;
+using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core
 {
@@ -15,7 +15,7 @@ namespace DynamicBox.Quest.Core
         [SerializeField] private bool enablePolling = true;
         [SerializeField] private float pollingInterval = 0.25f;
 
-        private IQuestEventBus _eventBus;
+        private EventManager _eventManager;
         private QuestLog _log;
         private QuestContext _context;
 
@@ -31,17 +31,10 @@ namespace DynamicBox.Quest.Core
 
         private void Awake()
         {
-            // Create event bus - can be replaced with external event management systems
-            _eventBus = CreateEventBus();
+            // Use the EventManager singleton instance
+            _eventManager = EventManager.Instance;
             _log = new QuestLog();
             _context = playerRef.BuildContext();
-        }
-
-        private IQuestEventBus CreateEventBus()
-        {
-            // Using the built-in event bus implementation.
-            // This can be overridden or changed to use DI/external systems.
-            return new EventManagementQuestBus();
         }
 
         private void Update()
@@ -94,10 +87,10 @@ namespace DynamicBox.Quest.Core
             foreach (var obj in quest.GetObjectiveStates())
             {
                 if (obj.CompletionInstance != null)
-                    obj.CompletionInstance.Bind(_eventBus, _context, () => MarkDirty(quest, obj));
+                    obj.CompletionInstance.Bind(_eventManager, _context, () => MarkDirty(quest, obj));
 
                 if (obj.FailInstance != null)
-                    obj.FailInstance.Bind(_eventBus, _context, () => MarkDirty(quest, obj));
+                    obj.FailInstance.Bind(_eventManager, _context, () => MarkDirty(quest, obj));
             }
         }
 
@@ -106,10 +99,10 @@ namespace DynamicBox.Quest.Core
             foreach (var obj in quest.GetObjectiveStates())
             {
                 if (obj.CompletionInstance != null)
-                    obj.CompletionInstance.Unbind(_eventBus, _context);
+                    obj.CompletionInstance.Unbind(_eventManager, _context);
 
                 if (obj.FailInstance != null)
-                    obj.FailInstance.Unbind(_eventBus, _context);
+                    obj.FailInstance.Unbind(_eventManager, _context);
             }
         }
 

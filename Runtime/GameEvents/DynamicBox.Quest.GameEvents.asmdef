@@ -1,9 +1,7 @@
 {
-    "name": "DynamicBox.Quest.Core",
-    "rootNamespace": "DynamicBox.Quest.Core",
+    "name": "DynamicBox.Quest.GameEvents",
     "references": [
-        "DynamicBox.EventManagement",
-        "DynamicBox.Quest.GameEvents"
+        "DynamicBox.EventManagement"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -11,5 +9,7 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

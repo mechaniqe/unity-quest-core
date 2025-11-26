@@ -1,4 +1,5 @@
 using System;
+using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core
 {
@@ -6,8 +7,8 @@ namespace DynamicBox.Quest.Core
     {
         bool IsMet { get; }
 
-        void Bind(IQuestEventBus eventBus, QuestContext context, Action onChanged);
-        void Unbind(IQuestEventBus eventBus, QuestContext context);
+        void Bind(EventManager eventManager, QuestContext context, Action onChanged);
+        void Unbind(EventManager eventManager, QuestContext context);
     }
 
     // Optional interface for conditions that also want periodic polling.
