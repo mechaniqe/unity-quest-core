@@ -11,8 +11,8 @@ namespace DynamicBox.Quest.Core.Conditions
         private readonly int _requiredCount;
         private int _currentCount;
         private Action? _onChanged;
-        private EventManager _eventManager;
-        private EventManager.EventDelegate<ItemCollectedEvent> _eventHandler;
+        private EventManager? _eventManager;
+        private EventManager.EventDelegate<ItemCollectedEvent>? _eventHandler;
 
         public bool IsMet => _currentCount >= _requiredCount;
 
