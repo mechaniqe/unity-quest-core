@@ -10,6 +10,10 @@ namespace DynamicBox.Quest.Core
         internal IConditionInstance? CompletionInstance { get; }
         internal IConditionInstance? FailInstance { get; }
 
+        // Public accessors for testing
+        public IConditionInstance? GetCompletionInstance() => CompletionInstance;
+        public IConditionInstance? GetFailInstance() => FailInstance;
+
         public ObjectiveState(ObjectiveAsset definition)
         {
             Definition = definition;

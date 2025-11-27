@@ -40,7 +40,7 @@ namespace DynamicBox.Quest.Tests
 
         public QuestAsset Build()
         {
-            var quest = new QuestAsset();
+            var quest = UnityEngine.ScriptableObject.CreateInstance<QuestAsset>();
             
             // Use reflection to set private fields since these are Unity ScriptableObjects
             var questIdField = typeof(QuestAsset).GetField("questId", 

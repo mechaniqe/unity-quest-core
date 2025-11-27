@@ -61,7 +61,7 @@ namespace DynamicBox.Quest.Tests
 
         public ObjectiveAsset Build()
         {
-            var objective = new ObjectiveAsset();
+            var objective = UnityEngine.ScriptableObject.CreateInstance<ObjectiveAsset>();
 
             var objectiveIdField = typeof(ObjectiveAsset).GetField("objectiveId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
