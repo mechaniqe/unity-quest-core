@@ -557,6 +557,8 @@ namespace DynamicBox.Quest.Tests
         private QuestManager CreateQuestManager()
         {
             var questManagerGO = new GameObject("TestQuestManager");
+            questManagerGO.SetActive(false); // Disable to prevent Awake from running
+            
             var questManager = questManagerGO.AddComponent<QuestManager>();
             
             var playerRefGO = new GameObject("TestPlayerRef");
@@ -565,6 +567,9 @@ namespace DynamicBox.Quest.Tests
             var playerRefField = typeof(QuestManager).GetField("playerRef",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             playerRefField?.SetValue(questManager, playerRef);
+
+            // Now enable the GameObject to trigger Awake with proper setup
+            questManagerGO.SetActive(true);
 
             return questManager;
         }

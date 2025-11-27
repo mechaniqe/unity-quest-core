@@ -841,7 +841,7 @@ namespace DynamicBox.Quest.Tests
             try
             {
                 // Create quest with polling condition
-                var pollingCondition = new MockPollingConditionAsset();
+                var pollingCondition = ScriptableObject.CreateInstance<MockPollingConditionAsset>();
                 var objective = new ObjectiveBuilder()
                     .WithObjectiveId("obj1")
                     .WithCompletionCondition(pollingCondition)
@@ -1047,13 +1047,22 @@ namespace DynamicBox.Quest.Tests
                 .AddObjective(obj2)
                 .Build();
 
-            var questState = new QuestState(quest);
-
-            // Dictionary should only contain one entry due to duplicate keys
-            if (questState.Objectives.Count != 1)
-                throw new Exception("Quest with duplicate objective IDs should only have one entry");
-
-            Console.WriteLine("✓ Duplicate objective IDs handled correctly");
+            try
+            {
+                var questState = new QuestState(quest);
+                throw new Exception("QuestState creation should throw an exception for duplicate objective IDs");
+            }
+            catch (ArgumentException ex)
+            {
+                if (ex.Message.Contains("An item with the same key has already been added"))
+                {
+                    Console.WriteLine("✓ Duplicate objective IDs properly rejected");
+                }
+                else
+                {
+                    throw new Exception($"Unexpected exception message: {ex.Message}");
+                }
+            }
         }
 
         private static void TestCircularPrerequisites()
@@ -1215,6 +1224,8 @@ namespace DynamicBox.Quest.Tests
         private static QuestManager CreateTestQuestManager()
         {
             var gameObject = new GameObject("TestQuestManager");
+            gameObject.SetActive(false); // Disable to prevent Awake from running
+            
             var questManager = gameObject.AddComponent<QuestManager>();
             
             // Create a mock player ref
@@ -1226,13 +1237,8 @@ namespace DynamicBox.Quest.Tests
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             playerRefField?.SetValue(questManager, playerRef);
 
-            // Initialize the QuestManager by calling Awake manually (since it's not called automatically in tests)
-            var awakeMethod = typeof(QuestManager).GetMethod("Awake",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            awakeMethod?.Invoke(questManager, null);
-
-            // Initialize the QuestManager
-            questManager.gameObject.SetActive(true);
+            // Now enable and initialize the QuestManager
+            gameObject.SetActive(true);
 
             return questManager;
         }
