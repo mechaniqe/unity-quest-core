@@ -1101,7 +1101,7 @@ namespace DynamicBox.Quest.Tests
             try
             {
                 // Create a realistic quest: collect 2 swords and enter the armory
-                var itemCondition = new ItemCollectedConditionAsset();
+                var itemCondition = ScriptableObject.CreateInstance<ItemCollectedConditionAsset>();
                 var itemIdField = typeof(ItemCollectedConditionAsset).GetField("itemId",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var requiredCountField = typeof(ItemCollectedConditionAsset).GetField("requiredCount",
