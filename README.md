@@ -621,9 +621,9 @@ DynamicBox.Quest.Tests.QuestSystemAdvancedTests.RunAdvancedTests();
 
 ### Inspector Integration
 The package includes custom inspectors for:
-- `QuestAsset` - Enhanced quest editing with objective management
-- `ObjectiveAsset` - Streamlined objective configuration
-- `ConditionGroupAsset` - Visual AND/OR logic builder
+- `QuestAsset` - Enhanced quest editing with objective management and validation
+- `ObjectiveAsset` - Streamlined objective configuration with condition setup
+- `ConditionGroupAsset` - Visual AND/OR logic builder with condition management
 
 ## Documentation
 

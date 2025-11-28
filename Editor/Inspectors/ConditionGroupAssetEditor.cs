@@ -13,12 +13,26 @@ namespace DynamicBox.Quest.Editor
 
         private void OnEnable()
         {
-            _logicTypeProp = serializedObject.FindProperty("_logicType");
-            _conditionsProp = serializedObject.FindProperty("_conditions");
+            _logicTypeProp = serializedObject.FindProperty("@operator");
+            _conditionsProp = serializedObject.FindProperty("children");
+            
+            // Validate that all properties were found
+            if (_logicTypeProp == null || _conditionsProp == null)
+            {
+                Debug.LogError($"ConditionGroupAssetEditor: Could not find required properties. operator: {_logicTypeProp != null}, children: {_conditionsProp != null}");
+            }
         }
 
         public override void OnInspectorGUI()
         {
+            // Safety check - if properties are null, fall back to default inspector
+            if (_logicTypeProp == null || _conditionsProp == null)
+            {
+                EditorGUILayout.HelpBox("Custom inspector has issues. Using default inspector.", MessageType.Warning);
+                base.OnInspectorGUI();
+                return;
+            }
+            
             serializedObject.Update();
 
             EditorGUILayout.LabelField("Condition Group", EditorStyles.boldLabel);
@@ -107,7 +121,12 @@ namespace DynamicBox.Quest.Editor
             string directory = System.IO.Path.GetDirectoryName(assetPath);
             string conditionPath = AssetDatabase.GenerateUniqueAssetPath($"{directory}/New{typeName}.asset");
             
-            var conditionType = System.Type.GetType($"GenericQuest.Core.{typeName}, GenericQuest.Core");
+            var conditionType = System.Type.GetType($"DynamicBox.Quest.Core.Conditions.{typeName}, DynamicBox.Quest.Core");
+            if (conditionType == null)
+            {
+                // Try without the Conditions namespace for backward compatibility
+                conditionType = System.Type.GetType($"DynamicBox.Quest.Core.{typeName}, DynamicBox.Quest.Core");
+            }
             if (conditionType == null)
             {
                 Debug.LogError($"Could not find condition type: {typeName}");

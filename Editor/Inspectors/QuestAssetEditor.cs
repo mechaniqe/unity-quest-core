@@ -10,30 +10,34 @@ namespace DynamicBox.Quest.Editor
         private SerializedProperty _questIdProp;
         private SerializedProperty _displayNameProp;
         private SerializedProperty _descriptionProp;
-        private SerializedProperty _categoryProp;
-        private SerializedProperty _priorityProp;
         private SerializedProperty _objectivesProp;
-        private SerializedProperty _prerequisitesProp;
-        private SerializedProperty _autoStartProp;
-        private SerializedProperty _allowConcurrentProp;
-        private SerializedProperty _maxAttemptsProp;
 
         private void OnEnable()
         {
-            _questIdProp = serializedObject.FindProperty("_questId");
-            _displayNameProp = serializedObject.FindProperty("_displayName");
-            _descriptionProp = serializedObject.FindProperty("_description");
-            _categoryProp = serializedObject.FindProperty("_category");
-            _priorityProp = serializedObject.FindProperty("_priority");
-            _objectivesProp = serializedObject.FindProperty("_objectives");
-            _prerequisitesProp = serializedObject.FindProperty("_prerequisites");
-            _autoStartProp = serializedObject.FindProperty("_autoStart");
-            _allowConcurrentProp = serializedObject.FindProperty("_allowConcurrent");
-            _maxAttemptsProp = serializedObject.FindProperty("_maxAttempts");
+            _questIdProp = serializedObject.FindProperty("questId");
+            _displayNameProp = serializedObject.FindProperty("displayName");
+            _descriptionProp = serializedObject.FindProperty("description");
+            _objectivesProp = serializedObject.FindProperty("objectives");
+            
+            // Validate that all properties were found
+            if (_questIdProp == null || _displayNameProp == null || _descriptionProp == null || _objectivesProp == null)
+            {
+                Debug.LogError($"QuestAssetEditor: Could not find all required properties on QuestAsset. " +
+                              $"questId: {_questIdProp != null}, displayName: {_displayNameProp != null}, " +
+                              $"description: {_descriptionProp != null}, objectives: {_objectivesProp != null}");
+            }
         }
 
         public override void OnInspectorGUI()
         {
+            // Safety check - if properties are null, fall back to default inspector
+            if (_questIdProp == null || _displayNameProp == null || _descriptionProp == null || _objectivesProp == null)
+            {
+                EditorGUILayout.HelpBox("Custom inspector has issues. Using default inspector.", MessageType.Warning);
+                base.OnInspectorGUI();
+                return;
+            }
+            
             serializedObject.Update();
 
             EditorGUILayout.LabelField("Quest Configuration", EditorStyles.boldLabel);
@@ -46,22 +50,6 @@ namespace DynamicBox.Quest.Editor
             
             EditorGUILayout.LabelField("Description");
             _descriptionProp.stringValue = EditorGUILayout.TextArea(_descriptionProp.stringValue, GUILayout.Height(60));
-            
-            EditorGUILayout.Space();
-
-            // Configuration
-            EditorGUILayout.LabelField("Configuration", EditorStyles.miniLabel);
-            EditorGUILayout.PropertyField(_categoryProp, new GUIContent("Category"));
-            EditorGUILayout.PropertyField(_priorityProp, new GUIContent("Priority"));
-            EditorGUILayout.PropertyField(_autoStartProp, new GUIContent("Auto Start", "Automatically start when prerequisites are met"));
-            EditorGUILayout.PropertyField(_allowConcurrentProp, new GUIContent("Allow Concurrent", "Allow multiple instances of this quest"));
-            EditorGUILayout.PropertyField(_maxAttemptsProp, new GUIContent("Max Attempts", "Maximum attempts allowed (0 = unlimited)"));
-            
-            EditorGUILayout.Space();
-
-            // Prerequisites
-            EditorGUILayout.LabelField("Prerequisites", EditorStyles.miniLabel);
-            EditorGUILayout.PropertyField(_prerequisitesProp, new GUIContent("Required Quests"), true);
             
             EditorGUILayout.Space();
 
