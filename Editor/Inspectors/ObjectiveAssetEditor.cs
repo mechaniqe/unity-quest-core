@@ -77,11 +77,6 @@ namespace DynamicBox.Quest.Editor
 
             // Completion Conditions
             EditorGUILayout.LabelField("Completion Conditions", EditorStyles.miniLabel);
-            if (_completionConditionProp.objectReferenceValue == null)
-            {
-                EditorGUILayout.HelpBox("Objective needs a completion condition to define when it's complete.", MessageType.Warning);
-            }
-            
             EditorGUILayout.PropertyField(_completionConditionProp, new GUIContent("Completion Condition"));
 
             if (GUILayout.Button("Create New Condition"))
@@ -111,10 +106,10 @@ namespace DynamicBox.Quest.Editor
         private void ShowConditionCreationMenu(bool isFailCondition)
         {
             var menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Item Collected Condition"), false, () => CreateConditionByMenuName("DynamicBox Quest/Conditions/Item Collected", isFailCondition));
-            menu.AddItem(new GUIContent("Area Entered Condition"), false, () => CreateConditionByMenuName("DynamicBox Quest/Conditions/Area Entered Condition", isFailCondition));
-            menu.AddItem(new GUIContent("Custom Flag Condition"), false, () => CreateConditionByMenuName("DynamicBox Quest/Conditions/Custom Flag Condition", isFailCondition));
-            menu.AddItem(new GUIContent("Time Elapsed Condition"), false, () => CreateConditionByMenuName("DynamicBox Quest/Conditions/Time Elapsed Condition", isFailCondition));
+            menu.AddItem(new GUIContent("Item Collected Condition"), false, () => CreateConditionByMenuName("DynamicBox/Quest/Conditions/Item Collected", isFailCondition));
+            menu.AddItem(new GUIContent("Area Entered Condition"), false, () => CreateConditionByMenuName("DynamicBox/Quest/Conditions/Area Entered Condition", isFailCondition));
+            menu.AddItem(new GUIContent("Custom Flag Condition"), false, () => CreateConditionByMenuName("DynamicBox/Quest/Conditions/Custom Flag Condition", isFailCondition));
+            menu.AddItem(new GUIContent("Time Elapsed Condition"), false, () => CreateConditionByMenuName("DynamicBox/Quest/Conditions/Time Elapsed Condition", isFailCondition));
             menu.AddItem(new GUIContent("Condition Group"), false, () => CreateCondition<ConditionGroupAsset>(isFailCondition));
             menu.ShowAsContext();
         }

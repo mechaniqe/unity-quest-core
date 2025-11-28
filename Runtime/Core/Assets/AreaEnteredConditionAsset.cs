@@ -5,7 +5,7 @@ using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core.Conditions
 {
-    [CreateAssetMenu(menuName = "DynamicBox Quest/Conditions/Area Entered Condition", fileName = "NewAreaEnteredCondition")]
+    [CreateAssetMenu(menuName = "DynamicBox/Quest/Conditions/Area Entered Condition", fileName = "NewAreaEnteredCondition")]
     public class AreaEnteredConditionAsset : ConditionAsset
     {
         [Header("Area Settings")]

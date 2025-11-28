@@ -10,7 +10,7 @@ namespace DynamicBox.Quest.Core
         Or
     }
 
-    [CreateAssetMenu(menuName = "DynamicBox Quest/Condition Group", fileName = "NewConditionGroup")]
+    [CreateAssetMenu(menuName = "DynamicBox/Quest/Condition Group", fileName = "NewConditionGroup")]
     public class ConditionGroupAsset : ConditionAsset
     {
         [SerializeField] private ConditionOperator @operator = ConditionOperator.And;

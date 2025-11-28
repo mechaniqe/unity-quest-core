@@ -5,7 +5,7 @@ using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core.Conditions
 {
-    [CreateAssetMenu(menuName = "DynamicBox Quest/Conditions/Custom Flag Condition", fileName = "NewCustomFlagCondition")]
+    [CreateAssetMenu(menuName = "DynamicBox/Quest/Conditions/Custom Flag Condition", fileName = "NewCustomFlagCondition")]
     public class CustomFlagConditionAsset : ConditionAsset
     {
         [Header("Flag Settings")]

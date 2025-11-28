@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DynamicBox.Quest.Core
 {
-    [CreateAssetMenu(menuName = "DynamicBox Quest/Quest", fileName = "NewQuest")]
+    [CreateAssetMenu(menuName = "DynamicBox/Quest/Quest", fileName = "NewQuest")]
     public class QuestAsset : ScriptableObject
     {
         [SerializeField] private string questId;

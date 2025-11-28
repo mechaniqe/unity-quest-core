@@ -52,13 +52,6 @@ namespace DynamicBox.Quest.Editor
             _descriptionProp.stringValue = EditorGUILayout.TextArea(_descriptionProp.stringValue, GUILayout.Height(60));
             
             EditorGUILayout.Space();
-
-            // Objectives
-            EditorGUILayout.LabelField("Objectives", EditorStyles.miniLabel);
-            if (_objectivesProp.arraySize == 0)
-            {
-                EditorGUILayout.HelpBox("Quest needs at least one objective to be functional.", MessageType.Warning);
-            }
             
             EditorGUILayout.PropertyField(_objectivesProp, new GUIContent("Objectives"), true);
 
