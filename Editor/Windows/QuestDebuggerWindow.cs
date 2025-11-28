@@ -13,7 +13,7 @@ namespace DynamicBox.Quest.Editor.Windows
         private bool _autoRefresh = true;
         private float _lastRefreshTime;
         
-        [MenuItem("Tools/DynamicBox Quest/Quest Debugger")]
+        [MenuItem("Tools/DynamicBox/Quest System/Quest Debugger")]
         public static void ShowWindow()
         {
             GetWindow<QuestDebuggerWindow>("Quest Debugger");
