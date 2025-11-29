@@ -56,6 +56,7 @@ namespace DynamicBox.Quest.Core
         {
             var state = _log.StartQuest(questAsset);
             BindQuestConditions(state);
+            ActivateReadyObjectives(state);
             return state;
         }
 
@@ -175,6 +176,9 @@ namespace DynamicBox.Quest.Core
 
                 obj.SetStatus(ObjectiveStatus.Completed);
                 OnObjectiveStatusChanged?.Invoke(obj);
+                
+                // Activate any objectives that were waiting for this one
+                ActivateReadyObjectives(quest);
             }
 
             // Quest completion check
@@ -186,6 +190,18 @@ namespace DynamicBox.Quest.Core
 
                 UnbindQuestConditions(quest);
                 _log.RemoveQuest(quest);
+            }
+        }
+
+        private void ActivateReadyObjectives(QuestState quest)
+        {
+            foreach (var obj in quest.GetObjectiveStates())
+            {
+                if (obj.Status == ObjectiveStatus.NotStarted && CanProgressObjective(obj, quest))
+                {
+                    obj.SetStatus(ObjectiveStatus.InProgress);
+                    OnObjectiveStatusChanged?.Invoke(obj);
+                }
             }
         }
 
