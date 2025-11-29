@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-11-29
+
+### Added - Phase 2: Service Layer
+- **Complete Service Interface Contracts**: All service interfaces now have proper method signatures
+  - `IQuestAreaService` - Area tracking with CurrentAreaId, HasEnteredArea(), IsInArea()
+  - `IQuestInventoryService` - Inventory queries with GetItemCount(), HasItem(), HasEverCollected()
+  - `IQuestTimeService` - Time tracking with TotalGameTime, DeltaTime, TimeOfDay, CurrentDay
+  - `IQuestFlagService` - Flag/counter system with Get/Set for bools and ints, IncrementCounter()
+- **Example Service Implementations**: Production-ready default implementations
+  - `DefaultTimeService` - Time tracking using Unity's Time API with configurable time scale
+  - `DefaultFlagService` - In-memory flag storage with debug logging
+  - `SimpleAreaService` - Trigger-based area tracking system
+  - `SimpleInventoryService` - Simple item collection tracking
+- **Enhanced QuestContext**: Service discovery methods
+  - `GetRequiredService<T>()` - Gets service or throws helpful error
+  - `GetService<T>()` - Safe service retrieval
+  - `HasService<T>()` - Service availability check
+- **Improved Service Integration**:
+  - QuestPlayerRef now supports FlagService configuration
+  - Validation warnings for misconfigured service providers
+  - Better error messages when required services are missing
+
+### Changed
+- **BREAKING**: `QuestContext` constructor now accepts 4 services (added FlagService)
+- `TimeElapsedConditionInstance` now properly uses `IQuestTimeService.DeltaTime` instead of Unity's Time.deltaTime
+- `CustomFlagConditionInstance` now queries `IQuestFlagService` for initial flag state
+- Service interfaces moved from inline to dedicated files in `Runtime/Core/Services/`
+- QuestPlayerRef now includes tooltips and validation for service configuration
+
+### Improved
+- Polling conditions now use service abstractions instead of Unity static APIs
+- Conditions provide helpful warnings when required services are missing
+- Service layer is now fully documented and ready for production use
+- Better separation between quest system and game-specific implementations
+
+## [0.4.0] - 2025-11-29
+
+### Added - Phase 1: Core Architecture
+- **Architecture Refactoring**: Core architecture improvements
+- `ObjectiveEvaluator` - Extracted evaluation logic from QuestManager for better separation of concerns
+- `ConditionBindingService` - Centralized service for managing condition event bindings
+- `StatusExtensions` - Extension methods for cleaner status checking (`IsTerminal()`, `IsActive()`, `CanProgress()`)
+- `EventDrivenConditionBase<TEvent>` - Base class for event-driven conditions that eliminates boilerplate
+- Project-wide nullable reference type annotations for improved type safety
+- Comprehensive XML documentation comments on all public APIs
+- HashSet-based dirty queue deduplication to prevent redundant evaluations
+
+### Changed
+- **BREAKING**: QuestManager extensively refactored - now delegates to specialized services
+- **BREAKING**: Dirty queue changed from Queue to HashSet to eliminate duplicate evaluations
+- `ItemCollectedConditionInstance` now inherits from `EventDrivenConditionBase`
+- `CustomFlagConditionInstance` now inherits from `EventDrivenConditionBase`
+- All core classes now have `#nullable enable` and proper null annotations
+- Improved error handling with null checks and helpful error messages
+- QuestManager.StartQuest() now immediately evaluates objectives after activation
+
+### Improved
+- Reduced code duplication across condition implementations
+- Better separation of concerns following Single Responsibility Principle
+- More maintainable codebase with smaller, focused classes
+- Clearer status checking logic using extension methods
+- Enhanced type safety with nullable reference types throughout
+
 ## [0.3.0] - 2024-12-XX
 
 ### Added

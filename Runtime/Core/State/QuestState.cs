@@ -1,14 +1,18 @@
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 
 namespace DynamicBox.Quest.Core
 {
+    /// <summary>
+    /// Runtime state for an active quest.
+    /// Contains quest status and objective states indexed by objective ID.
+    /// </summary>
     public sealed class QuestState
     {
         public QuestAsset Definition { get; }
         public QuestStatus Status { get; private set; } = QuestStatus.NotStarted;
 
-        // Keyed by ObjectiveId
         public IReadOnlyDictionary<string, ObjectiveState> Objectives => _objectives;
         private readonly Dictionary<string, ObjectiveState> _objectives;
 
@@ -30,7 +34,7 @@ namespace DynamicBox.Quest.Core
 
         public IEnumerable<ObjectiveState> GetObjectiveStates() => _objectives.Values;
 
-        public bool TryGetObjective(string objectiveId, out ObjectiveState state)
+        public bool TryGetObjective(string objectiveId, out ObjectiveState? state)
             => _objectives.TryGetValue(objectiveId, out state);
     }
 }

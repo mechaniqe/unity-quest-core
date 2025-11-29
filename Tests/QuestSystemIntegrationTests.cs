@@ -50,11 +50,11 @@ namespace DynamicBox.Quest.Tests
         private void CleanupExistingTestObjects()
         {
             // Find and destroy any existing test GameObjects
-            var testQuestManagers = FindObjectsOfType<GameObject>()
+            var testQuestManagers = FindObjectsByType<GameObject>(FindObjectsSortMode.None)
                 .Where(go => go.name.StartsWith("TestQuestManager"))
                 .ToArray();
             
-            var testPlayerRefs = FindObjectsOfType<GameObject>()
+            var testPlayerRefs = FindObjectsByType<GameObject>(FindObjectsSortMode.None)
                 .Where(go => go.name.StartsWith("TestPlayerRef"))
                 .ToArray();
 

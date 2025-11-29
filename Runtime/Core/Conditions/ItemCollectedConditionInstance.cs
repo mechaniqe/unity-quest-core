@@ -1,20 +1,19 @@
 #nullable enable
-using System;
 using DynamicBox.Quest.GameEvents;
-using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core.Conditions
 {
-    public sealed class ItemCollectedConditionInstance : IConditionInstance
+    /// <summary>
+    /// Condition that tracks item collection events and completes when required count is reached.
+    /// Now uses EventDrivenConditionBase to reduce boilerplate.
+    /// </summary>
+    public sealed class ItemCollectedConditionInstance : EventDrivenConditionBase<ItemCollectedEvent>
     {
         private readonly string _itemId;
         private readonly int _requiredCount;
         private int _currentCount;
-        private Action? _onChanged;
-        private EventManager? _eventManager;
-        private EventManager.EventDelegate<ItemCollectedEvent>? _eventHandler;
 
-        public bool IsMet => _currentCount >= _requiredCount;
+        public override bool IsMet => _currentCount >= _requiredCount;
 
         public ItemCollectedConditionInstance(string itemId, int requiredCount)
         {
@@ -23,39 +22,24 @@ namespace DynamicBox.Quest.Core.Conditions
             _currentCount = 0;
         }
 
-        public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
+        protected override void HandleEvent(ItemCollectedEvent evt)
         {
-            _eventManager = eventManager;
-            _onChanged = onChanged;
-            _eventHandler = OnItemCollected;
-            eventManager.AddListener<ItemCollectedEvent>(_eventHandler);
-        }
+            if (evt.ItemId != _itemId)
+                return;
 
-        public void Unbind(EventManager eventManager, QuestContext context)
-        {
-            if (_eventManager != null && _eventHandler != null)
+            int oldCount = _currentCount;
+            _currentCount += evt.Amount;
+
+            // Notify only if the met status changed or we're still tracking progress
+            if (oldCount < _requiredCount && _currentCount >= _requiredCount)
             {
-                eventManager.RemoveListener<ItemCollectedEvent>(_eventHandler);
-                _eventManager = null;
-                _eventHandler = null;
+                NotifyChanged();
             }
-            _onChanged = null;
-        }
-
-        private void OnItemCollected(ItemCollectedEvent evt)
-        {
-            if (evt.ItemId == _itemId)
+            else if (oldCount < _requiredCount && _currentCount < _requiredCount)
             {
-                int oldCount = _currentCount;
-                _currentCount += evt.Amount;
-
-                if (oldCount < _requiredCount && _currentCount >= _requiredCount)
-                    _onChanged?.Invoke();
-                else if (oldCount >= _requiredCount && _currentCount >= _requiredCount)
-                    return; // Already met, no change
-                else
-                    _onChanged?.Invoke(); // Count changed but not met yet
+                NotifyChanged(); // Progress update
             }
+            // If already met and still met, no notification needed
         }
     }
 }

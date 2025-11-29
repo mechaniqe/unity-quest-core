@@ -1,40 +1,56 @@
+#nullable enable
 using DynamicBox.EventManagement;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace DynamicBox.Quest.Core
 {
+    /// <summary>
+    /// Main orchestrator for the quest system. Manages quest lifecycle and delegates 
+    /// evaluation and binding logic to specialized services.
+    /// Refactored to follow Single Responsibility Principle.
+    /// </summary>
     public class QuestManager : MonoBehaviour
     {
         [Header("Wiring")]
-        [SerializeField] private QuestPlayerRef playerRef;          // builds QuestContext
+        [SerializeField] private QuestPlayerRef? playerRef;
 
         [Header("Polling (optional)")]
         [SerializeField] private bool enablePolling = true;
         [SerializeField] private float pollingInterval = 0.25f;
 
-        private EventManager _eventManager;
-        private QuestLog _log;
-        private QuestContext _context;
+        private EventManager? _eventManager;
+        private QuestLog? _log;
+        private QuestContext? _context;
+        private ConditionBindingService? _bindingService;
+        private ObjectiveEvaluator? _evaluator;
 
-        private readonly Queue<(QuestState quest, ObjectiveState obj)> _dirtyQueue = new();
+        private readonly HashSet<(QuestState quest, ObjectiveState obj)> _dirtySet = new();
         private float _pollTimer;
 
         // Public properties for editor and debugging
-        public IReadOnlyList<QuestState> ActiveQuests => _log.Active;
+        public IReadOnlyList<QuestState> ActiveQuests => _log?.Active ?? Array.Empty<QuestState>();
 
-        public event Action<QuestState> OnQuestCompleted;
-        public event Action<QuestState> OnQuestFailed;
-        public event Action<ObjectiveState> OnObjectiveStatusChanged;
+        public event Action<QuestState>? OnQuestCompleted;
+        public event Action<QuestState>? OnQuestFailed;
+        public event Action<ObjectiveState>? OnObjectiveStatusChanged;
 
         private void Awake()
         {
-            // Use the EventManager singleton instance
+            if (playerRef == null)
+            {
+                Debug.LogError("QuestManager requires a QuestPlayerRef to be assigned!", this);
+                enabled = false;
+                return;
+            }
+
             _eventManager = EventManager.Instance;
             _log = new QuestLog();
             _context = playerRef.BuildContext();
+            _bindingService = new ConditionBindingService(_eventManager, _context);
+            _evaluator = new ObjectiveEvaluator(_log, _bindingService);
+            _evaluator.SetDirtyCallback(MarkDirty);
         }
 
         private void Update()
@@ -49,192 +65,131 @@ namespace DynamicBox.Quest.Core
                 }
             }
 
-            ProcessDirtyQueue();
+            ProcessDirtySet();
         }
 
+        /// <summary>
+        /// Starts a quest and activates objectives that are ready to progress.
+        /// </summary>
         public QuestState StartQuest(QuestAsset questAsset)
         {
+            if (_log == null || _evaluator == null)
+            {
+                Debug.LogError("QuestManager not properly initialized!", this);
+                throw new InvalidOperationException("QuestManager not initialized");
+            }
+
             var state = _log.StartQuest(questAsset);
-            ActivateReadyObjectives(state);
+            _evaluator.ActivateReadyObjectives(state);
+            
+            // Immediately evaluate objectives in case they're already complete
+            foreach (var obj in state.GetObjectiveStates())
+            {
+                if (obj.Status.IsActive())
+                {
+                    MarkDirty(state, obj);
+                }
+            }
+            
             return state;
         }
 
+        /// <summary>
+        /// Stops a quest and cleans up all bindings.
+        /// </summary>
         public void StopQuest(QuestState questState)
         {
-            UnbindQuestConditions(questState);
+            if (_bindingService == null || _log == null)
+                return;
+
+            _bindingService.UnbindQuest(questState);
             _log.RemoveQuest(questState);
         }
 
-        // Additional methods for editor/debugging support
+        /// <summary>
+        /// Manually completes a quest (for debugging/editor support).
+        /// </summary>
         public void CompleteQuest(QuestState questState)
         {
+            if (_bindingService == null || _log == null)
+                return;
+
             questState.SetStatus(QuestStatus.Completed);
             OnQuestCompleted?.Invoke(questState);
-            UnbindQuestConditions(questState);
+            _bindingService.UnbindQuest(questState);
             _log.RemoveQuest(questState);
         }
 
+        /// <summary>
+        /// Manually fails a quest (for debugging/editor support).
+        /// </summary>
         public void FailQuest(QuestState questState)
         {
+            if (_bindingService == null || _log == null)
+                return;
+
             questState.SetStatus(QuestStatus.Failed);
             OnQuestFailed?.Invoke(questState);
-            UnbindQuestConditions(questState);
+            _bindingService.UnbindQuest(questState);
             _log.RemoveQuest(questState);
-        }
-
-        private void BindObjectiveConditions(QuestState quest, ObjectiveState obj)
-        {
-            if (obj.CompletionInstance != null)
-                obj.CompletionInstance.Bind(_eventManager, _context, () => MarkDirty(quest, obj));
-
-            if (obj.FailInstance != null)
-                obj.FailInstance.Bind(_eventManager, _context, () => MarkDirty(quest, obj));
-        }
-
-        private void UnbindObjectiveConditions(ObjectiveState obj)
-        {
-            if (obj.CompletionInstance != null)
-                obj.CompletionInstance.Unbind(_eventManager, _context);
-
-            if (obj.FailInstance != null)
-                obj.FailInstance.Unbind(_eventManager, _context);
-        }
-
-        private void UnbindQuestConditions(QuestState quest)
-        {
-            foreach (var obj in quest.GetObjectiveStates())
-            {
-                UnbindObjectiveConditions(obj);
-            }
         }
 
         private void PollConditions()
         {
+            if (_log == null || _bindingService == null)
+                return;
+
             foreach (var quest in _log.Active)
             {
-                if (quest.Status is QuestStatus.Completed or QuestStatus.Failed)
+                if (quest.Status.IsTerminal())
                     continue;
 
                 foreach (var obj in quest.GetObjectiveStates())
                 {
-                    if (!CanProgressObjective(obj, quest))
+                    if (!obj.CanProgress(quest))
                         continue;
 
-                    if (obj.CompletionInstance is IPollingConditionInstance pComp)
-                        pComp.Refresh(_context, () => MarkDirty(quest, obj));
-
-                    if (obj.FailInstance is IPollingConditionInstance pFail)
-                        pFail.Refresh(_context, () => MarkDirty(quest, obj));
+                    _bindingService.RefreshPollingConditions(obj, () => MarkDirty(quest, obj));
                 }
             }
         }
 
         private void MarkDirty(QuestState quest, ObjectiveState obj)
         {
-            _dirtyQueue.Enqueue((quest, obj));
+            _dirtySet.Add((quest, obj));
         }
 
-        private void ProcessDirtyQueue()
+        private void ProcessDirtySet()
         {
-            while (_dirtyQueue.Count > 0)
-            {
-                var (quest, obj) = _dirtyQueue.Dequeue();
-                EvaluateObjectiveAndQuest(quest, obj);
-            }
-        }
-
-        private void EvaluateObjectiveAndQuest(QuestState quest, ObjectiveState obj)
-        {
-            if (quest.Status is QuestStatus.Completed or QuestStatus.Failed)
+            if (_dirtySet.Count == 0 || _evaluator == null)
                 return;
 
-            // Ensure objective can be active
-            if (!CanProgressObjective(obj, quest))
-                return;
-
-            // Fail first
-            if (obj.FailInstance != null && obj.FailInstance.IsMet)
+            // Process all dirty objectives
+            foreach (var (quest, obj) in _dirtySet)
             {
-                UnbindObjectiveConditions(obj);
-                obj.SetStatus(ObjectiveStatus.Failed);
-                OnObjectiveStatusChanged?.Invoke(obj);
-
-                quest.SetStatus(QuestStatus.Failed);
-                OnQuestFailed?.Invoke(quest);
-
-                UnbindQuestConditions(quest);
-                _log.RemoveQuest(quest);
-                return;
-            }
-
-            // Complete
-            if (obj.CompletionInstance != null && obj.CompletionInstance.IsMet)
-            {
-                if (obj.Status == ObjectiveStatus.NotStarted)
-                {
-                    obj.SetStatus(ObjectiveStatus.InProgress);
-                    OnObjectiveStatusChanged?.Invoke(obj);
-                }
-
-                UnbindObjectiveConditions(obj);
-                obj.SetStatus(ObjectiveStatus.Completed);
-                OnObjectiveStatusChanged?.Invoke(obj);
+                var result = _evaluator.Evaluate(quest, obj);
                 
-                // Activate any objectives that were waiting for this one
-                ActivateReadyObjectives(quest);
-            }
-
-            // Quest completion check
-            if (quest.GetObjectiveStates().All(o =>
-                    o.Definition.IsOptional || o.Status == ObjectiveStatus.Completed))
-            {
-                quest.SetStatus(QuestStatus.Completed);
-                OnQuestCompleted?.Invoke(quest);
-
-                UnbindQuestConditions(quest);
-                _log.RemoveQuest(quest);
-            }
-        }
-
-        private void ActivateReadyObjectives(QuestState quest)
-        {
-            foreach (var obj in quest.GetObjectiveStates())
-            {
-                if (obj.Status == ObjectiveStatus.NotStarted && CanProgressObjective(obj, quest))
+                // Fire appropriate events based on evaluation result
+                switch (result)
                 {
-                    obj.SetStatus(ObjectiveStatus.InProgress);
-                    OnObjectiveStatusChanged?.Invoke(obj);
+                    case QuestEvaluationResult.ObjectiveCompleted:
+                        OnObjectiveStatusChanged?.Invoke(obj);
+                        _evaluator.ActivateReadyObjectives(quest);
+                        break;
                     
-                    // Bind conditions now that objective is active
-                    BindObjectiveConditions(quest, obj);
+                    case QuestEvaluationResult.QuestCompleted:
+                        OnObjectiveStatusChanged?.Invoke(obj);
+                        OnQuestCompleted?.Invoke(quest);
+                        break;
                     
-                    // Immediately evaluate in case conditions are already met
-                    MarkDirty(quest, obj);
+                    case QuestEvaluationResult.QuestFailed:
+                        OnObjectiveStatusChanged?.Invoke(obj);
+                        OnQuestFailed?.Invoke(quest);
+                        break;
                 }
             }
-        }
 
-        private static bool CanProgressObjective(ObjectiveState obj, QuestState quest)
-        {
-            if (obj.Status is ObjectiveStatus.Completed or ObjectiveStatus.Failed)
-                return false;
-
-            var prereq = obj.Definition.Prerequisites;
-            if (prereq == null || prereq.Count == 0)
-                return true;
-
-            foreach (var pre in prereq)
-            {
-                if (pre == null) continue;
-
-                if (!quest.TryGetObjective(pre.ObjectiveId, out var preState))
-                    continue; // or treat missing as incomplete?
-
-                if (preState.Status != ObjectiveStatus.Completed)
-                    return false;
-            }
-
-            return true;
+            _dirtySet.Clear();
         }
     }
 }

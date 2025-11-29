@@ -1,31 +1,67 @@
 #nullable enable
+using System;
 
 namespace DynamicBox.Quest.Core
 {
-    // Marker holder for whatever services the game offers to conditions.
-    // For v0.1, this is minimal and can be expanded per project.
+    /// <summary>
+    /// Context object that provides game services to condition instances.
+    /// Acts as a service locator for quest-related game systems.
+    /// </summary>
     public sealed class QuestContext
     {
-        // Example: inventory, areas, time, etc.
-        // These are interfaces implemented by game-side systems.
-
         public IQuestAreaService? AreaService { get; }
         public IQuestInventoryService? InventoryService { get; }
         public IQuestTimeService? TimeService { get; }
+        public IQuestFlagService? FlagService { get; }
 
         public QuestContext(
-            IQuestAreaService? areaService,
-            IQuestInventoryService? inventoryService,
-            IQuestTimeService? timeService)
+            IQuestAreaService? areaService = null,
+            IQuestInventoryService? inventoryService = null,
+            IQuestTimeService? timeService = null,
+            IQuestFlagService? flagService = null)
         {
             AreaService = areaService;
             InventoryService = inventoryService;
             TimeService = timeService;
+            FlagService = flagService;
+        }
+
+        /// <summary>
+        /// Gets a service of the specified type, throwing if not available.
+        /// </summary>
+        public T GetRequiredService<T>() where T : class
+        {
+            var service = GetService<T>();
+            if (service == null)
+            {
+                throw new InvalidOperationException(
+                    $"Required service {typeof(T).Name} is not available in QuestContext. " +
+                    $"Ensure the service is registered in QuestPlayerRef.");
+            }
+            return service;
+        }
+
+        /// <summary>
+        /// Gets a service of the specified type, or null if not available.
+        /// </summary>
+        public T? GetService<T>() where T : class
+        {
+            return typeof(T).Name switch
+            {
+                nameof(IQuestAreaService) => AreaService as T,
+                nameof(IQuestInventoryService) => InventoryService as T,
+                nameof(IQuestTimeService) => TimeService as T,
+                nameof(IQuestFlagService) => FlagService as T,
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// Checks if a service of the specified type is available.
+        /// </summary>
+        public bool HasService<T>() where T : class
+        {
+            return GetService<T>() != null;
         }
     }
-
-    // For v0.1, we only define minimal interfaces; actual implementations live in game code.
-    public interface IQuestAreaService { /* optional for now */ }
-    public interface IQuestInventoryService { /* optional for now */ }
-    public interface IQuestTimeService { /* optional for now */ }
 }

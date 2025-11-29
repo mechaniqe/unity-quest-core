@@ -258,7 +258,7 @@ namespace DynamicBox.Quest.Editor.Windows
 
         private void FindQuestManager()
         {
-            _questManager = FindObjectOfType<QuestManager>();
+            _questManager = FindFirstObjectByType<QuestManager>();
         }
 
         private void Update()

@@ -1,16 +1,20 @@
+#nullable enable
 using UnityEngine;
 using System.Collections.Generic;
 
 namespace DynamicBox.Quest.Core
 {
+    /// <summary>
+    /// Designer-authored quest definition (ScriptableObject).
+    /// Contains quest metadata and references to objective assets.
+    /// </summary>
     [CreateAssetMenu(menuName = "DynamicBox/Quest/Quest", fileName = "NewQuest")]
     public class QuestAsset : ScriptableObject
     {
-        [SerializeField] private string questId;
-        [SerializeField] private string displayName;
-        [TextArea] [SerializeField] private string description;
+        [SerializeField] private string questId = string.Empty;
+        [SerializeField] private string displayName = string.Empty;
+        [TextArea] [SerializeField] private string description = string.Empty;
 
-        // For now, objectives are referenced as sub-assets or direct references.
         [SerializeField] private List<ObjectiveAsset> objectives = new();
 
         public string QuestId => questId;

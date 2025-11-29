@@ -1,34 +1,35 @@
+#nullable enable
 using UnityEngine;
 using System.Collections.Generic;
 
 namespace DynamicBox.Quest.Core
 {
+    /// <summary>
+    /// Designer-authored objective definition (ScriptableObject).
+    /// Contains objective metadata, prerequisites, and condition references.
+    /// </summary>
     [CreateAssetMenu(menuName = "DynamicBox/Quest/Objective", fileName = "NewObjective")]
     public class ObjectiveAsset : ScriptableObject
     {
-        [SerializeField] private string objectiveId;
-        [SerializeField] private string title;
-        [TextArea] [SerializeField] private string description;
+        [SerializeField] private string objectiveId = string.Empty;
+        [SerializeField] private string title = string.Empty;
+        [TextArea] [SerializeField] private string description = string.Empty;
         [SerializeField] private bool isOptional;
 
-        // Other objectives that must be completed first
         [SerializeField] private List<ObjectiveAsset> prerequisites = new();
-
-        // Completion and failure conditions (see ConditionAsset)
-        [SerializeField] private ConditionAsset completionCondition;  // can be ConditionGroupAsset
-        [SerializeField] private ConditionAsset failCondition;        // optional
+        [SerializeField] private ConditionAsset? completionCondition;
+        [SerializeField] private ConditionAsset? failCondition;
 
         public string ObjectiveId => objectiveId;
         public string Title => title;
         public string Description => description;
         public bool IsOptional => isOptional;
 
-        // Additional properties for editor support
         public string DisplayName => !string.IsNullOrEmpty(title) ? title : objectiveId;
-        public ConditionGroupAsset ConditionGroup => completionCondition as ConditionGroupAsset;
+        public ConditionGroupAsset? ConditionGroup => completionCondition as ConditionGroupAsset;
 
         public IReadOnlyList<ObjectiveAsset> Prerequisites => prerequisites;
-        public ConditionAsset CompletionCondition => completionCondition;
-        public ConditionAsset FailCondition => failCondition;
+        public ConditionAsset? CompletionCondition => completionCondition;
+        public ConditionAsset? FailCondition => failCondition;
     }
 }
