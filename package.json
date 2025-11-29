@@ -23,7 +23,6 @@
   },
   "hideInEditor": false,
   "dependencies": {
-    "net.dynamicbox.eventmanagement": "https://github.com/mechaniqe/event-management.git#main"
   },
   "samples": [
     {
