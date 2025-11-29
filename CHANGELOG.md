@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-11-29
+
+### Added - Phase 3: Architecture Refinement
+- **DirtyQueueProcessor**: Extracted dirty queue management from QuestManager
+  - Centralizes objective evaluation queuing and processing
+  - Manages event firing based on evaluation results
+  - Provides cleaner separation of concerns
+- **AssemblyInfo.cs**: Added InternalsVisibleTo attribute for test assembly
+  - Allows tests to access internal members without public test accessors
+  - Cleaner API surface for production code
+- **QuestManager.ProcessPendingEvaluations()**: Public method for manual evaluation
+  - Useful for testing, cutscenes, or forcing immediate evaluation
+  - Replaces reflection-based test patterns with clean public API
+  - Can be used before saving games to ensure all state is resolved
+
+### Changed
+- **ObjectiveState.CanProgress**: Moved from extension method to instance method
+  - Better encapsulation - prerequisite logic now lives with the state
+  - More intuitive API - `objective.CanProgress(quest)` instead of extension method
+  - Simplified StatusExtensions class
+- **QuestManager**: Significantly simplified through extraction of responsibilities
+  - Removed 45+ lines of dirty queue processing logic
+  - Removed MarkDirty and ProcessDirtySet methods (moved to DirtyQueueProcessor)
+  - Events now properly delegated through processor
+  - Update() method simplified to polling + processor.ProcessAll()
+- **ObjectiveState**: Removed public test accessor methods
+  - Removed GetCompletionInstance() and GetFailInstance()
+  - Tests now use direct property access via InternalsVisibleTo
+  - Cleaner public API for production use
+
+### Improved
+- Better Single Responsibility Principle adherence throughout management layer
+- Reduced cyclomatic complexity in QuestManager
+- More testable code through proper separation of concerns
+- Cleaner internal vs public API boundaries
+
 ## [0.5.0] - 2025-11-29
 
 ### Added - Phase 2: Service Layer

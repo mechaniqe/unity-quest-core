@@ -1,6 +1,6 @@
-using UnityEngine;
-using UnityEditor;
 using DynamicBox.Quest.Core;
+using UnityEditor;
+using UnityEngine;
 
 namespace DynamicBox.Quest.Editor
 {
@@ -12,7 +12,9 @@ namespace DynamicBox.Quest.Editor
         private SerializedProperty _descriptionProp;
         private SerializedProperty _objectivesProp;
 
-        private void OnEnable()
+        #region Unity Methods
+
+        void OnEnable()
         {
             _questIdProp = serializedObject.FindProperty("questId");
             _displayNameProp = serializedObject.FindProperty("displayName");
@@ -27,6 +29,8 @@ namespace DynamicBox.Quest.Editor
                               $"description: {_descriptionProp != null}, objectives: {_objectivesProp != null}");
             }
         }
+
+        #endregion
 
         public override void OnInspectorGUI()
         {

@@ -37,32 +37,5 @@ namespace DynamicBox.Quest.Core
         {
             return status == ObjectiveStatus.InProgress;
         }
-
-        /// <summary>
-        /// Returns true if the objective can make progress (not terminal and prerequisites met).
-        /// </summary>
-        public static bool CanProgress(this ObjectiveState objective, QuestState quest)
-        {
-            if (objective.Status.IsTerminal())
-                return false;
-
-            var prerequisites = objective.Definition.Prerequisites;
-            if (prerequisites == null || prerequisites.Count == 0)
-                return true;
-
-            foreach (var prerequisite in prerequisites)
-            {
-                if (prerequisite == null)
-                    continue;
-
-                if (!quest.TryGetObjective(prerequisite.ObjectiveId, out var prerequisiteState))
-                    continue;
-
-                if (prerequisiteState.Status != ObjectiveStatus.Completed)
-                    return false;
-            }
-
-            return true;
-        }
     }
 }

@@ -1,8 +1,8 @@
-using UnityEngine;
-using UnityEditor;
 using DynamicBox.Quest.Core;
 using DynamicBox.Quest.Core.Conditions;
 using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 namespace DynamicBox.Quest.Editor
 {
@@ -17,7 +17,9 @@ namespace DynamicBox.Quest.Editor
         private SerializedProperty _completionConditionProp;
         private SerializedProperty _failConditionProp;
 
-        private void OnEnable()
+        #region Unity Methods
+
+        void OnEnable()
         {
             _objectiveIdProp = serializedObject.FindProperty("objectiveId");
             _titleProp = serializedObject.FindProperty("title");
@@ -35,6 +37,8 @@ namespace DynamicBox.Quest.Editor
                 Debug.LogError($"ObjectiveAssetEditor: Could not find all required properties on ObjectiveAsset.");
             }
         }
+
+        #endregion
 
         public override void OnInspectorGUI()
         {

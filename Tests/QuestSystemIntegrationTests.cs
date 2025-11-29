@@ -368,7 +368,7 @@ namespace DynamicBox.Quest.Tests
                 var questState = questManager.StartQuest(quest);
 
                 // Trigger failure
-                var failInstance = questState.Objectives["risky_obj"].GetFailInstance() as MockConditionInstance;
+                var failInstance = questState.Objectives["risky_obj"].FailInstance as MockConditionInstance;
                 failInstance?.SetMet(true);
 
                 yield return null;

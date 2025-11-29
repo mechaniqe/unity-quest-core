@@ -1,6 +1,6 @@
 {
   "name": "net.dynamicbox.quest.core",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "displayName": "Quest Core",
   "description": "A Unity-first, designer-friendly, event-driven quest system",
   "unity": "2021.3",

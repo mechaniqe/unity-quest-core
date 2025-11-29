@@ -662,13 +662,13 @@ DynamicBox.Quest.Tests.TestValidation.ValidateAllComponents();
 ```
 Game Event (ItemCollected)
     ↓
-IQuestEventBus.Publish()
+EventManager.Raise()
     ↓
-ConditionInstance.OnItemCollected()
+ConditionInstance.HandleEvent()
     ↓
-QuestManager.MarkDirty()
+DirtyQueueProcessor.MarkDirty()
     ↓
-QuestManager.ProcessDirtyQueue()
+DirtyQueueProcessor.ProcessAll() [in Update()]
     ↓
 OnQuestCompleted event
 ```

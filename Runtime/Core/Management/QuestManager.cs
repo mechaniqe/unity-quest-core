@@ -25,8 +25,8 @@ namespace DynamicBox.Quest.Core
         private QuestContext? _context;
         private ConditionBindingService? _bindingService;
         private ObjectiveEvaluator? _evaluator;
+        private DirtyQueueProcessor? _processor;
 
-        private readonly HashSet<(QuestState quest, ObjectiveState obj)> _dirtySet = new();
         private float _pollTimer;
 
         // Public properties for editor and debugging
@@ -50,7 +50,15 @@ namespace DynamicBox.Quest.Core
             _context = playerRef.BuildContext();
             _bindingService = new ConditionBindingService(_eventManager, _context);
             _evaluator = new ObjectiveEvaluator(_log, _bindingService);
-            _evaluator.SetDirtyCallback(MarkDirty);
+            _processor = new DirtyQueueProcessor(_evaluator);
+            
+            // Wire up events from processor
+            _processor.OnQuestCompleted += (q) => OnQuestCompleted?.Invoke(q);
+            _processor.OnQuestFailed += (q) => OnQuestFailed?.Invoke(q);
+            _processor.OnObjectiveStatusChanged += (o) => OnObjectiveStatusChanged?.Invoke(o);
+            
+            // Set callback for evaluator to mark objectives as dirty
+            _evaluator.SetDirtyCallback(_processor.MarkDirty);
         }
 
         private void Update()
@@ -65,7 +73,7 @@ namespace DynamicBox.Quest.Core
                 }
             }
 
-            ProcessDirtySet();
+            _processor?.ProcessAll();
         }
 
         /// <summary>
@@ -87,7 +95,7 @@ namespace DynamicBox.Quest.Core
             {
                 if (obj.Status.IsActive())
                 {
-                    MarkDirty(state, obj);
+                    _processor?.MarkDirty(state, obj);
                 }
             }
             
@@ -134,6 +142,15 @@ namespace DynamicBox.Quest.Core
             _log.RemoveQuest(questState);
         }
 
+        /// <summary>
+        /// Manually processes all pending objective evaluations.
+        /// Useful for testing, cutscenes, or forcing immediate evaluation before saving.
+        /// </summary>
+        public void ProcessPendingEvaluations()
+        {
+            _processor?.ProcessAll();
+        }
+
         private void PollConditions()
         {
             if (_log == null || _bindingService == null)
@@ -149,47 +166,9 @@ namespace DynamicBox.Quest.Core
                     if (!obj.CanProgress(quest))
                         continue;
 
-                    _bindingService.RefreshPollingConditions(obj, () => MarkDirty(quest, obj));
+                    _bindingService.RefreshPollingConditions(obj, () => _processor?.MarkDirty(quest, obj));
                 }
             }
-        }
-
-        private void MarkDirty(QuestState quest, ObjectiveState obj)
-        {
-            _dirtySet.Add((quest, obj));
-        }
-
-        private void ProcessDirtySet()
-        {
-            if (_dirtySet.Count == 0 || _evaluator == null)
-                return;
-
-            // Process all dirty objectives
-            foreach (var (quest, obj) in _dirtySet)
-            {
-                var result = _evaluator.Evaluate(quest, obj);
-                
-                // Fire appropriate events based on evaluation result
-                switch (result)
-                {
-                    case QuestEvaluationResult.ObjectiveCompleted:
-                        OnObjectiveStatusChanged?.Invoke(obj);
-                        _evaluator.ActivateReadyObjectives(quest);
-                        break;
-                    
-                    case QuestEvaluationResult.QuestCompleted:
-                        OnObjectiveStatusChanged?.Invoke(obj);
-                        OnQuestCompleted?.Invoke(quest);
-                        break;
-                    
-                    case QuestEvaluationResult.QuestFailed:
-                        OnObjectiveStatusChanged?.Invoke(obj);
-                        OnQuestFailed?.Invoke(quest);
-                        break;
-                }
-            }
-
-            _dirtySet.Clear();
         }
     }
 }

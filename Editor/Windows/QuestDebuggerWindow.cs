@@ -1,8 +1,8 @@
-using UnityEngine;
-using UnityEditor;
 using DynamicBox.Quest.Core;
 using System.Linq;
 using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
 namespace DynamicBox.Quest.Editor.Windows
 {
@@ -13,18 +13,14 @@ namespace DynamicBox.Quest.Editor.Windows
         private bool _autoRefresh = true;
         private float _lastRefreshTime;
         
-        [MenuItem("Tools/DynamicBox/Quest System/Quest Debugger")]
-        public static void ShowWindow()
-        {
-            GetWindow<QuestDebuggerWindow>("Quest Debugger");
-        }
+        #region Unity Methods
 
-        private void OnEnable()
+        void OnEnable()
         {
             FindQuestManager();
         }
 
-        private void OnGUI()
+        void OnGUI()
         {
             DrawToolbar();
             
@@ -35,6 +31,14 @@ namespace DynamicBox.Quest.Editor.Windows
             }
 
             DrawQuestStates();
+        }
+
+        #endregion
+
+        [MenuItem("Tools/DynamicBox/Quest System/Quest Debugger")]
+        public static void ShowWindow()
+        {
+            GetWindow<QuestDebuggerWindow>("Quest Debugger");
         }
 
         private void DrawToolbar()
@@ -222,7 +226,7 @@ namespace DynamicBox.Quest.Editor.Windows
             // Show completion condition
             if (objective.CompletionCondition != null)
             {
-                var completionInstance = objState.GetCompletionInstance();
+                var completionInstance = objState.CompletionInstance;
                 var isMet = completionInstance?.IsMet ?? false;
                 var conditionColor = isMet ? Color.green : Color.white;
                 
@@ -234,7 +238,7 @@ namespace DynamicBox.Quest.Editor.Windows
             // Show fail condition if any
             if (objective.FailCondition != null)
             {
-                var failInstance = objState.GetFailInstance();
+                var failInstance = objState.FailInstance;
                 var isMet = failInstance?.IsMet ?? false;
                 var conditionColor = isMet ? Color.red : Color.white;
                 

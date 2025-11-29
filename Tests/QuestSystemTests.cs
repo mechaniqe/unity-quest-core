@@ -807,13 +807,11 @@ namespace DynamicBox.Quest.Tests
                 var questState = questManager.StartQuest(quest);
 
                 // Simulate condition completion
-                var conditionInstance = questState.Objectives["obj1"].GetCompletionInstance() as MockConditionInstance;
+                var conditionInstance = questState.Objectives["obj1"].CompletionInstance as MockConditionInstance;
                 conditionInstance?.SetMet(true);
 
-                // Process the dirty queue
-                var processMethod = typeof(QuestManager).GetMethod("ProcessDirtyQueue",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                processMethod?.Invoke(questManager, null);
+                // Process pending evaluations
+                questManager.ProcessPendingEvaluations();
 
                 if (!objectiveTriggered)
                     throw new Exception("Objective status changed event should be triggered");
@@ -1005,7 +1003,7 @@ namespace DynamicBox.Quest.Tests
             var objectiveState = new ObjectiveState(objective);
 
             // Should not crash with null conditions
-            if (objectiveState.GetCompletionInstance() != null)
+            if (objectiveState.CompletionInstance != null)
                 throw new Exception("Completion instance should be null when no condition is provided");
 
             Console.WriteLine("✓ Null condition handling works correctly");
@@ -1149,14 +1147,12 @@ namespace DynamicBox.Quest.Tests
                 // Collect second sword
                 eventManager.Raise(new ItemCollectedEvent("sword", 1));
 
-                // Process dirty queue to complete first objective
-                var processMethod = typeof(QuestManager).GetMethod("ProcessDirtyQueue",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                processMethod?.Invoke(questManager, null);
+                // Process pending evaluations to complete first objective
+                questManager.ProcessPendingEvaluations();
 
                 // Now enter armory (should complete quest)
                 eventManager.Raise(new AreaEnteredEvent("armory"));
-                processMethod?.Invoke(questManager, null);
+                questManager.ProcessPendingEvaluations();
 
                 if (!questCompleted)
                     throw new Exception("Quest should be completed after fulfilling all requirements");
@@ -1198,13 +1194,11 @@ namespace DynamicBox.Quest.Tests
                 var questState = questManager.StartQuest(quest);
 
                 // Trigger failure condition
-                var failInstance = questState.Objectives["risky_objective"].GetFailInstance() as MockConditionInstance;
+                var failInstance = questState.Objectives["risky_objective"].FailInstance as MockConditionInstance;
                 failInstance?.SetMet(true);
 
-                // Process dirty queue
-                var processMethod = typeof(QuestManager).GetMethod("ProcessDirtyQueue",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                processMethod?.Invoke(questManager, null);
+                // Process pending evaluations
+                questManager.ProcessPendingEvaluations();
 
                 if (!questFailed)
                     throw new Exception("Quest should fail when fail condition is met");

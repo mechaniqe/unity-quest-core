@@ -262,17 +262,15 @@ namespace DynamicBox.Quest.Tests
                 var questState = questManager.StartQuest(quest);
 
                 // Test fail condition takes priority over completion
-                var failInstance = questState.Objectives["obj1"].GetFailInstance() as MockConditionInstance;
-                var completionInstance = questState.Objectives["obj1"].GetCompletionInstance() as MockConditionInstance;
+                var failInstance = questState.Objectives["obj1"].FailInstance as MockConditionInstance;
+                var completionInstance = questState.Objectives["obj1"].CompletionInstance as MockConditionInstance;
 
                 // Set both conditions to met
                 failInstance?.SetMet(true);
                 completionInstance?.SetMet(true);
 
-                // Process dirty queue
-                var processMethod = typeof(QuestManager).GetMethod("ProcessDirtyQueue",
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-                processMethod?.Invoke(questManager, null);
+                // Process pending evaluations
+                questManager.ProcessPendingEvaluations();
 
                 // Quest should fail (fail condition has priority)
                 if (!questFailed)
@@ -314,7 +312,7 @@ namespace DynamicBox.Quest.Tests
                 questManager.OnObjectiveStatusChanged += (obj) => statusChangeCount++;
 
                 var questState = questManager.StartQuest(quest);
-                var conditionInstance = questState.Objectives["obj1"].GetCompletionInstance() as MockConditionInstance;
+                var conditionInstance = questState.Objectives["obj1"].CompletionInstance as MockConditionInstance;
 
                 // Trigger condition multiple times rapidly
                 conditionInstance?.SetMet(false);
@@ -323,11 +321,9 @@ namespace DynamicBox.Quest.Tests
                 conditionInstance?.SetMet(true);
 
                 // Process all queued changes
-                var processMethod = typeof(QuestManager).GetMethod("ProcessDirtyQueue",
-                    BindingFlags.NonPublic | BindingFlags.Instance);
-                processMethod?.Invoke(questManager, null);
+                questManager.ProcessPendingEvaluations();
 
-                // Should have processed all status changes
+                // Should only trigger once because dirty queue uses HashSet deduplication
                 if (statusChangeCount == 0)
                     throw new Exception("At least one status change should have been processed");
 
@@ -474,7 +470,7 @@ namespace DynamicBox.Quest.Tests
                     throw new Exception("Quest state should be created even with null conditions");
 
                 var objState = questState.Objectives["corrupted_obj"];
-                if (objState.GetCompletionInstance() != null)
+                if (objState.CompletionInstance != null)
                     throw new Exception("Completion instance should be null for null condition");
 
                 Console.WriteLine("✓ Corrupted condition handling works correctly");

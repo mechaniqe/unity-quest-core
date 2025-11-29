@@ -1,7 +1,8 @@
-using UnityEngine;
-using UnityEditor;
+
 using DynamicBox.Quest.Core;
 using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 namespace DynamicBox.Quest.Editor
 {
@@ -11,7 +12,9 @@ namespace DynamicBox.Quest.Editor
         private SerializedProperty _logicTypeProp;
         private SerializedProperty _conditionsProp;
 
-        private void OnEnable()
+        #region Unity Methods
+
+        void OnEnable()
         {
             _logicTypeProp = serializedObject.FindProperty("@operator");
             _conditionsProp = serializedObject.FindProperty("children");
@@ -22,6 +25,8 @@ namespace DynamicBox.Quest.Editor
                 Debug.LogError($"ConditionGroupAssetEditor: Could not find required properties. operator: {_logicTypeProp != null}, children: {_conditionsProp != null}");
             }
         }
+
+        #endregion
 
         public override void OnInspectorGUI()
         {
