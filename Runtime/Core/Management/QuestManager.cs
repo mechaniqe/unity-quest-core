@@ -55,7 +55,6 @@ namespace DynamicBox.Quest.Core
         public QuestState StartQuest(QuestAsset questAsset)
         {
             var state = _log.StartQuest(questAsset);
-            BindQuestConditions(state);
             ActivateReadyObjectives(state);
             return state;
         }
@@ -83,27 +82,29 @@ namespace DynamicBox.Quest.Core
             _log.RemoveQuest(questState);
         }
 
-        private void BindQuestConditions(QuestState quest)
+        private void BindObjectiveConditions(QuestState quest, ObjectiveState obj)
         {
-            foreach (var obj in quest.GetObjectiveStates())
-            {
-                if (obj.CompletionInstance != null)
-                    obj.CompletionInstance.Bind(_eventManager, _context, () => MarkDirty(quest, obj));
+            if (obj.CompletionInstance != null)
+                obj.CompletionInstance.Bind(_eventManager, _context, () => MarkDirty(quest, obj));
 
-                if (obj.FailInstance != null)
-                    obj.FailInstance.Bind(_eventManager, _context, () => MarkDirty(quest, obj));
-            }
+            if (obj.FailInstance != null)
+                obj.FailInstance.Bind(_eventManager, _context, () => MarkDirty(quest, obj));
+        }
+
+        private void UnbindObjectiveConditions(ObjectiveState obj)
+        {
+            if (obj.CompletionInstance != null)
+                obj.CompletionInstance.Unbind(_eventManager, _context);
+
+            if (obj.FailInstance != null)
+                obj.FailInstance.Unbind(_eventManager, _context);
         }
 
         private void UnbindQuestConditions(QuestState quest)
         {
             foreach (var obj in quest.GetObjectiveStates())
             {
-                if (obj.CompletionInstance != null)
-                    obj.CompletionInstance.Unbind(_eventManager, _context);
-
-                if (obj.FailInstance != null)
-                    obj.FailInstance.Unbind(_eventManager, _context);
+                UnbindObjectiveConditions(obj);
             }
         }
 
@@ -154,6 +155,7 @@ namespace DynamicBox.Quest.Core
             // Fail first
             if (obj.FailInstance != null && obj.FailInstance.IsMet)
             {
+                UnbindObjectiveConditions(obj);
                 obj.SetStatus(ObjectiveStatus.Failed);
                 OnObjectiveStatusChanged?.Invoke(obj);
 
@@ -174,6 +176,7 @@ namespace DynamicBox.Quest.Core
                     OnObjectiveStatusChanged?.Invoke(obj);
                 }
 
+                UnbindObjectiveConditions(obj);
                 obj.SetStatus(ObjectiveStatus.Completed);
                 OnObjectiveStatusChanged?.Invoke(obj);
                 
@@ -201,6 +204,12 @@ namespace DynamicBox.Quest.Core
                 {
                     obj.SetStatus(ObjectiveStatus.InProgress);
                     OnObjectiveStatusChanged?.Invoke(obj);
+                    
+                    // Bind conditions now that objective is active
+                    BindObjectiveConditions(quest, obj);
+                    
+                    // Immediately evaluate in case conditions are already met
+                    MarkDirty(quest, obj);
                 }
             }
         }
