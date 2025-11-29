@@ -9,7 +9,7 @@ namespace DynamicBox.Quest.Editor
     /// </summary>
     public static class QuestCreationTest
     {
-        [MenuItem("Tools/DynamicBox/Quest System/Test Quest Creation")]
+        // [MenuItem("Tools/DynamicBox/Quest System/Test Quest Creation")]
         public static void TestQuestCreation()
         {
             // Create a simple test quest
@@ -26,7 +26,7 @@ namespace DynamicBox.Quest.Editor
             Debug.Log("Test quest created successfully at: " + assetPath);
         }
 
-        [MenuItem("Tools/DynamicBox/Quest System/Test Objective Creation")]
+        // [MenuItem("Tools/DynamicBox/Quest System/Test Objective Creation")]
         public static void TestObjectiveCreation()
         {
             // Create a simple test objective
@@ -43,7 +43,7 @@ namespace DynamicBox.Quest.Editor
             Debug.Log("Test objective created successfully at: " + assetPath);
         }
 
-        [MenuItem("Tools/DynamicBox/Quest System/Test Condition Group Creation")]
+        // [MenuItem("Tools/DynamicBox/Quest System/Test Condition Group Creation")]
         public static void TestConditionGroupCreation()
         {
             // Create a simple test condition group

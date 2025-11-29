@@ -128,9 +128,17 @@ namespace DynamicBox.Quest.Editor.Windows
                     GUI.color = objColor;
                     
                     string statusSymbol = GetObjectiveSymbol(status);
-                    EditorGUILayout.LabelField($"{statusSymbol} {objective.DisplayName} [{objState}]");
+                    EditorGUILayout.LabelField($"{statusSymbol} {objective.DisplayName} [{status}]");
                     
                     GUI.color = originalColor;
+                    
+                    // Show objective details
+                    if (objState != null && status == ObjectiveStatus.InProgress)
+                    {
+                        EditorGUI.indentLevel++;
+                        DrawObjectiveDetails(objective, objState);
+                        EditorGUI.indentLevel--;
+                    }
                 }
                 
                 EditorGUI.indentLevel--;
@@ -195,6 +203,56 @@ namespace DynamicBox.Quest.Editor.Windows
                 case ObjectiveStatus.Completed: return "✓";
                 case ObjectiveStatus.Failed: return "✗";
                 default: return "?";
+            }
+        }
+
+        private void DrawObjectiveDetails(ObjectiveAsset objective, ObjectiveState objState)
+        {
+            // Show objective ID and description
+            if (!string.IsNullOrEmpty(objective.ObjectiveId))
+            {
+                EditorGUILayout.LabelField($"ID: {objective.ObjectiveId}", EditorStyles.miniLabel);
+            }
+            
+            if (!string.IsNullOrEmpty(objective.Description))
+            {
+                EditorGUILayout.LabelField($"Description: {objective.Description}", EditorStyles.wordWrappedMiniLabel);
+            }
+            
+            // Show completion condition
+            if (objective.CompletionCondition != null)
+            {
+                var completionInstance = objState.GetCompletionInstance();
+                var isMet = completionInstance?.IsMet ?? false;
+                var conditionColor = isMet ? Color.green : Color.white;
+                
+                GUI.color = conditionColor;
+                EditorGUILayout.LabelField($"Completion: {objective.CompletionCondition.name} {(isMet ? "✓" : "○")}", EditorStyles.miniLabel);
+                GUI.color = Color.white;
+            }
+            
+            // Show fail condition if any
+            if (objective.FailCondition != null)
+            {
+                var failInstance = objState.GetFailInstance();
+                var isMet = failInstance?.IsMet ?? false;
+                var conditionColor = isMet ? Color.red : Color.white;
+                
+                GUI.color = conditionColor;
+                EditorGUILayout.LabelField($"Fail: {objective.FailCondition.name} {(isMet ? "✗" : "○")}", EditorStyles.miniLabel);
+                GUI.color = Color.white;
+            }
+            
+            // Show prerequisites
+            if (objective.Prerequisites != null && objective.Prerequisites.Count > 0)
+            {
+                EditorGUILayout.LabelField($"Prerequisites: {objective.Prerequisites.Count}", EditorStyles.miniLabel);
+            }
+            
+            // Show if optional
+            if (objective.IsOptional)
+            {
+                EditorGUILayout.LabelField("(Optional)", EditorStyles.miniLabel);
             }
         }
 
