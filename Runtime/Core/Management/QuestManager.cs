@@ -1,8 +1,8 @@
-using UnityEngine;
+using DynamicBox.EventManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DynamicBox.EventManagement;
+using UnityEngine;
 
 namespace DynamicBox.Quest.Core
 {
