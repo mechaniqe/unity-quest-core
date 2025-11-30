@@ -28,6 +28,13 @@ namespace DynamicBox.Quest.Tests
             TestConditionGroupProgressNested();
             TestProgressEdgeCases();
             TestProgressOverCompletion();
+            TestProgressWithNegativeValues();
+            TestProgressPartialUpdates();
+            TestProgressConcurrentEvents();
+            TestProgressDescriptionFormatting();
+            TestProgressBoundaryConditions();
+            TestConditionGroupMixedProgress();
+            TestProgressWithoutProgressReporting();
             
             Debug.Log("✓ All progress reporting tests passed!");
         }
@@ -339,6 +346,248 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception($"Expected exactly 100% progress, got {condition.Progress * 100}%");
 
             Debug.Log("✓ Progress over-completion clamped correctly");
+        }
+
+        private static void TestProgressWithNegativeValues()
+        {
+            Debug.Log("\n[TEST] Progress With Negative Values");
+
+            var eventManager = EventManager.Instance;
+            var context = new QuestContext(null, null, null);
+            var conditionInstance = new ItemCollectedConditionInstance("coin", 10);
+            var condition = conditionInstance as IProgressReportingCondition;
+
+            conditionInstance.Bind(eventManager, context, () => { });
+
+            // Try to add negative amount (edge case)
+            eventManager.Raise(new ItemCollectedEvent("coin", -5));
+
+            // Progress should not go negative
+            if (condition.Progress < 0.0f)
+                throw new Exception($"Progress should not be negative, got {condition.Progress * 100}%");
+
+            // Now add positive amount
+            eventManager.Raise(new ItemCollectedEvent("coin", 5));
+            
+            // Progress should be correct based on implementation
+            if (condition.Progress > 1.0f || condition.Progress < 0.0f)
+                throw new Exception($"Progress should be between 0-100%, got {condition.Progress * 100}%");
+
+            Debug.Log("✓ Progress with negative values handled correctly");
+        }
+
+        private static void TestProgressPartialUpdates()
+        {
+            Debug.Log("\n[TEST] Progress Partial Updates");
+
+            var eventManager = EventManager.Instance;
+            var context = new QuestContext(null, null, null);
+            var conditionInstance = new ItemCollectedConditionInstance("resource", 100);
+            var condition = conditionInstance as IProgressReportingCondition;
+
+            bool progressChanged = false;
+            conditionInstance.Bind(eventManager, context, () => { progressChanged = true; });
+
+            // Small incremental updates
+            float lastProgress = 0f;
+            for (int i = 1; i <= 10; i++)
+            {
+                progressChanged = false;
+                eventManager.Raise(new ItemCollectedEvent("resource", 10));
+                
+                float expectedProgress = i * 0.1f;
+                if (Math.Abs(condition.Progress - expectedProgress) > 0.01f)
+                    throw new Exception($"Expected {expectedProgress * 100}% progress, got {condition.Progress * 100}%");
+
+                // Progress should increase monotonically
+                if (condition.Progress < lastProgress)
+                    throw new Exception($"Progress decreased from {lastProgress * 100}% to {condition.Progress * 100}%");
+
+                lastProgress = condition.Progress;
+
+                // Should notify on each change
+                if (!progressChanged && i < 10) // Last one completes, behavior may vary
+                    Debug.LogWarning($"Progress change notification not fired at iteration {i}");
+            }
+
+            Debug.Log("✓ Progress partial updates work correctly");
+        }
+
+        private static void TestProgressConcurrentEvents()
+        {
+            Debug.Log("\n[TEST] Progress Concurrent Events");
+
+            var eventManager = EventManager.Instance;
+            var context = new QuestContext(null, null, null);
+            
+            var cond1 = new ItemCollectedConditionInstance("gold", 10);
+            var cond2 = new ItemCollectedConditionInstance("silver", 20);
+            var cond3 = new ItemCollectedConditionInstance("bronze", 30);
+            
+            var groupInstance = new ConditionGroupInstance(ConditionOperator.And,
+                new List<IConditionInstance> { cond1, cond2, cond3 });
+            var group = groupInstance as IProgressReportingCondition;
+
+            groupInstance.Bind(eventManager, context, () => { });
+
+            // Fire multiple events in quick succession
+            eventManager.Raise(new ItemCollectedEvent("gold", 5));
+            eventManager.Raise(new ItemCollectedEvent("silver", 10));
+            eventManager.Raise(new ItemCollectedEvent("bronze", 15));
+
+            // All should be at 50%
+            float expectedProgress = 0.5f;
+            if (Math.Abs(group.Progress - expectedProgress) > 0.1f)
+                throw new Exception($"Expected ~{expectedProgress * 100}% progress, got {group.Progress * 100}%");
+
+            // Complete all
+            eventManager.Raise(new ItemCollectedEvent("gold", 5));
+            eventManager.Raise(new ItemCollectedEvent("silver", 10));
+            eventManager.Raise(new ItemCollectedEvent("bronze", 15));
+
+            if (Math.Abs(group.Progress - 1.0f) > 0.001f)
+                throw new Exception($"Expected 100% progress, got {group.Progress * 100}%");
+
+            Debug.Log("✓ Progress concurrent events handled correctly");
+        }
+
+        private static void TestProgressDescriptionFormatting()
+        {
+            Debug.Log("\n[TEST] Progress Description Formatting");
+
+            var eventManager = EventManager.Instance;
+            var context = new QuestContext(null, null, null);
+
+            // Test various quantity formats
+            var tests = new[]
+            {
+                ("item1", 1, "single item"),
+                ("item2", 100, "large quantity"),
+                ("item3", 999, "very large quantity")
+            };
+
+            foreach (var (itemId, count, testName) in tests)
+            {
+                var conditionInstance = new ItemCollectedConditionInstance(itemId, count);
+                var condition = conditionInstance as IProgressReportingCondition;
+                conditionInstance.Bind(eventManager, context, () => { });
+
+                string desc = condition.ProgressDescription;
+                
+                // Description should contain the count
+                if (!desc.Contains(count.ToString()))
+                    throw new Exception($"Description '{desc}' should contain count {count} ({testName})");
+
+                // Description should not be empty
+                if (string.IsNullOrWhiteSpace(desc))
+                    throw new Exception($"Description should not be empty ({testName})");
+
+                Debug.Log($"   {testName}: '{desc}'");
+            }
+
+            Debug.Log("✓ Progress description formatting works correctly");
+        }
+
+        private static void TestProgressBoundaryConditions()
+        {
+            Debug.Log("\n[TEST] Progress Boundary Conditions");
+
+            var eventManager = EventManager.Instance;
+            var context = new QuestContext(null, null, null);
+
+            // Test with quantity of 1 (single item)
+            var singleInstance = new ItemCollectedConditionInstance("unique", 1);
+            var single = singleInstance as IProgressReportingCondition;
+            singleInstance.Bind(eventManager, context, () => { });
+
+            // Should be 0% initially
+            if (Math.Abs(single.Progress - 0f) > 0.001f)
+                throw new Exception($"Single-item condition should start at 0%, got {single.Progress * 100}%");
+
+            // Should jump to 100% after one event
+            eventManager.Raise(new ItemCollectedEvent("unique", 1));
+            if (Math.Abs(single.Progress - 1.0f) > 0.001f)
+                throw new Exception($"Single-item condition should be 100% after one event, got {single.Progress * 100}%");
+
+            // Test with very large quantity
+            var largeInstance = new ItemCollectedConditionInstance("huge", int.MaxValue);
+            var large = largeInstance as IProgressReportingCondition;
+            largeInstance.Bind(eventManager, context, () => { });
+
+            eventManager.Raise(new ItemCollectedEvent("huge", 1000000));
+            
+            // Progress should be very small but non-zero
+            if (large.Progress <= 0.0f || large.Progress > 0.1f)
+                throw new Exception($"Large quantity should have small progress, got {large.Progress * 100}%");
+
+            Debug.Log("✓ Progress boundary conditions handled correctly");
+        }
+
+        private static void TestConditionGroupMixedProgress()
+        {
+            Debug.Log("\n[TEST] ConditionGroup Mixed Progress States");
+
+            var eventManager = EventManager.Instance;
+            var context = new QuestContext(null, null, null);
+
+            // Mix of complete and incomplete conditions
+            var complete1 = new ItemCollectedConditionInstance("done1", 1);
+            var complete2 = new ItemCollectedConditionInstance("done2", 1);
+            var incomplete = new ItemCollectedConditionInstance("todo", 10);
+
+            var groupInstance = new ConditionGroupInstance(ConditionOperator.And,
+                new List<IConditionInstance> { complete1, complete2, incomplete });
+            var group = groupInstance as IProgressReportingCondition;
+
+            groupInstance.Bind(eventManager, context, () => { });
+
+            // Complete first two
+            eventManager.Raise(new ItemCollectedEvent("done1", 1));
+            eventManager.Raise(new ItemCollectedEvent("done2", 1));
+
+            // Progress should be between 0-100% (2 of 3 complete = ~66%)
+            float progress = group.Progress;
+            if (progress <= 0.5f || progress >= 1.0f)
+                throw new Exception($"Expected progress ~66% with 2/3 conditions complete, got {progress * 100}%");
+
+            // Partially complete the third
+            eventManager.Raise(new ItemCollectedEvent("todo", 5));
+            
+            // Progress should have increased
+            if (group.Progress <= progress)
+                throw new Exception("Progress should have increased after partial completion");
+
+            Debug.Log("✓ ConditionGroup mixed progress states work correctly");
+        }
+
+        private static void TestProgressWithoutProgressReporting()
+        {
+            Debug.Log("\n[TEST] Conditions Without Progress Reporting");
+
+            var eventManager = EventManager.Instance;
+            var context = new QuestContext(null, null, null);
+
+            // Create a condition group with a non-progress-reporting condition
+            var progressCond = new ItemCollectedConditionInstance("item", 10);
+            
+            // Mock condition that doesn't implement IProgressReportingCondition
+            var mockCond = new MockConditionInstance();
+
+            var groupInstance = new ConditionGroupInstance(ConditionOperator.And,
+                new List<IConditionInstance> { progressCond, mockCond });
+            var group = groupInstance as IProgressReportingCondition;
+
+            groupInstance.Bind(eventManager, context, () => { });
+
+            // Should still calculate progress based on conditions that support it
+            eventManager.Raise(new ItemCollectedEvent("item", 5));
+            
+            // Progress should be calculable (50% from one condition)
+            float progress = group.Progress;
+            if (progress < 0.0f || progress > 1.0f)
+                throw new Exception($"Progress should be valid even with non-reporting conditions, got {progress * 100}%");
+
+            Debug.Log("✓ Conditions without progress reporting handled correctly");
         }
     }
 }

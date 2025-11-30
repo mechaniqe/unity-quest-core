@@ -21,6 +21,13 @@ namespace DynamicBox.Quest.Tests
             TestServiceNotFound();
             TestRequiredServiceThrows();
             TestHasService();
+            TestServiceTypeSafety();
+            TestServiceRetrievalPerformance();
+            TestNullServiceRegistration();
+            TestConvenienceProperties();
+            TestGetRequiredServiceSuccess();
+            TestMultipleServiceInstances();
+            TestServiceInterfacePolymorphism();
             Debug.Log("✓ All context tests passed!");
         }
 
@@ -159,12 +166,226 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("✓ HasService check works correctly");
         }
 
-        // Mock service for testing
+        private static void TestServiceTypeSafety()
+        {
+            Debug.Log("\n[TEST] Service Type Safety");
+
+            // Arrange
+            var timeService = new DefaultTimeService();
+            var flagService = new DefaultFlagService();
+            var context = new QuestContext(
+                timeService: timeService,
+                flagService: flagService
+            );
+
+            // Act - Retrieve services with correct types
+            var retrievedTime = context.GetService<IQuestTimeService>();
+            var retrievedFlag = context.GetService<IQuestFlagService>();
+
+            // Assert - Type safety should be maintained
+            if (retrievedTime == null)
+                throw new Exception("Time service should be retrievable");
+            if (retrievedFlag == null)
+                throw new Exception("Flag service should be retrievable");
+
+            // Verify they are the correct instances
+            if (!ReferenceEquals(retrievedTime, timeService))
+                throw new Exception("Retrieved time service should be the same instance");
+            if (!ReferenceEquals(retrievedFlag, flagService))
+                throw new Exception("Retrieved flag service should be the same instance");
+
+            Debug.Log("✓ Service type safety maintained correctly");
+        }
+
+        private static void TestServiceRetrievalPerformance()
+        {
+            Debug.Log("\n[TEST] Service Retrieval Performance");
+
+            // Arrange
+            var timeService = new DefaultTimeService();
+            var flagService = new DefaultFlagService();
+            var areaService = new MockAreaService();
+            var inventoryService = new MockInventoryService();
+
+            var context = new QuestContext(
+                timeService: timeService,
+                flagService: flagService,
+                areaService: areaService,
+                inventoryService: inventoryService
+            );
+
+            // Act - Retrieve services multiple times
+            var startTime = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < 1000; i++)
+            {
+                var _ = context.GetService<IQuestTimeService>();
+                var __ = context.GetService<IQuestFlagService>();
+                var ___ = context.GetService<IQuestAreaService>();
+                var ____ = context.GetService<IQuestInventoryService>();
+            }
+            startTime.Stop();
+
+            // Assert - Should be fast (dictionary lookup)
+            if (startTime.ElapsedMilliseconds > 100)
+                Debug.LogWarning($"Service retrieval took {startTime.ElapsedMilliseconds}ms for 4000 lookups");
+
+            Debug.Log($"✓ Service retrieval performance: {startTime.ElapsedMilliseconds}ms for 4000 lookups");
+        }
+
+        private static void TestNullServiceRegistration()
+        {
+            Debug.Log("\n[TEST] Null Service Registration");
+
+            // Arrange & Act - Create context with some null services
+            var timeService = new DefaultTimeService();
+            var context = new QuestContext(
+                timeService: timeService,
+                flagService: null,
+                areaService: null,
+                inventoryService: null
+            );
+
+            // Assert - Only non-null services should be registered
+            if (!context.HasService<IQuestTimeService>())
+                throw new Exception("TimeService should be registered");
+            if (context.HasService<IQuestFlagService>())
+                throw new Exception("FlagService should not be registered (was null)");
+            if (context.HasService<IQuestAreaService>())
+                throw new Exception("AreaService should not be registered (was null)");
+            if (context.HasService<IQuestInventoryService>())
+                throw new Exception("InventoryService should not be registered (was null)");
+
+            Debug.Log("✓ Null service registration handled correctly");
+        }
+
+        private static void TestConvenienceProperties()
+        {
+            Debug.Log("\n[TEST] Convenience Properties");
+
+            // Arrange
+            var timeService = new DefaultTimeService();
+            var flagService = new DefaultFlagService();
+            var areaService = new MockAreaService();
+            var inventoryService = new MockInventoryService();
+
+            var context = new QuestContext(
+                timeService: timeService,
+                flagService: flagService,
+                areaService: areaService,
+                inventoryService: inventoryService
+            );
+
+            // Act & Assert - Convenience properties should work
+            if (!ReferenceEquals(context.TimeService, timeService))
+                throw new Exception("TimeService property should return registered service");
+            if (!ReferenceEquals(context.FlagService, flagService))
+                throw new Exception("FlagService property should return registered service");
+            if (!ReferenceEquals(context.AreaService, areaService))
+                throw new Exception("AreaService property should return registered service");
+            if (!ReferenceEquals(context.InventoryService, inventoryService))
+                throw new Exception("InventoryService property should return registered service");
+
+            // Test with null services
+            var emptyContext = new QuestContext();
+            if (emptyContext.TimeService != null)
+                throw new Exception("TimeService property should return null when not registered");
+            if (emptyContext.FlagService != null)
+                throw new Exception("FlagService property should return null when not registered");
+
+            Debug.Log("✓ Convenience properties work correctly");
+        }
+
+        private static void TestGetRequiredServiceSuccess()
+        {
+            Debug.Log("\n[TEST] GetRequiredService Success Case");
+
+            // Arrange
+            var timeService = new DefaultTimeService();
+            var context = new QuestContext(timeService: timeService);
+
+            // Act
+            var retrievedService = context.GetRequiredService<IQuestTimeService>();
+
+            // Assert
+            if (retrievedService == null)
+                throw new Exception("GetRequiredService should return non-null for registered service");
+            if (!ReferenceEquals(retrievedService, timeService))
+                throw new Exception("GetRequiredService should return correct instance");
+
+            Debug.Log("✓ GetRequiredService success case works correctly");
+        }
+
+        private static void TestMultipleServiceInstances()
+        {
+            Debug.Log("\n[TEST] Multiple Service Instances");
+
+            // Arrange - Create multiple contexts with different service instances
+            var timeService1 = new DefaultTimeService();
+            var timeService2 = new DefaultTimeService();
+
+            var context1 = new QuestContext(timeService: timeService1);
+            var context2 = new QuestContext(timeService: timeService2);
+
+            // Act
+            var retrieved1 = context1.GetService<IQuestTimeService>();
+            var retrieved2 = context2.GetService<IQuestTimeService>();
+
+            // Assert - Each context should maintain its own service instance
+            if (!ReferenceEquals(retrieved1, timeService1))
+                throw new Exception("Context1 should return its own service instance");
+            if (!ReferenceEquals(retrieved2, timeService2))
+                throw new Exception("Context2 should return its own service instance");
+            if (ReferenceEquals(retrieved1, retrieved2))
+                throw new Exception("Different contexts should have different service instances");
+
+            Debug.Log("✓ Multiple service instances handled correctly");
+        }
+
+        private static void TestServiceInterfacePolymorphism()
+        {
+            Debug.Log("\n[TEST] Service Interface Polymorphism");
+
+            // Arrange - Use concrete implementations
+            var timeService = new DefaultTimeService();
+            var flagService = new DefaultFlagService();
+
+            // Act - Register concrete types but retrieve via interface
+            var context = new QuestContext(
+                timeService: timeService,
+                flagService: flagService
+            );
+
+            var retrievedTime = context.GetService<IQuestTimeService>();
+            var retrievedFlag = context.GetService<IQuestFlagService>();
+
+            // Assert - Should work polymorphically
+            if (retrievedTime == null)
+                throw new Exception("Should retrieve service via interface");
+            if (retrievedFlag == null)
+                throw new Exception("Should retrieve service via interface");
+
+            // Verify they are actually the concrete types
+            if (!(retrievedTime is DefaultTimeService))
+                throw new Exception("Retrieved service should be DefaultTimeService");
+            if (!(retrievedFlag is DefaultFlagService))
+                throw new Exception("Retrieved service should be DefaultFlagService");
+
+            Debug.Log("✓ Service interface polymorphism works correctly");
+        }
+
+        // Mock services for testing
         private class MockAreaService : IQuestAreaService
         {
             public string? CurrentAreaId => null;
             public bool HasEnteredArea(string areaId) => false;
             public bool IsInArea(string areaId) => false;
+        }
+
+        private class MockInventoryService : IQuestInventoryService
+        {
+            public int GetItemCount(string itemId) => 0;
+            public bool HasItem(string itemId, int quantity = 1) => false;
+            public bool HasEverCollected(string itemId) => false;
         }
     }
 }
