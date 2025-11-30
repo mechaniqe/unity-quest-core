@@ -1,23 +1,26 @@
+#nullable enable
 using UnityEngine;
-using DynamicBox.Quest.Core;
-using DynamicBox.Quest.GameEvents;
-using DynamicBox.EventManagement;
+using DynamicBox.Quest.Core.Conditions;
 
 namespace DynamicBox.Quest.Core.Conditions
 {
+    /// <summary>
+    /// Condition asset that completes when a specific area is entered.
+    /// Listens to AreaEnteredEvent from the event system.
+    /// </summary>
     [CreateAssetMenu(menuName = "DynamicBox/Quest/Conditions/Area Entered Condition", fileName = "NewAreaEnteredCondition")]
     public class AreaEnteredConditionAsset : ConditionAsset
     {
         [Header("Area Settings")]
-        [SerializeField] private string _areaId;
-        [SerializeField, TextArea(2, 3)] private string _areaDescription;
+        [SerializeField] private string _areaId = string.Empty;
+        [SerializeField, TextArea(2, 3)] private string _areaDescription = string.Empty;
 
         public string AreaId => _areaId;
         public string AreaDescription => _areaDescription;
 
         public override IConditionInstance CreateInstance()
         {
-            return new AreaEnteredConditionInstance(this);
+            return new AreaEnteredConditionInstance(_areaId, _areaDescription);
         }
 
         private void OnValidate()
@@ -26,63 +29,6 @@ namespace DynamicBox.Quest.Core.Conditions
             {
                 _areaId = name.Replace(" ", "_").ToLower();
             }
-        }
-    }
-
-    public class AreaEnteredConditionInstance : IConditionInstance
-    {
-        private readonly AreaEnteredConditionAsset _asset;
-        private QuestContext _context;
-        private EventManager _eventManager;
-        private bool _isCompleted;
-        private System.Action _onChanged;
-        private EventManager.EventDelegate<AreaEnteredEvent> _eventHandler;
-
-        public bool IsMet => _isCompleted;
-
-        public AreaEnteredConditionInstance(AreaEnteredConditionAsset asset)
-        {
-            _asset = asset;
-        }
-
-        public void Bind(EventManager eventManager, QuestContext context, System.Action onChanged)
-        {
-            _eventManager = eventManager;
-            _context = context;
-            _onChanged = onChanged;
-            
-            // Create and store the event handler delegate
-            _eventHandler = OnAreaEntered;
-            
-            // Subscribe to area entry events
-            _eventManager.AddListener<AreaEnteredEvent>(_eventHandler);
-        }
-
-        public void Unbind(EventManager eventManager, QuestContext context)
-        {
-            if (_eventManager != null && _eventHandler != null)
-            {
-                _eventManager.RemoveListener<AreaEnteredEvent>(_eventHandler);
-                _eventManager = null;
-                _eventHandler = null;
-            }
-            _context = null;
-            _onChanged = null;
-        }
-
-        private void OnAreaEntered(AreaEnteredEvent evt)
-        {
-            if (evt.AreaId == _asset.AreaId && !_isCompleted)
-            {
-                _isCompleted = true;
-                _onChanged?.Invoke();
-                Debug.Log($"Area entered condition completed: {_asset.AreaId}");
-            }
-        }
-
-        public override string ToString()
-        {
-            return $"Enter area: {_asset.AreaDescription ?? _asset.AreaId}";
         }
     }
 }

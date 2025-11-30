@@ -40,24 +40,13 @@ namespace DynamicBox.Quest.Tests
 
         public QuestAsset Build()
         {
-            var quest = UnityEngine.ScriptableObject.CreateInstance<QuestAsset>();
-            
-            // Use reflection to set private fields since these are Unity ScriptableObjects
-            var questIdField = typeof(QuestAsset).GetField("questId", 
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var displayNameField = typeof(QuestAsset).GetField("displayName",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var descriptionField = typeof(QuestAsset).GetField("description",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var objectivesField = typeof(QuestAsset).GetField("objectives",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            questIdField?.SetValue(quest, _questId);
-            displayNameField?.SetValue(quest, _displayName);
-            descriptionField?.SetValue(quest, _description);
-            objectivesField?.SetValue(quest, _objectives);
-
-            return quest;
+            // Use factory method instead of reflection for type safety and performance
+            return QuestAsset.CreateForTest(
+                _questId,
+                _displayName,
+                _description,
+                _objectives
+            );
         }
     }
 }

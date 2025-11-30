@@ -61,32 +61,16 @@ namespace DynamicBox.Quest.Tests
 
         public ObjectiveAsset Build()
         {
-            var objective = UnityEngine.ScriptableObject.CreateInstance<ObjectiveAsset>();
-
-            var objectiveIdField = typeof(ObjectiveAsset).GetField("objectiveId",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var titleField = typeof(ObjectiveAsset).GetField("title",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var descriptionField = typeof(ObjectiveAsset).GetField("description",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var isOptionalField = typeof(ObjectiveAsset).GetField("isOptional",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var prerequisitesField = typeof(ObjectiveAsset).GetField("prerequisites",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var completionConditionField = typeof(ObjectiveAsset).GetField("completionCondition",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var failConditionField = typeof(ObjectiveAsset).GetField("failCondition",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-            objectiveIdField?.SetValue(objective, _objectiveId);
-            titleField?.SetValue(objective, _title);
-            descriptionField?.SetValue(objective, _description);
-            isOptionalField?.SetValue(objective, _isOptional);
-            prerequisitesField?.SetValue(objective, _prerequisites);
-            completionConditionField?.SetValue(objective, _completionCondition);
-            failConditionField?.SetValue(objective, _failCondition);
-
-            return objective;
+            // Use factory method instead of reflection for type safety and performance
+            return ObjectiveAsset.CreateForTest(
+                _objectiveId,
+                _title,
+                _description,
+                _isOptional,
+                _prerequisites,
+                _completionCondition,
+                _failCondition
+            );
         }
     }
 }

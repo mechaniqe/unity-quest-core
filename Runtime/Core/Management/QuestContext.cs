@@ -1,14 +1,17 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 
 namespace DynamicBox.Quest.Core
 {
     /// <summary>
     /// Context object that provides game services to condition instances.
-    /// Acts as a service locator for quest-related game systems.
+    /// Acts as a type-safe service locator for quest-related game systems.
     /// </summary>
     public sealed class QuestContext
     {
+        private readonly Dictionary<Type, object> _services = new();
+
         public IQuestAreaService? AreaService { get; }
         public IQuestInventoryService? InventoryService { get; }
         public IQuestTimeService? TimeService { get; }
@@ -24,6 +27,16 @@ namespace DynamicBox.Quest.Core
             InventoryService = inventoryService;
             TimeService = timeService;
             FlagService = flagService;
+
+            // Register services in type-safe dictionary
+            if (areaService != null)
+                _services[typeof(IQuestAreaService)] = areaService;
+            if (inventoryService != null)
+                _services[typeof(IQuestInventoryService)] = inventoryService;
+            if (timeService != null)
+                _services[typeof(IQuestTimeService)] = timeService;
+            if (flagService != null)
+                _services[typeof(IQuestFlagService)] = flagService;
         }
 
         /// <summary>
@@ -43,17 +56,15 @@ namespace DynamicBox.Quest.Core
 
         /// <summary>
         /// Gets a service of the specified type, or null if not available.
+        /// Type-safe lookup using generic type parameter.
         /// </summary>
         public T? GetService<T>() where T : class
         {
-            return typeof(T).Name switch
+            if (_services.TryGetValue(typeof(T), out var service))
             {
-                nameof(IQuestAreaService) => AreaService as T,
-                nameof(IQuestInventoryService) => InventoryService as T,
-                nameof(IQuestTimeService) => TimeService as T,
-                nameof(IQuestFlagService) => FlagService as T,
-                _ => null
-            };
+                return service as T;
+            }
+            return null;
         }
 
         /// <summary>
@@ -61,7 +72,7 @@ namespace DynamicBox.Quest.Core
         /// </summary>
         public bool HasService<T>() where T : class
         {
-            return GetService<T>() != null;
+            return _services.ContainsKey(typeof(T));
         }
     }
 }

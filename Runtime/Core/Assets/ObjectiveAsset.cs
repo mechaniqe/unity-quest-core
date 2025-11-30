@@ -31,5 +31,31 @@ namespace DynamicBox.Quest.Core
         public IReadOnlyList<ObjectiveAsset> Prerequisites => prerequisites;
         public ConditionAsset? CompletionCondition => completionCondition;
         public ConditionAsset? FailCondition => failCondition;
+
+#if UNITY_EDITOR || UNITY_INCLUDE_TESTS
+        /// <summary>
+        /// Factory method for creating objective assets in tests.
+        /// Only available in editor and test builds to avoid reflection overhead.
+        /// </summary>
+        public static ObjectiveAsset CreateForTest(
+            string objectiveId,
+            string title,
+            string description,
+            bool isOptional,
+            List<ObjectiveAsset>? prerequisites,
+            ConditionAsset? completionCondition,
+            ConditionAsset? failCondition)
+        {
+            var objective = CreateInstance<ObjectiveAsset>();
+            objective.objectiveId = objectiveId;
+            objective.title = title;
+            objective.description = description;
+            objective.isOptional = isOptional;
+            objective.prerequisites = prerequisites ?? new List<ObjectiveAsset>();
+            objective.completionCondition = completionCondition;
+            objective.failCondition = failCondition;
+            return objective;
+        }
+#endif
     }
 }

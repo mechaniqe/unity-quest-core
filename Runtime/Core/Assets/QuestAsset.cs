@@ -21,5 +21,25 @@ namespace DynamicBox.Quest.Core
         public string DisplayName => displayName;
         public string Description => description;
         public IReadOnlyList<ObjectiveAsset> Objectives => objectives;
+
+#if UNITY_EDITOR || UNITY_INCLUDE_TESTS
+        /// <summary>
+        /// Factory method for creating quest assets in tests.
+        /// Only available in editor and test builds to avoid reflection overhead.
+        /// </summary>
+        public static QuestAsset CreateForTest(
+            string questId,
+            string displayName,
+            string description,
+            List<ObjectiveAsset> objectives)
+        {
+            var quest = CreateInstance<QuestAsset>();
+            quest.questId = questId;
+            quest.displayName = displayName;
+            quest.description = description;
+            quest.objectives = objectives ?? new List<ObjectiveAsset>();
+            return quest;
+        }
+#endif
     }
 }
