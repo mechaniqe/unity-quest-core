@@ -61,6 +61,9 @@ namespace DynamicBox.Quest.Tests
                     QuestSystemTests.RunAllTests();
                     ProgressReportingTests.RunAllProgressTests();
                     QuestContextTests.RunAllContextTests();
+                    EventDrivenConditionTests.RunAllEventDrivenTests();
+                    FactoryMethodTests.RunAllFactoryMethodTests();
+                    ImmutableEventTests.RunAllImmutableEventTests();
                     Debug.Log("Unit tests completed successfully!");
                 }
                 
