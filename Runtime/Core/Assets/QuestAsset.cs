@@ -17,9 +17,24 @@ namespace DynamicBox.Quest.Core
 
         [SerializeField] private List<ObjectiveAsset> objectives = new();
 
+        /// <summary>
+        /// Gets the unique identifier for this quest.
+        /// </summary>
         public string QuestId => questId;
+        
+        /// <summary>
+        /// Gets the display name shown to players.
+        /// </summary>
         public string DisplayName => displayName;
+        
+        /// <summary>
+        /// Gets the detailed description of this quest.
+        /// </summary>
         public string Description => description;
+        
+        /// <summary>
+        /// Gets the read-only list of objectives required to complete this quest.
+        /// </summary>
         public IReadOnlyList<ObjectiveAsset> Objectives => objectives;
 
 #if UNITY_EDITOR || UNITY_INCLUDE_TESTS

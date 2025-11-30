@@ -13,7 +13,14 @@ namespace DynamicBox.Quest.Core.Conditions
         [SerializeField] private string itemId = string.Empty;
         [SerializeField] private int requiredCount = 1;
 
+        /// <summary>
+        /// Gets the unique identifier of the item to collect.
+        /// </summary>
         public string ItemId => itemId;
+        
+        /// <summary>
+        /// Gets the number of items required to complete this condition.
+        /// </summary>
         public int RequiredCount => requiredCount;
 
         public override IConditionInstance CreateInstance()

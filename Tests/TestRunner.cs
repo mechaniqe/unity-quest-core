@@ -33,8 +33,28 @@ namespace DynamicBox.Quest.Tests
         }
 
         /// <summary>
+        /// Runs performance benchmark tests.
+        /// Note: These tests measure performance and may take longer to execute.
+        /// </summary>
+        public static void RunBenchmarks()
+        {
+            Debug.Log("=== Running Performance Benchmarks ===");
+            try
+            {
+                PerformanceBenchmarkTests.RunAllBenchmarks();
+                Debug.Log("=== Benchmarks Completed Successfully ===");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"=== Benchmarks Failed: {ex.Message} ===");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Main entry point - runs unit tests by default.
         /// For integration tests, use QuestSystemIntegrationTests component in Unity.
+        /// For benchmarks, call RunBenchmarks() explicitly.
         /// </summary>
         public static void Main()
         {

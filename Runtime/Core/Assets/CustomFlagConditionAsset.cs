@@ -16,8 +16,19 @@ namespace DynamicBox.Quest.Core.Conditions
         [SerializeField] private bool _expectedValue = true;
         [SerializeField, TextArea(2, 3)] private string _description = string.Empty;
 
+        /// <summary>
+        /// Gets the unique identifier of the flag to check.
+        /// </summary>
         public string FlagId => _flagId;
+        
+        /// <summary>
+        /// Gets the expected boolean value for this flag to complete the condition.
+        /// </summary>
         public bool ExpectedValue => _expectedValue;
+        
+        /// <summary>
+        /// Gets the descriptive text for this flag condition (optional).
+        /// </summary>
         public string Description => _description;
 
         public override IConditionInstance CreateInstance()

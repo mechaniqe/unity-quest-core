@@ -41,7 +41,11 @@ namespace DynamicBox.Quest.Core
 
         /// <summary>
         /// Gets a service of the specified type, throwing if not available.
+        /// Use this when the service is mandatory for the condition to function.
         /// </summary>
+        /// <typeparam name="T">The service interface type to retrieve.</typeparam>
+        /// <returns>The service instance if registered.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the service is not registered.</exception>
         public T GetRequiredService<T>() where T : class
         {
             var service = GetService<T>();
@@ -58,6 +62,8 @@ namespace DynamicBox.Quest.Core
         /// Gets a service of the specified type, or null if not available.
         /// Type-safe lookup using generic type parameter.
         /// </summary>
+        /// <typeparam name="T">The service interface type to retrieve.</typeparam>
+        /// <returns>The service instance if registered, otherwise null.</returns>
         public T? GetService<T>() where T : class
         {
             if (_services.TryGetValue(typeof(T), out var service))
@@ -70,6 +76,8 @@ namespace DynamicBox.Quest.Core
         /// <summary>
         /// Checks if a service of the specified type is available.
         /// </summary>
+        /// <typeparam name="T">The service interface type to check for.</typeparam>
+        /// <returns>True if the service is registered; false otherwise.</returns>
         public bool HasService<T>() where T : class
         {
             return _services.ContainsKey(typeof(T));

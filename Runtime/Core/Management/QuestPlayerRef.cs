@@ -31,7 +31,9 @@ namespace DynamicBox.Quest.Core
         /// <summary>
         /// Builds a QuestContext by finding or using assigned service providers.
         /// Services are optional - quest system will work with whatever is available.
+        /// Auto-discovery will search this GameObject for service components if enabled.
         /// </summary>
+        /// <returns>A configured QuestContext with available services.</returns>
         public QuestContext BuildContext()
         {
             IQuestAreaService? area = areaServiceProvider;

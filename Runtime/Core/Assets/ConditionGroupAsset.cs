@@ -31,7 +31,14 @@ namespace DynamicBox.Quest.Core
         [SerializeField] private ConditionOperator @operator = ConditionOperator.And;
         [SerializeField] private List<ConditionAsset> children = new();
 
+        /// <summary>
+        /// Gets the logical operator used to combine child conditions.
+        /// </summary>
         public ConditionOperator Operator => @operator;
+        
+        /// <summary>
+        /// Gets the list of child conditions in this group.
+        /// </summary>
         public IReadOnlyList<ConditionAsset> Conditions => children;
 
         public override IConditionInstance CreateInstance()

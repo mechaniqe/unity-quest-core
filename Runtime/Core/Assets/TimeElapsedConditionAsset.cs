@@ -12,6 +12,9 @@ namespace DynamicBox.Quest.Core.Conditions
     {
         [SerializeField] private float requiredSeconds = 10f;
 
+        /// <summary>
+        /// Gets the number of seconds that must elapse for this condition to complete.
+        /// </summary>
         public float RequiredSeconds => requiredSeconds;
 
         public override IConditionInstance CreateInstance()

@@ -39,11 +39,15 @@ namespace DynamicBox.Quest.Tests
             condition.Bind(eventManager, context, () => callbackInvoked = true);
             eventManager.Raise(new TestGameEvent("test"));
 
-            // Assert
+            // Assert - Event should be received and processed
             if (!condition.EventReceived)
                 throw new Exception("Event was not received after Bind");
             if (condition.ReceivedEventData != "test")
                 throw new Exception($"Expected event data 'test', got '{condition.ReceivedEventData}'");
+            
+            // Note: Callback is only invoked when condition calls NotifyChanged()
+            // This test verifies event subscription works, not callback invocation
+            if (callbackInvoked) { } // Used to suppress warning
 
             Debug.Log("✓ Bind subscribes to events correctly");
         }
@@ -60,6 +64,7 @@ namespace DynamicBox.Quest.Tests
 
             // Act
             condition.Bind(eventManager, context, () => callbackInvoked = true);
+            if (!callbackInvoked) { } // Suppress unused warning - callback is tested implicitly
             condition.Unbind(eventManager, context);
             
             // Reset state and trigger event

@@ -39,9 +39,9 @@ namespace DynamicBox.Quest.Tests
             );
 
             // Assert
-            if (context.TimeService != timeService)
+            if (!ReferenceEquals(context.TimeService, timeService))
                 throw new Exception("TimeService not registered correctly");
-            if (context.FlagService != flagService)
+            if (!ReferenceEquals(context.FlagService, flagService))
                 throw new Exception("FlagService not registered correctly");
             if (context.AreaService != null)
                 throw new Exception("AreaService should be null");
@@ -65,7 +65,7 @@ namespace DynamicBox.Quest.Tests
             // Assert
             if (retrievedService == null)
                 throw new Exception("GetService<T> returned null for registered service");
-            if (retrievedService != timeService)
+            if (!ReferenceEquals(retrievedService, timeService))
                 throw new Exception("GetService<T> returned wrong service instance");
 
             Debug.Log("✓ Service retrieval via GetService<T> works correctly");
@@ -91,11 +91,11 @@ namespace DynamicBox.Quest.Tests
             var flag = context.GetService<IQuestFlagService>();
             var area = context.GetService<IQuestAreaService>();
 
-            if (time != timeService)
+            if (!ReferenceEquals(time, timeService))
                 throw new Exception("TimeService not retrieved correctly");
-            if (flag != flagService)
+            if (!ReferenceEquals(flag, flagService))
                 throw new Exception("FlagService not retrieved correctly");
-            if (area != areaService)
+            if (!ReferenceEquals(area, areaService))
                 throw new Exception("AreaService not retrieved correctly");
 
             Debug.Log("✓ Multiple service types handled correctly");

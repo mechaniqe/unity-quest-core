@@ -29,11 +29,24 @@ namespace DynamicBox.Quest.Core
 
         private float _pollTimer;
 
-        // Public properties for editor and debugging
+        /// <summary>
+        /// Gets the list of all active quests currently being tracked.
+        /// </summary>
         public IReadOnlyList<QuestState> ActiveQuests => _log?.Active ?? Array.Empty<QuestState>();
 
+        /// <summary>
+        /// Event raised when a quest is successfully completed.
+        /// </summary>
         public event Action<QuestState>? OnQuestCompleted;
+        
+        /// <summary>
+        /// Event raised when a quest fails.
+        /// </summary>
         public event Action<QuestState>? OnQuestFailed;
+        
+        /// <summary>
+        /// Event raised when any objective's status changes.
+        /// </summary>
         public event Action<ObjectiveState>? OnObjectiveStatusChanged;
 
         private void Awake()
@@ -73,29 +86,30 @@ namespace DynamicBox.Quest.Core
                 }
             }
 
-            _processor?.ProcessAll();
+            Debug.Assert(_processor != null, "QuestManager._processor should be initialized in Awake()");
+            _processor!.ProcessAll();
         }
 
         /// <summary>
         /// Starts a quest and activates objectives that are ready to progress.
+        /// Immediately evaluates objectives in case they can complete instantly.
         /// </summary>
+        /// <param name="questAsset">The quest definition to start.</param>
+        /// <returns>The runtime state for the newly started quest.</returns>
         public QuestState StartQuest(QuestAsset questAsset)
         {
-            if (_log == null || _evaluator == null)
-            {
-                Debug.LogError("QuestManager not properly initialized!", this);
-                throw new InvalidOperationException("QuestManager not initialized");
-            }
+            Debug.Assert(_log != null, "QuestManager._log should be initialized in Awake()");
+            Debug.Assert(_evaluator != null, "QuestManager._evaluator should be initialized in Awake()");
 
-            var state = _log.StartQuest(questAsset);
-            _evaluator.ActivateReadyObjectives(state);
+            var state = _log!.StartQuest(questAsset);;
+            _evaluator!.ActivateReadyObjectives(state);
             
             // Immediately evaluate objectives in case they're already complete
             foreach (var obj in state.GetObjectiveStates())
             {
                 if (obj.Status.IsActive())
                 {
-                    _processor?.MarkDirty(state, obj);
+                    _processor!.MarkDirty(state, obj);
                 }
             }
             
@@ -103,26 +117,32 @@ namespace DynamicBox.Quest.Core
         }
 
         /// <summary>
-        /// Stops a quest and cleans up all bindings.
+        /// Stops a quest and cleans up all event subscriptions and bindings.
+        /// Quest will no longer be tracked or updated.
         /// </summary>
+        /// <param name="questState">The quest state to stop.</param>
         public void StopQuest(QuestState questState)
         {
-            if (_bindingService == null || _log == null)
-                return;
+            Debug.Assert(_bindingService != null, "QuestManager._bindingService should be initialized in Awake()");
+            Debug.Assert(_log != null, "QuestManager._log should be initialized in Awake()");
 
-            _bindingService.UnbindQuest(questState);
-            _log.RemoveQuest(questState);
+            _bindingService!.UnbindQuest(questState);
+            _log!.RemoveQuest(questState);
         }
 
         /// <summary>
         /// Manually completes a quest (for debugging/editor support).
+        /// Cleans up bindings and raises OnQuestCompleted event.
         /// </summary>
+        /// <param name="questState">The quest state to complete.</param>
         public void CompleteQuest(QuestState questState)
             => EndQuest(questState, QuestStatus.Completed, OnQuestCompleted);
 
         /// <summary>
         /// Manually fails a quest (for debugging/editor support).
+        /// Cleans up bindings and raises OnQuestFailed event.
         /// </summary>
+        /// <param name="questState">The quest state to fail.</param>
         public void FailQuest(QuestState questState)
             => EndQuest(questState, QuestStatus.Failed, OnQuestFailed);
 
@@ -132,13 +152,13 @@ namespace DynamicBox.Quest.Core
         /// </summary>
         private void EndQuest(QuestState questState, QuestStatus status, Action<QuestState>? eventHandler)
         {
-            if (_bindingService == null || _log == null)
-                return;
+            Debug.Assert(_bindingService != null, "QuestManager._bindingService should be initialized in Awake()");
+            Debug.Assert(_log != null, "QuestManager._log should be initialized in Awake()");
 
             questState.SetStatus(status);
             eventHandler?.Invoke(questState);
-            _bindingService.UnbindQuest(questState);
-            _log.RemoveQuest(questState);
+            _bindingService!.UnbindQuest(questState);
+            _log!.RemoveQuest(questState);
         }
 
         /// <summary>
@@ -147,15 +167,16 @@ namespace DynamicBox.Quest.Core
         /// </summary>
         public void ProcessPendingEvaluations()
         {
-            _processor?.ProcessAll();
+            Debug.Assert(_processor != null, "QuestManager._processor should be initialized in Awake()");
+            _processor!.ProcessAll();
         }
 
         private void PollConditions()
         {
-            if (_log == null || _bindingService == null)
-                return;
+            Debug.Assert(_log != null, "QuestManager._log should be initialized in Awake()");
+            Debug.Assert(_bindingService != null, "QuestManager._bindingService should be initialized in Awake()");
 
-            foreach (var quest in _log.Active)
+            foreach (var quest in _log!.Active)
             {
                 if (quest.Status.IsTerminal())
                     continue;
@@ -165,7 +186,7 @@ namespace DynamicBox.Quest.Core
                     if (!obj.CanProgress(quest))
                         continue;
 
-                    _bindingService.RefreshPollingConditions(obj, () => _processor?.MarkDirty(quest, obj));
+                    _bindingService!.RefreshPollingConditions(obj, () => _processor!.MarkDirty(quest, obj));
                 }
             }
         }

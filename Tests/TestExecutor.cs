@@ -14,6 +14,7 @@ namespace DynamicBox.Quest.Tests
         [SerializeField] private bool runValidation = true;
         [SerializeField] private bool runUnitTests = true;
         [SerializeField] private bool runSmokeTest = true;
+        [SerializeField] private bool runBenchmarks = false;
         
         [Header("Results")]
         [SerializeField] private string lastTestResult = "Not run yet";
@@ -65,6 +66,13 @@ namespace DynamicBox.Quest.Tests
                     FactoryMethodTests.RunAllFactoryMethodTests();
                     ImmutableEventTests.RunAllImmutableEventTests();
                     Debug.Log("Unit tests completed successfully!");
+                }
+                
+                if (runBenchmarks)
+                {
+                    Debug.Log("Running performance benchmarks...");
+                    PerformanceBenchmarkTests.RunAllBenchmarks();
+                    Debug.Log("Benchmarks completed successfully!");
                 }
                 
                 if (allPassed)
@@ -152,6 +160,25 @@ namespace DynamicBox.Quest.Tests
             catch (Exception ex)
             {
                 lastTestResult = $"✗ Smoke test failed: {ex.Message} ({DateTime.Now:HH:mm:ss})";
+                Debug.LogError(lastTestResult);
+                Debug.LogException(ex);
+            }
+        }
+        
+        [ContextMenu("Run Performance Benchmarks")]
+        public void RunBenchmarksOnly()
+        {
+            Debug.Log("Running performance benchmarks...");
+            
+            try
+            {
+                PerformanceBenchmarkTests.RunAllBenchmarks();
+                lastTestResult = $"✓ Benchmarks passed! ({DateTime.Now:HH:mm:ss})";
+                Debug.Log($"<color=green>{lastTestResult}</color>");
+            }
+            catch (Exception ex)
+            {
+                lastTestResult = $"✗ Benchmarks failed: {ex.Message} ({DateTime.Now:HH:mm:ss})";
                 Debug.LogError(lastTestResult);
                 Debug.LogException(ex);
             }

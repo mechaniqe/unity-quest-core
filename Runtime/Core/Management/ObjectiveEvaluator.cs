@@ -21,8 +21,9 @@ namespace DynamicBox.Quest.Core
         }
 
         /// <summary>
-        /// Sets the callback to invoke when an objective becomes dirty.
+        /// Sets the callback to invoke when an objective becomes dirty and needs re-evaluation.
         /// </summary>
+        /// <param name="callback">The callback action to invoke with quest and objective state.</param>
         public void SetDirtyCallback(Action<QuestState, ObjectiveState> callback)
         {
             _onDirtyCallback = callback;
@@ -30,7 +31,11 @@ namespace DynamicBox.Quest.Core
 
         /// <summary>
         /// Evaluates an objective and updates quest state accordingly.
+        /// Checks fail conditions first, then completion conditions.
         /// </summary>
+        /// <param name="quest">The quest containing the objective.</param>
+        /// <param name="objective">The objective to evaluate.</param>
+        /// <returns>The result of the evaluation indicating what changed.</returns>
         public QuestEvaluationResult Evaluate(QuestState quest, ObjectiveState objective)
         {
             if (quest.Status.IsTerminal())
