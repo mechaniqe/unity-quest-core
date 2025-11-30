@@ -59,6 +59,8 @@ namespace DynamicBox.Quest.Tests
                 {
                     Debug.Log("Running unit tests...");
                     QuestSystemTests.RunAllTests();
+                    ProgressReportingTests.RunAllProgressTests();
+                    QuestContextTests.RunAllContextTests();
                     Debug.Log("Unit tests completed successfully!");
                 }
                 

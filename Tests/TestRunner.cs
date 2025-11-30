@@ -18,6 +18,8 @@ namespace DynamicBox.Quest.Tests
             try
             {
                 QuestSystemTests.RunAllTests();
+                ProgressReportingTests.RunAllProgressTests();
+                QuestContextTests.RunAllContextTests();
                 Debug.Log("=== Unit Tests Completed Successfully ===");
             }
             catch (Exception ex)

@@ -64,7 +64,6 @@ namespace DynamicBox.Quest.Core.Conditions
         {
             if (!_isInitialized || context?.TimeService == null)
             {
-                Debug.Log($"[TimeElapsedCondition] Refresh early exit - initialized: {_isInitialized}, timeService: {context?.TimeService != null}");
                 return;
             }
 
@@ -75,12 +74,9 @@ namespace DynamicBox.Quest.Core.Conditions
             float oldTime = _elapsedTime;
             _elapsedTime += deltaTime;
 
-            Debug.Log($"[TimeElapsedCondition] Refresh called - oldTime: {oldTime:F3}, delta: {deltaTime:F3}, newTime: {_elapsedTime:F3}, required: {_requiredSeconds:F3}, met: {IsMet}");
-
             // Notify when transitioning from not-met to met
             if (oldTime < _requiredSeconds && _elapsedTime >= _requiredSeconds)
             {
-                Debug.Log($"[TimeElapsedCondition] Condition MET! Invoking callback");
                 onChanged?.Invoke();
             }
         }

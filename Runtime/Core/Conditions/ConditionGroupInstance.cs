@@ -30,7 +30,11 @@ namespace DynamicBox.Quest.Core
                 if (_progressChildren.Count == 0)
                     return IsMet ? 1f : 0f;
 
-                return Mathf.Clamp01(_progressChildren.Average(c => c.Progress));
+                // OR: return max progress (closest to completion)
+                // AND: return average progress (all must complete)
+                return _operator == ConditionOperator.Or
+                    ? Mathf.Clamp01(_progressChildren.Max(c => c.Progress))
+                    : Mathf.Clamp01(_progressChildren.Average(c => c.Progress));
             }
         }
 
