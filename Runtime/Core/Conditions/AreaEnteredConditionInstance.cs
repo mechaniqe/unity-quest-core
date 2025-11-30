@@ -28,7 +28,6 @@ namespace DynamicBox.Quest.Core.Conditions
             {
                 _isCompleted = true;
                 NotifyChanged();
-                Debug.Log($"Area entered condition completed: {_areaId}");
             }
         }
 

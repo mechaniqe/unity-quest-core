@@ -27,7 +27,7 @@ namespace DynamicBox.Quest.Core
                 );
         }
 
-        public void SetStatus(QuestStatus status)
+        internal void SetStatus(QuestStatus status)
         {
             Status = status;
         }
