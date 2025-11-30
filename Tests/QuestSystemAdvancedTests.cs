@@ -14,7 +14,7 @@ namespace DynamicBox.Quest.Tests
     {
         public static void RunAdvancedTests()
         {
-            Console.WriteLine("=== Running Advanced Quest System Tests ===");
+            Debug.Log("=== Running Advanced Quest System Tests ===");
             
             // Manual quest control tests
             TestManualQuestCompletion();
@@ -37,12 +37,12 @@ namespace DynamicBox.Quest.Tests
             TestCorruptedConditionHandling();
             TestMissingPrerequisiteHandling();
             
-            Console.WriteLine("✓ All advanced tests passed!");
+            Debug.Log("✓ All advanced tests passed!");
         }
 
         private static void TestManualQuestCompletion()
         {
-            Console.WriteLine("\n[ADVANCED TEST] Manual Quest Completion");
+            Debug.Log("\n[ADVANCED TEST] Manual Quest Completion");
 
             var questManager = CreateTestQuestManager();
             try
@@ -72,7 +72,7 @@ namespace DynamicBox.Quest.Tests
                 if (questManager.ActiveQuests.Count != 0)
                     throw new Exception("Quest should be removed from active quests");
 
-                Console.WriteLine("✓ Manual quest completion works correctly");
+                Debug.Log("✓ Manual quest completion works correctly");
             }
             finally
             {
@@ -82,7 +82,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestManualQuestFailure()
         {
-            Console.WriteLine("\n[ADVANCED TEST] Manual Quest Failure");
+            Debug.Log("\n[ADVANCED TEST] Manual Quest Failure");
 
             var questManager = CreateTestQuestManager();
             try
@@ -112,7 +112,7 @@ namespace DynamicBox.Quest.Tests
                 if (questManager.ActiveQuests.Count != 0)
                     throw new Exception("Quest should be removed from active quests");
 
-                Console.WriteLine("✓ Manual quest failure works correctly");
+                Debug.Log("✓ Manual quest failure works correctly");
             }
             finally
             {
@@ -122,7 +122,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestCanProgressObjectiveValidation()
         {
-            Console.WriteLine("\n[ADVANCED TEST] CanProgressObjective Validation");
+            Debug.Log("\n[ADVANCED TEST] CanProgressObjective Validation");
 
             // Create complex prerequisite chain
             var obj1 = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
@@ -176,12 +176,12 @@ namespace DynamicBox.Quest.Tests
             if (!canProgress)
                 throw new Exception("obj3 should progress after both prerequisites completed");
 
-            Console.WriteLine("✓ CanProgressObjective validation works correctly");
+            Debug.Log("✓ CanProgressObjective validation works correctly");
         }
 
         private static void TestQuestContextWithServices()
         {
-            Console.WriteLine("\n[ADVANCED TEST] QuestContext With Services");
+            Debug.Log("\n[ADVANCED TEST] QuestContext With Services");
 
             // Create a QuestContext with null services (common scenario)
             var context = new QuestContext(null, null, null);
@@ -196,19 +196,19 @@ namespace DynamicBox.Quest.Tests
             {
                 // This should not crash even with null services in context
                 itemCondition.Bind(DynamicBox.EventManagement.EventManager.Instance, context, () => { });
-                Console.WriteLine("   ✓ Condition binding handles null services gracefully");
+                Debug.Log("   ✓ Condition binding handles null services gracefully");
             }
             catch (Exception ex)
             {
                 throw new Exception($"Condition binding should handle null services: {ex.Message}");
             }
 
-            Console.WriteLine("✓ QuestContext with services works correctly");
+            Debug.Log("✓ QuestContext with services works correctly");
         }
 
         private static void TestQuestPlayerRefBuildContext()
         {
-            Console.WriteLine("\n[ADVANCED TEST] QuestPlayerRef BuildContext");
+            Debug.Log("\n[ADVANCED TEST] QuestPlayerRef BuildContext");
 
             var playerRefObject = new GameObject("TestPlayerRef");
             try
@@ -221,7 +221,7 @@ namespace DynamicBox.Quest.Tests
                 if (context == null)
                     throw new Exception("BuildContext should return a valid context");
 
-                Console.WriteLine("✓ QuestPlayerRef BuildContext works correctly");
+                Debug.Log("✓ QuestPlayerRef BuildContext works correctly");
             }
             finally
             {
@@ -231,7 +231,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestEvaluateObjectiveAndQuestLogic()
         {
-            Console.WriteLine("\n[ADVANCED TEST] EvaluateObjectiveAndQuest Logic");
+            Debug.Log("\n[ADVANCED TEST] EvaluateObjectiveAndQuest Logic");
 
             var questManager = CreateTestQuestManager();
             try
@@ -282,7 +282,7 @@ namespace DynamicBox.Quest.Tests
                 if (!objectiveChanged)
                     throw new Exception("Objective status change event should fire");
 
-                Console.WriteLine("✓ EvaluateObjectiveAndQuest logic works correctly");
+                Debug.Log("✓ EvaluateObjectiveAndQuest logic works correctly");
             }
             finally
             {
@@ -292,7 +292,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestMarkDirtyAndProcessQueue()
         {
-            Console.WriteLine("\n[ADVANCED TEST] MarkDirty and ProcessQueue");
+            Debug.Log("\n[ADVANCED TEST] MarkDirty and ProcessQueue");
 
             var questManager = CreateTestQuestManager();
             try
@@ -327,7 +327,7 @@ namespace DynamicBox.Quest.Tests
                 if (statusChangeCount == 0)
                     throw new Exception("At least one status change should have been processed");
 
-                Console.WriteLine($"✓ Processed {statusChangeCount} status changes through dirty queue");
+                Debug.Log($"✓ Processed {statusChangeCount} status changes through dirty queue");
             }
             finally
             {
@@ -337,7 +337,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestComplexPrerequisiteChains()
         {
-            Console.WriteLine("\n[ADVANCED TEST] Complex Prerequisite Chains");
+            Debug.Log("\n[ADVANCED TEST] Complex Prerequisite Chains");
 
             // Create a diamond dependency pattern: obj1 -> obj2, obj1 -> obj3, obj2+obj3 -> obj4
             var obj1 = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
@@ -400,12 +400,12 @@ namespace DynamicBox.Quest.Tests
             if (!canProgress4)
                 throw new Exception("obj4 should be progressable after both obj2 and obj3 are complete");
 
-            Console.WriteLine("✓ Complex prerequisite chains work correctly");
+            Debug.Log("✓ Complex prerequisite chains work correctly");
         }
 
         private static void TestNestedConditionPerformance()
         {
-            Console.WriteLine("\n[ADVANCED TEST] Nested Condition Performance");
+            Debug.Log("\n[ADVANCED TEST] Nested Condition Performance");
 
             // Create deeply nested condition groups to test performance
             var deepestConditions = new System.Collections.Generic.List<IConditionInstance>();
@@ -439,15 +439,15 @@ namespace DynamicBox.Quest.Tests
             // Should complete quickly (under 10ms for this simple case)
             if (bindTime.TotalMilliseconds > 10 || evalTime.TotalMilliseconds > 10)
             {
-                Console.WriteLine($"   Warning: Nested conditions took {bindTime.TotalMilliseconds:F1}ms to bind, {evalTime.TotalMilliseconds:F1}ms to evaluate");
+                Debug.Log($"   Warning: Nested conditions took {bindTime.TotalMilliseconds:F1}ms to bind, {evalTime.TotalMilliseconds:F1}ms to evaluate");
             }
 
-            Console.WriteLine("✓ Nested condition performance acceptable");
+            Debug.Log("✓ Nested condition performance acceptable");
         }
 
         private static void TestCorruptedConditionHandling()
         {
-            Console.WriteLine("\n[ADVANCED TEST] Corrupted Condition Handling");
+            Debug.Log("\n[ADVANCED TEST] Corrupted Condition Handling");
 
             var questManager = CreateTestQuestManager();
             try
@@ -473,7 +473,7 @@ namespace DynamicBox.Quest.Tests
                 if (objState.CompletionInstance != null)
                     throw new Exception("Completion instance should be null for null condition");
 
-                Console.WriteLine("✓ Corrupted condition handling works correctly");
+                Debug.Log("✓ Corrupted condition handling works correctly");
             }
             finally
             {
@@ -483,7 +483,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestMissingPrerequisiteHandling()
         {
-            Console.WriteLine("\n[ADVANCED TEST] Missing Prerequisite Handling");
+            Debug.Log("\n[ADVANCED TEST] Missing Prerequisite Handling");
 
             // Create objective that references a prerequisite not in the quest
             var missingPrereq = new ObjectiveBuilder().WithObjectiveId("missing_obj").Build();
@@ -508,11 +508,11 @@ namespace DynamicBox.Quest.Tests
 
             // Based on current implementation, this should return true (treats missing as skippable)
             if (!canProgress)
-                Console.WriteLine("   Note: Missing prerequisites are treated as blocking (strict validation)");
+                Debug.Log("   Note: Missing prerequisites are treated as blocking (strict validation)");
             else
-                Console.WriteLine("   Note: Missing prerequisites are skipped (lenient validation)");
+                Debug.Log("   Note: Missing prerequisites are skipped (lenient validation)");
 
-            Console.WriteLine("✓ Missing prerequisite handling works correctly");
+            Debug.Log("✓ Missing prerequisite handling works correctly");
         }
 
         // Helper methods

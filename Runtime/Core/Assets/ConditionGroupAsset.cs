@@ -10,8 +10,15 @@ namespace DynamicBox.Quest.Core
     /// </summary>
     public enum ConditionOperator
     {
-        And,  // All child conditions must be met
-        Or    // At least one child condition must be met
+        /// <summary>
+        /// All child conditions must be met for the group to succeed.
+        /// </summary>
+        And,
+        
+        /// <summary>
+        /// At least one child condition must be met for the group to succeed.
+        /// </summary>
+        Or
     }
 
     /// <summary>

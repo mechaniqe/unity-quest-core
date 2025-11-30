@@ -71,7 +71,7 @@ namespace DynamicBox.Quest.Tests
             // Final cleanup
             CleanupExistingTestObjects();
 
-            Console.WriteLine("✓ All comprehensive tests passed!");
+            Debug.Log("✓ All comprehensive tests passed!");
         }
 
         private static void CleanupExistingTestObjects()
@@ -97,13 +97,13 @@ namespace DynamicBox.Quest.Tests
 
             if (testQuestManagers.Length > 0 || testPlayerRefs.Length > 0)
             {
-                Console.WriteLine($"Cleaned up {testQuestManagers.Length} test quest managers and {testPlayerRefs.Length} test player refs");
+                Debug.Log($"Cleaned up {testQuestManagers.Length} test quest managers and {testPlayerRefs.Length} test player refs");
             }
         }
 
         private static void TestItemCollectedConditionCompletion()
         {
-            Console.WriteLine("\n[TEST] Item Collected Condition Completion");
+            Debug.Log("\n[TEST] Item Collected Condition Completion");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -127,12 +127,12 @@ namespace DynamicBox.Quest.Tests
             if (!changeTriggered)
                 throw new Exception("onChanged callback should have been triggered");
 
-            Console.WriteLine("✓ Item collected condition works correctly");
+            Debug.Log("✓ Item collected condition works correctly");
         }
 
         private static void TestItemCollectedConditionMultipleEvents()
         {
-            Console.WriteLine("\n[TEST] Item Collected Condition - Multiple Events");
+            Debug.Log("\n[TEST] Item Collected Condition - Multiple Events");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -172,12 +172,12 @@ namespace DynamicBox.Quest.Tests
             if (!changeTriggered)
                 throw new Exception("Change should have been triggered");
 
-            Console.WriteLine("✓ Item collected condition handles multiple events correctly");
+            Debug.Log("✓ Item collected condition handles multiple events correctly");
         }
 
         private static void TestItemCollectedConditionUnbinding()
         {
-            Console.WriteLine("\n[TEST] Item Collected Condition - Unbinding");
+            Debug.Log("\n[TEST] Item Collected Condition - Unbinding");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -201,12 +201,12 @@ namespace DynamicBox.Quest.Tests
             if (changeTriggered)
                 throw new Exception("Change should not be triggered after unbinding");
 
-            Console.WriteLine("✓ Item collected condition unbinding works correctly");
+            Debug.Log("✓ Item collected condition unbinding works correctly");
         }
 
         private static void TestFailConditionTriggersQuestFailure()
         {
-            Console.WriteLine("\n[TEST] Fail Condition Triggers Quest Failure");
+            Debug.Log("\n[TEST] Fail Condition Triggers Quest Failure");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -246,12 +246,12 @@ namespace DynamicBox.Quest.Tests
             if (completionCondition == null)
                 throw new Exception("Completion condition should be created");
 
-            Console.WriteLine("✓ Fail condition triggers correctly");
+            Debug.Log("✓ Fail condition triggers correctly");
         }
 
         private static void TestConditionGroupAnd()
         {
-            Console.WriteLine("\n[TEST] Condition Group AND Logic");
+            Debug.Log("\n[TEST] Condition Group AND Logic");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -278,12 +278,12 @@ namespace DynamicBox.Quest.Tests
             if (!changeTriggered)
                 throw new Exception("Change should have been triggered");
 
-            Console.WriteLine("✓ Condition Group AND logic works correctly");
+            Debug.Log("✓ Condition Group AND logic works correctly");
         }
 
         private static void TestConditionGroupOr()
         {
-            Console.WriteLine("\n[TEST] Condition Group OR Logic");
+            Debug.Log("\n[TEST] Condition Group OR Logic");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -306,12 +306,12 @@ namespace DynamicBox.Quest.Tests
             if (!changeTriggered)
                 throw new Exception("Change should have been triggered");
 
-            Console.WriteLine("✓ Condition Group OR logic works correctly");
+            Debug.Log("✓ Condition Group OR logic works correctly");
         }
 
         private static void TestConditionGroupNestedLogic()
         {
-            Console.WriteLine("\n[TEST] Condition Group - Nested Logic");
+            Debug.Log("\n[TEST] Condition Group - Nested Logic");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -350,12 +350,12 @@ namespace DynamicBox.Quest.Tests
             if (!changeTriggered)
                 throw new Exception("Change should have been triggered");
 
-            Console.WriteLine("✓ Condition group nested logic works correctly");
+            Debug.Log("✓ Condition group nested logic works correctly");
         }
 
         private static void TestConditionGroupPollingChildren()
         {
-            Console.WriteLine("\n[TEST] Condition Group - Polling Children");
+            Debug.Log("\n[TEST] Condition Group - Polling Children");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -378,14 +378,14 @@ namespace DynamicBox.Quest.Tests
 
             // Verify that change callback is properly bound (even if not triggered in this test)
             if (changeTriggered)
-                Console.WriteLine("   Note: Change was triggered during polling test");
+                Debug.Log("   Note: Change was triggered during polling test");
 
-            Console.WriteLine("✓ Condition group polling children works correctly");
+            Debug.Log("✓ Condition group polling children works correctly");
         }
 
         private static void TestPrerequisiteObjectives()
         {
-            Console.WriteLine("\n[TEST] Prerequisite Objectives");
+            Debug.Log("\n[TEST] Prerequisite Objectives");
 
             var obj1 = new ObjectiveBuilder()
                 .WithObjectiveId("obj1")
@@ -439,12 +439,12 @@ namespace DynamicBox.Quest.Tests
             if (!canProgress)
                 throw new Exception("obj2 should be able to progress after obj1 is completed");
 
-            Console.WriteLine("✓ Prerequisite objectives work correctly");
+            Debug.Log("✓ Prerequisite objectives work correctly");
         }
 
         private static void TestOptionalObjectives()
         {
-            Console.WriteLine("\n[TEST] Optional Objectives");
+            Debug.Log("\n[TEST] Optional Objectives");
 
             var mandatoryObj = new ObjectiveBuilder()
                 .WithObjectiveId("mandatory")
@@ -492,12 +492,12 @@ namespace DynamicBox.Quest.Tests
             if (!allRequired)
                 throw new Exception("Quest should be complete when all mandatory objectives are complete");
 
-            Console.WriteLine("✓ Optional objectives work correctly");
+            Debug.Log("✓ Optional objectives work correctly");
         }
 
         private static void TestMultiplePrerequisites()
         {
-            Console.WriteLine("\n[TEST] Multiple Prerequisites");
+            Debug.Log("\n[TEST] Multiple Prerequisites");
 
             var obj1 = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
             var obj2 = new ObjectiveBuilder().WithObjectiveId("obj2").Build();
@@ -553,12 +553,12 @@ namespace DynamicBox.Quest.Tests
             if (!canProgress)
                 throw new Exception("obj3 should be able to progress after both prerequisites are completed");
 
-            Console.WriteLine("✓ Multiple prerequisites work correctly");
+            Debug.Log("✓ Multiple prerequisites work correctly");
         }
 
         private static void TestAreaEnteredCondition()
         {
-            Console.WriteLine("\n[TEST] Area Entered Condition");
+            Debug.Log("\n[TEST] Area Entered Condition");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -591,12 +591,12 @@ namespace DynamicBox.Quest.Tests
             if (!changeTriggered)
                 throw new Exception("Change should be triggered when entering area");
 
-            Console.WriteLine("✓ Area entered condition works correctly");
+            Debug.Log("✓ Area entered condition works correctly");
         }
 
         private static void TestCustomFlagCondition()
         {
-            Console.WriteLine("\n[TEST] Custom Flag Condition");
+            Debug.Log("\n[TEST] Custom Flag Condition");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -634,12 +634,12 @@ namespace DynamicBox.Quest.Tests
             if (!changeTriggered)
                 throw new Exception("Change should be triggered when setting flag");
 
-            Console.WriteLine("✓ Custom flag condition works correctly");
+            Debug.Log("✓ Custom flag condition works correctly");
         }
 
         private static void TestCustomFlagConditionToggle()
         {
-            Console.WriteLine("\n[TEST] Custom Flag Condition Toggle");
+            Debug.Log("\n[TEST] Custom Flag Condition Toggle");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -671,12 +671,12 @@ namespace DynamicBox.Quest.Tests
             if (changeCount != 2)
                 throw new Exception($"Expected 2 change notifications, got {changeCount}");
 
-            Console.WriteLine("✓ Custom flag condition toggle works correctly");
+            Debug.Log("✓ Custom flag condition toggle works correctly");
         }
 
         private static void TestTimeElapsedCondition()
         {
-            Console.WriteLine("\n[TEST] Time Elapsed Condition");
+            Debug.Log("\n[TEST] Time Elapsed Condition");
 
             var eventManager = EventManager.Instance;
             var context = new QuestContext(null, null, null);
@@ -700,25 +700,25 @@ namespace DynamicBox.Quest.Tests
             if (pollingCondition != null)
             {
                 pollingCondition.Refresh(context, () => changeTriggered = true);
-                Console.WriteLine("   Time condition supports polling");
+                Debug.Log("   Time condition supports polling");
             }
             else
             {
-                Console.WriteLine("   Note: Time condition doesn't implement polling interface");
+                Debug.Log("   Note: Time condition doesn't implement polling interface");
             }
 
             // Verify the condition is properly initialized
             if (!changeTriggered)
             {
-                Console.WriteLine("   Note: Change not triggered during test (normal for time-based conditions)");
+                Debug.Log("   Note: Change not triggered during test (normal for time-based conditions)");
             }
 
-            Console.WriteLine("✓ Time elapsed condition works correctly");
+            Debug.Log("✓ Time elapsed condition works correctly");
         }
 
         private static void TestPollingConditionIntegration()
         {
-            Console.WriteLine("\n[TEST] Polling Condition Integration");
+            Debug.Log("\n[TEST] Polling Condition Integration");
 
             var mockPollingCondition = new MockPollingConditionInstance();
             var eventManager = EventManager.Instance;
@@ -736,12 +736,12 @@ namespace DynamicBox.Quest.Tests
             if (!mockPollingCondition.IsMet)
                 throw new Exception("Polling condition should be met after being set");
 
-            Console.WriteLine("✓ Polling condition integration works correctly");
+            Debug.Log("✓ Polling condition integration works correctly");
         }
 
         private static void TestQuestManagerStartStopQuest()
         {
-            Console.WriteLine("\n[TEST] QuestManager Start/Stop Quest");
+            Debug.Log("\n[TEST] QuestManager Start/Stop Quest");
 
             var questManager = CreateTestQuestManager();
             try
@@ -769,7 +769,7 @@ namespace DynamicBox.Quest.Tests
                 if (questManager.ActiveQuests.Count != 0)
                     throw new Exception("QuestManager should have 0 active quests after stopping");
 
-                Console.WriteLine("✓ QuestManager start/stop quest works correctly");
+                Debug.Log("✓ QuestManager start/stop quest works correctly");
             }
             finally
             {
@@ -779,7 +779,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestQuestManagerEventHandling()
         {
-            Console.WriteLine("\n[TEST] QuestManager Event Handling");
+            Debug.Log("\n[TEST] QuestManager Event Handling");
 
             var questManager = CreateTestQuestManager();
             try
@@ -823,7 +823,7 @@ namespace DynamicBox.Quest.Tests
                 if (failedTriggered)
                     throw new Exception("Quest failed event should not be triggered for successful completion");
 
-                Console.WriteLine("✓ QuestManager event handling works correctly");
+                Debug.Log("✓ QuestManager event handling works correctly");
             }
             finally
             {
@@ -833,7 +833,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestQuestManagerPollingIntegration()
         {
-            Console.WriteLine("\n[TEST] QuestManager Polling Integration");
+            Debug.Log("\n[TEST] QuestManager Polling Integration");
 
             var questManager = CreateTestQuestManager();
             try
@@ -861,7 +861,7 @@ namespace DynamicBox.Quest.Tests
                 if (conditionInstance == null || !conditionInstance.RefreshCalled)
                     throw new Exception("Polling condition should be refreshed by QuestManager");
 
-                Console.WriteLine("✓ QuestManager polling integration works correctly");
+                Debug.Log("✓ QuestManager polling integration works correctly");
             }
             finally
             {
@@ -871,7 +871,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestQuestManagerMultipleQuests()
         {
-            Console.WriteLine("\n[TEST] QuestManager Multiple Quests");
+            Debug.Log("\n[TEST] QuestManager Multiple Quests");
 
             var questManager = CreateTestQuestManager();
             try
@@ -895,7 +895,7 @@ namespace DynamicBox.Quest.Tests
                 if (!questManager.ActiveQuests.Contains(state2))
                     throw new Exception("QuestManager should still contain quest2");
 
-                Console.WriteLine("✓ QuestManager multiple quests work correctly");
+                Debug.Log("✓ QuestManager multiple quests work correctly");
             }
             finally
             {
@@ -905,7 +905,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestQuestStateTransitions()
         {
-            Console.WriteLine("\n[TEST] Quest State Transitions");
+            Debug.Log("\n[TEST] Quest State Transitions");
 
             var quest = new QuestBuilder()
                 .WithQuestId("test_quest")
@@ -931,12 +931,12 @@ namespace DynamicBox.Quest.Tests
             if (questState.Status != QuestStatus.Failed)
                 throw new Exception("Quest status should update to Failed");
 
-            Console.WriteLine("✓ Quest state transitions work correctly");
+            Debug.Log("✓ Quest state transitions work correctly");
         }
 
         private static void TestObjectiveStateTransitions()
         {
-            Console.WriteLine("\n[TEST] Objective State Transitions");
+            Debug.Log("\n[TEST] Objective State Transitions");
 
             var objective = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
             var objectiveState = new ObjectiveState(objective);
@@ -958,12 +958,12 @@ namespace DynamicBox.Quest.Tests
             if (objectiveState.Status != ObjectiveStatus.Failed)
                 throw new Exception("Objective status should update to Failed");
 
-            Console.WriteLine("✓ Objective state transitions work correctly");
+            Debug.Log("✓ Objective state transitions work correctly");
         }
 
         private static void TestQuestLogManagement()
         {
-            Console.WriteLine("\n[TEST] Quest Log Management");
+            Debug.Log("\n[TEST] Quest Log Management");
 
             var questLog = new QuestLog();
             var quest = new QuestBuilder()
@@ -988,12 +988,12 @@ namespace DynamicBox.Quest.Tests
             if (questLog.Active.Count != 0)
                 throw new Exception("Quest log should be empty after removing quest");
 
-            Console.WriteLine("✓ Quest log management works correctly");
+            Debug.Log("✓ Quest log management works correctly");
         }
 
         private static void TestNullConditionHandling()
         {
-            Console.WriteLine("\n[TEST] Null Condition Handling");
+            Debug.Log("\n[TEST] Null Condition Handling");
 
             var objective = new ObjectiveBuilder()
                 .WithObjectiveId("obj1")
@@ -1006,12 +1006,12 @@ namespace DynamicBox.Quest.Tests
             if (objectiveState.CompletionInstance != null)
                 throw new Exception("Completion instance should be null when no condition is provided");
 
-            Console.WriteLine("✓ Null condition handling works correctly");
+            Debug.Log("✓ Null condition handling works correctly");
         }
 
         private static void TestEmptyQuestHandling()
         {
-            Console.WriteLine("\n[TEST] Empty Quest Handling");
+            Debug.Log("\n[TEST] Empty Quest Handling");
 
             var quest = new QuestBuilder()
                 .WithQuestId("empty_quest")
@@ -1029,12 +1029,12 @@ namespace DynamicBox.Quest.Tests
             if (!allRequired)
                 throw new Exception("Empty quest should be considered complete");
 
-            Console.WriteLine("✓ Empty quest handling works correctly");
+            Debug.Log("✓ Empty quest handling works correctly");
         }
 
         private static void TestDuplicateObjectiveIds()
         {
-            Console.WriteLine("\n[TEST] Duplicate Objective IDs");
+            Debug.Log("\n[TEST] Duplicate Objective IDs");
 
             var obj1 = new ObjectiveBuilder().WithObjectiveId("duplicate").Build();
             var obj2 = new ObjectiveBuilder().WithObjectiveId("duplicate").Build();
@@ -1054,7 +1054,7 @@ namespace DynamicBox.Quest.Tests
             {
                 if (ex.Message.Contains("An item with the same key has already been added"))
                 {
-                    Console.WriteLine("✓ Duplicate objective IDs properly rejected");
+                    Debug.Log("✓ Duplicate objective IDs properly rejected");
                 }
                 else
                 {
@@ -1065,7 +1065,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestCircularPrerequisites()
         {
-            Console.WriteLine("\n[TEST] Circular Prerequisites");
+            Debug.Log("\n[TEST] Circular Prerequisites");
 
             var obj1 = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
             var obj2 = new ObjectiveBuilder().WithObjectiveId("obj2").AddPrerequisite(obj1).Build();
@@ -1087,12 +1087,12 @@ namespace DynamicBox.Quest.Tests
             // Both objectives should be blocked by each other
             // This demonstrates the need for circular dependency detection in a real implementation
             
-            Console.WriteLine("✓ Circular prerequisites detection needed (limitation noted)");
+            Debug.Log("✓ Circular prerequisites detection needed (limitation noted)");
         }
 
         private static void TestCompleteQuestFlow()
         {
-            Console.WriteLine("\n[TEST] Complete Quest Flow");
+            Debug.Log("\n[TEST] Complete Quest Flow");
 
             var eventManager = EventManager.Instance;
             var questManager = CreateTestQuestManager();
@@ -1157,7 +1157,7 @@ namespace DynamicBox.Quest.Tests
                 if (!questCompleted)
                     throw new Exception("Quest should be completed after fulfilling all requirements");
 
-                Console.WriteLine("✓ Complete quest flow works correctly");
+                Debug.Log("✓ Complete quest flow works correctly");
             }
             finally
             {
@@ -1167,7 +1167,7 @@ namespace DynamicBox.Quest.Tests
 
         private static void TestComplexQuestWithFailure()
         {
-            Console.WriteLine("\n[TEST] Complex Quest With Failure");
+            Debug.Log("\n[TEST] Complex Quest With Failure");
 
             var eventManager = EventManager.Instance;
             var questManager = CreateTestQuestManager();
@@ -1206,7 +1206,7 @@ namespace DynamicBox.Quest.Tests
                 if (questState.Status != QuestStatus.Failed)
                     throw new Exception("Quest status should be Failed");
 
-                Console.WriteLine("✓ Complex quest with failure works correctly");
+                Debug.Log("✓ Complex quest with failure works correctly");
             }
             finally
             {

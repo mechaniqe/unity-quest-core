@@ -118,26 +118,25 @@ namespace DynamicBox.Quest.Core
         /// Manually completes a quest (for debugging/editor support).
         /// </summary>
         public void CompleteQuest(QuestState questState)
-        {
-            if (_bindingService == null || _log == null)
-                return;
-
-            questState.SetStatus(QuestStatus.Completed);
-            OnQuestCompleted?.Invoke(questState);
-            _bindingService.UnbindQuest(questState);
-            _log.RemoveQuest(questState);
-        }
+            => EndQuest(questState, QuestStatus.Completed, OnQuestCompleted);
 
         /// <summary>
         /// Manually fails a quest (for debugging/editor support).
         /// </summary>
         public void FailQuest(QuestState questState)
+            => EndQuest(questState, QuestStatus.Failed, OnQuestFailed);
+
+        /// <summary>
+        /// Internal helper to end a quest with a specific status.
+        /// Handles cleanup and event notification.
+        /// </summary>
+        private void EndQuest(QuestState questState, QuestStatus status, Action<QuestState>? eventHandler)
         {
             if (_bindingService == null || _log == null)
                 return;
 
-            questState.SetStatus(QuestStatus.Failed);
-            OnQuestFailed?.Invoke(questState);
+            questState.SetStatus(status);
+            eventHandler?.Invoke(questState);
             _bindingService.UnbindQuest(questState);
             _log.RemoveQuest(questState);
         }

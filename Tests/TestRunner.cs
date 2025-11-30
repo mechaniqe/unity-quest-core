@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace DynamicBox.Quest.Tests
 {
@@ -13,15 +14,15 @@ namespace DynamicBox.Quest.Tests
         /// </summary>
         public static void RunUnitTests()
         {
-            Console.WriteLine("=== Running Quest System Unit Tests ===");
+            Debug.Log("=== Running Quest System Unit Tests ===");
             try
             {
                 QuestSystemTests.RunAllTests();
-                Console.WriteLine("=== Unit Tests Completed Successfully ===");
+                Debug.Log("=== Unit Tests Completed Successfully ===");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"=== Unit Tests Failed: {ex.Message} ===");
+                Debug.LogError($"=== Unit Tests Failed: {ex.Message} ===");
                 throw;
             }
         }
@@ -49,22 +50,22 @@ namespace DynamicBox.Quest.Tests
                 
                 if (unitTestType == null)
                 {
-                    Console.WriteLine("ERROR: QuestSystemTests class not found");
+                    Debug.LogError("QuestSystemTests class not found");
                     return false;
                 }
                 
                 if (integrationTestType == null)
                 {
-                    Console.WriteLine("ERROR: QuestSystemIntegrationTests class not found");
+                    Debug.LogError("QuestSystemIntegrationTests class not found");
                     return false;
                 }
 
-                Console.WriteLine("✓ Test setup validation passed");
+                Debug.Log("✓ Test setup validation passed");
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERROR: Test setup validation failed: {ex.Message}");
+                Debug.LogError($"Test setup validation failed: {ex.Message}");
                 return false;
             }
         }
