@@ -7,15 +7,31 @@ namespace DynamicBox.Quest.Core
     /// <summary>
     /// Context object that provides game services to condition instances.
     /// Acts as a type-safe service locator for quest-related game systems.
+    /// Services are stored in a single dictionary to avoid duplication.
     /// </summary>
     public sealed class QuestContext
     {
         private readonly Dictionary<Type, object> _services = new();
 
-        public IQuestAreaService? AreaService { get; }
-        public IQuestInventoryService? InventoryService { get; }
-        public IQuestTimeService? TimeService { get; }
-        public IQuestFlagService? FlagService { get; }
+        /// <summary>
+        /// Convenience property for accessing the area service.
+        /// </summary>
+        public IQuestAreaService? AreaService => GetService<IQuestAreaService>();
+
+        /// <summary>
+        /// Convenience property for accessing the inventory service.
+        /// </summary>
+        public IQuestInventoryService? InventoryService => GetService<IQuestInventoryService>();
+
+        /// <summary>
+        /// Convenience property for accessing the time service.
+        /// </summary>
+        public IQuestTimeService? TimeService => GetService<IQuestTimeService>();
+
+        /// <summary>
+        /// Convenience property for accessing the flag service.
+        /// </summary>
+        public IQuestFlagService? FlagService => GetService<IQuestFlagService>();
 
         public QuestContext(
             IQuestAreaService? areaService = null,
@@ -23,11 +39,6 @@ namespace DynamicBox.Quest.Core
             IQuestTimeService? timeService = null,
             IQuestFlagService? flagService = null)
         {
-            AreaService = areaService;
-            InventoryService = inventoryService;
-            TimeService = timeService;
-            FlagService = flagService;
-
             // Register services in type-safe dictionary
             if (areaService != null)
                 _services[typeof(IQuestAreaService)] = areaService;

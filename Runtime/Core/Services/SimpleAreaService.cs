@@ -14,6 +14,9 @@ namespace DynamicBox.Quest.Core.Services
         [Header("Configuration")]
         [SerializeField] private string startingAreaId = "starting_zone";
 
+        [Header("Debug")]
+        [SerializeField] private bool logAreaTransitions = false;
+
         private string? _currentAreaId;
         private readonly HashSet<string> _visitedAreas = new();
 
@@ -50,7 +53,10 @@ namespace DynamicBox.Quest.Core.Services
             _currentAreaId = areaId;
             _visitedAreas.Add(areaId);
 
-            Debug.Log($"[QuestAreaService] Area transition: {previousArea ?? "null"} → {areaId}");
+            if (logAreaTransitions)
+            {
+                Debug.Log($"[QuestAreaService] Area transition: {previousArea ?? "null"} → {areaId}");
+            }
         }
 
         /// <summary>
