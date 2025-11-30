@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using DynamicBox.Quest.Core;
 using DynamicBox.Quest.Core.Conditions;
+using DynamicBox.Quest.Core.Services;
 using DynamicBox.Quest.GameEvents;
 using DynamicBox.EventManagement;
 using System.Linq;
@@ -78,19 +79,31 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[INTEGRATION TEST] QuestManager Lifecycle");
 
-            // Create QuestManager instance
-            var questManagerGO = new GameObject("TestQuestManager");
-            var questManager = questManagerGO.AddComponent<QuestManager>();
-            
+            // Create PlayerRef first
             var playerRefGO = new GameObject("TestPlayerRef");
             var playerRef = playerRefGO.AddComponent<QuestPlayerRef>();
+            
+            // Create QuestManager GameObject but keep it inactive to prevent Awake from running
+            var questManagerGO = new GameObject("TestQuestManager");
+            questManagerGO.SetActive(false);
+            
+            var questManager = questManagerGO.AddComponent<QuestManager>();
 
-            // Set player ref using reflection
+            // Set player ref using reflection while GameObject is inactive
             var playerRefField = typeof(QuestManager).GetField("playerRef",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            playerRefField?.SetValue(questManager, playerRef);
+            
+            if (playerRefField == null)
+            {
+                throw new Exception("Could not find playerRef field on QuestManager");
+            }
+            
+            playerRefField.SetValue(questManager, playerRef);
 
-            // Wait for Awake/Start to be called
+            // Now activate the GameObject, which will call Awake with playerRef properly set
+            questManagerGO.SetActive(true);
+
+            // Wait a frame for initialization
             yield return null;
 
             if (questManager.ActiveQuests.Count != 0)
@@ -150,18 +163,61 @@ namespace DynamicBox.Quest.Tests
                     .Build();
 
                 bool questCompleted = false;
-                questManager.OnQuestCompleted += (q) => questCompleted = true;
+                questManager.OnQuestCompleted += (q) => 
+                {
+                    Debug.Log($"Quest completed callback triggered at time {Time.time}");
+                    questCompleted = true;
+                };
 
+                Debug.Log($"Starting quest at time {Time.time}");
                 questManager.StartQuest(quest);
+                
+                // Check quest state and context after start
+                var questLog = typeof(QuestManager).GetField("_log",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    ?.GetValue(questManager) as QuestLog;
+                
+                var context = typeof(QuestManager).GetField("_context",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    ?.GetValue(questManager) as QuestContext;
+                
+                Debug.Log($"QuestContext exists: {context != null}, TimeService exists: {context?.TimeService != null}");
+                if (context?.TimeService != null)
+                {
+                    Debug.Log($"TimeService type: {context.TimeService.GetType().Name}, DeltaTime: {context.TimeService.DeltaTime}");
+                }
+                
+                if (questLog != null)
+                {
+                    var activeQuests = questLog.Active.ToList();
+                    Debug.Log($"Active quests: {activeQuests.Count}");
+                    if (activeQuests.Count > 0)
+                    {
+                        var questState = activeQuests[0];
+                        Debug.Log($"Quest status: {questState.Status}");
+                        var objectives = questState.GetObjectiveStates().ToList();
+                        Debug.Log($"Objectives count: {objectives.Count}");
+                        if (objectives.Count > 0)
+                        {
+                            var obj = objectives[0];
+                            Debug.Log($"Objective status: {obj.Status}, CanProgress: {obj.CanProgress(questState)}, CompletionInstance type: {obj.CompletionInstance?.GetType().Name}");
+                        }
+                    }
+                }
 
                 // Wait for polling to complete the quest
                 float timeout = 1.0f;
+                float startTime = Time.time;
+                int frameCount = 0;
                 while (!questCompleted && timeout > 0)
                 {
                     timeout -= Time.deltaTime;
+                    frameCount++;
                     yield return null;
                 }
 
+                Debug.Log($"Waited {Time.time - startTime} seconds over {frameCount} frames. Quest completed: {questCompleted}");
+                
                 if (!questCompleted)
                     throw new Exception("Quest should have completed via polling system");
 
@@ -563,6 +619,9 @@ namespace DynamicBox.Quest.Tests
             
             var playerRefGO = new GameObject("TestPlayerRef");
             var playerRef = playerRefGO.AddComponent<QuestPlayerRef>();
+            
+            // Add DefaultTimeService for TimeElapsed conditions
+            var timeService = playerRefGO.AddComponent<DefaultTimeService>();
 
             var playerRefField = typeof(QuestManager).GetField("playerRef",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
