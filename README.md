@@ -44,13 +44,19 @@ In Unity Package Manager, click the `+` button and select "Add package from git 
 https://github.com/mechaniqe/unity-quest-core.git
 ```
 
-**Dependencies**: The DynamicBox EventManagement package will be automatically installed.
+**Dependencies**: You must manually install the DynamicBox EventManagement package:
+
+```
+https://github.com/mechaniqe/unity-event-manager.git
+```
 
 ### Manual Installation
 
 1. Clone the repository
 2. Copy the `Packages/net.dynamicbox.quest.core` folder to your project's `Packages/` directory
-3. Ensure the DynamicBox EventManagement dependency is available
+3. Install the DynamicBox EventManagement dependency manually:
+   - Via UPM: `https://github.com/mechaniqe/unity-event-manager.git`
+   - Or copy it to your `Packages/` directory
 
 ### Setup
 
