@@ -47,7 +47,7 @@ https://github.com/mechaniqe/unity-quest-core.git
 **Dependencies**: You must manually install the DynamicBox EventManagement package:
 
 ```
-https://github.com/mechaniqe/unity-event-manager.git
+https://github.com/mechaniqe/event-management.git
 ```
 
 ### Manual Installation
@@ -55,7 +55,7 @@ https://github.com/mechaniqe/unity-event-manager.git
 1. Clone the repository
 2. Copy the `Packages/net.dynamicbox.quest.core` folder to your project's `Packages/` directory
 3. Install the DynamicBox EventManagement dependency manually:
-   - Via UPM: `https://github.com/mechaniqe/unity-event-manager.git`
+   - Via UPM: `https://github.com/mechaniqe/event-management.git`
    - Or copy it to your `Packages/` directory
 
 ### Setup
