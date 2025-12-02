@@ -1,0 +1,284 @@
+/* Quest Graph Editor - Dark Theme Styles */
+
+/* Base Node Styling */
+.base-quest-node {
+    border-radius: 6px;
+    border-width: 2px;
+    min-width: 200px;
+    min-height: 100px;
+}
+
+.base-quest-node #title {
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 4px 4px 0 0;
+    padding: 8px;
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.base-quest-node #contents {
+    background-color: rgba(30, 30, 30, 0.95);
+}
+
+/* Quest Node */
+.quest-node {
+    background-color: #2A4D69;
+    border-color: #4B86B4;
+    min-width: 250px;
+}
+
+.quest-node.selected {
+    border-color: #FFD700;
+}
+
+.quest-node #title {
+    background-color: #1A3D59;
+}
+
+.quest-node #title-label {
+    color: #FFFFFF;
+}
+
+/* Objective Node */
+.objective-node {
+    background-color: #2D4A3E;
+    border-color: #4A7C59;
+    min-width: 250px;
+}
+
+.objective-node.selected {
+    border-color: #FFD700;
+}
+
+.objective-node #title {
+    background-color: #1D3A2E;
+}
+
+.objective-node #title-label {
+    color: #FFFFFF;
+}
+
+/* Condition Node Base */
+.condition-node {
+    background-color: #4A3D3A;
+    border-color: #8B7355;
+    min-width: 200px;
+}
+
+.condition-node.selected {
+    border-color: #FFD700;
+}
+
+.condition-node #title {
+    background-color: #3A2D2A;
+    font-size: 12px;
+}
+
+.condition-node #title-label {
+    color: #FFFFFF;
+}
+
+/* Specific Condition Node Types */
+.item-condition-node {
+    border-color: #8B6914;
+}
+
+.area-condition-node {
+    border-color: #6B8E23;
+}
+
+.time-condition-node {
+    border-color: #4682B4;
+}
+
+.flag-condition-node {
+    border-color: #8B008B;
+}
+
+.group-condition-node {
+    border-color: #B8860B;
+}
+
+/* Node Content Labels */
+.node-id-label {
+    color: #AAAAAA;
+    font-size: 10px;
+    padding: 2px 6px;
+    -unity-font-style: italic;
+}
+
+.node-name-label {
+    color: #FFFFFF;
+    font-size: 13px;
+    padding: 4px 6px;
+    -unity-font-style: bold;
+}
+
+.node-description-label {
+    color: #CCCCCC;
+    font-size: 11px;
+    padding: 2px 6px;
+    white-space: normal;
+}
+
+.node-stats-label {
+    color: #AAAAAA;
+    font-size: 10px;
+    padding: 2px 6px;
+}
+
+.node-prereq-label {
+    color: #888888;
+    font-size: 9px;
+    padding: 1px 6px;
+    -unity-font-style: italic;
+}
+
+.node-placeholder {
+    color: #888888;
+    font-size: 11px;
+    padding: 4px 6px;
+    -unity-font-style: italic;
+}
+
+/* Node Settings/Stats Container */
+.node-settings {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 4px;
+}
+
+.node-stats {
+    padding: 4px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    margin: 4px;
+}
+
+/* Badges */
+.node-badge {
+    padding: 3px 8px;
+    margin: 2px;
+    border-radius: 10px;
+    font-size: 10px;
+    color: #FFFFFF;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+/* Property Display */
+.property-container {
+    padding: 2px 6px;
+}
+
+.property-label {
+    color: #DDDDDD;
+    font-size: 11px;
+}
+
+.service-badge {
+    color: #88CCFF;
+    font-size: 10px;
+    padding: 2px 6px;
+}
+
+.condition-type-label {
+    color: #AAAAAA;
+    font-size: 9px;
+    padding: 2px 6px;
+    -unity-font-style: italic;
+}
+
+/* Ports */
+.completion-port > #connector {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+.failure-port > #connector {
+    background-color: #F44336;
+    border-color: #F44336;
+}
+
+.prerequisite-port > #connector {
+    background-color: #2196F3;
+    border-color: #2196F3;
+}
+
+/* Text Fields in Nodes */
+.node-textfield {
+    margin: 4px;
+    padding: 4px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+    color: #FFFFFF;
+}
+
+.node-textfield > Label {
+    color: #AAAAAA;
+    font-size: 10px;
+    min-width: 60px;
+}
+
+.node-textfield > TextInput {
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #FFFFFF;
+    border-radius: 2px;
+    padding: 2px 4px;
+}
+
+/* Grid Background */
+GridBackground {
+    --grid-background-color: #1E1E1E;
+    --line-color: rgba(255, 255, 255, 0.1);
+    --thick-line-color: rgba(255, 255, 255, 0.15);
+    --spacing: 20;
+}
+
+/* Enhanced Selection Feedback */
+.base-quest-node:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.base-quest-node:selected {
+    border-color: #FFD700;
+}
+
+/* Connection/Edge Styling */
+.edge {
+    --edge-width: 2;
+}
+
+.edge:hover {
+    --edge-width: 3;
+}
+
+.edge.selected {
+    --edge-width: 4;
+}
+
+/* Port Hover Effects */
+Port:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+Port > #connector {
+    border-radius: 8px;
+}
+
+Port > #connector:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Minimap Styling (if added later) */
+MiniMap {
+    background-color: rgba(30, 30, 30, 0.9);
+    border-color: rgba(50, 50, 50, 1);
+}
+
+/* Node Title Bar Enhancement */
+.base-quest-node #title-label {
+    padding-left: 8px;
+    padding-right: 8px;
+}

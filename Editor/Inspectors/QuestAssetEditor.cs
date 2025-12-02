@@ -47,6 +47,14 @@ namespace DynamicBox.Quest.Editor
             EditorGUILayout.LabelField("Quest Configuration", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
+            // Visual Graph Editor Button
+            if (GUILayout.Button("Open in Quest Graph Editor", GUILayout.Height(30)))
+            {
+                OpenInGraphEditor();
+            }
+            
+            EditorGUILayout.Space();
+
             // Basic Info
             EditorGUILayout.LabelField("Basic Information", EditorStyles.miniLabel);
             EditorGUILayout.PropertyField(_questIdProp, new GUIContent("Quest ID"));
@@ -127,6 +135,41 @@ namespace DynamicBox.Quest.Editor
                     }
                 }
             }
+        }
+
+        private void OpenInGraphEditor()
+        {
+            var quest = target as QuestAsset;
+            if (quest == null) return;
+
+            // Get the graph editor window type
+            var graphEditorType = System.Type.GetType("DynamicBox.Quest.Editor.GraphEditor.QuestGraphEditorWindow, DynamicBox.Quest.Editor");
+            if (graphEditorType == null)
+            {
+                Debug.LogError("Could not find QuestGraphEditorWindow type. Make sure the Graph Editor is in the project.");
+                return;
+            }
+
+            // Open the window
+            var window = EditorWindow.GetWindow(graphEditorType);
+            window.titleContent = new GUIContent("Quest Graph Editor");
+            window.minSize = new Vector2(1000, 600);
+
+            // Load the quest using reflection
+            var loadQuestMethod = graphEditorType.GetMethod("LoadQuest", 
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            
+            if (loadQuestMethod != null)
+            {
+                loadQuestMethod.Invoke(window, new object[] { quest });
+            }
+            else
+            {
+                Debug.LogError("Could not find LoadQuest method on QuestGraphEditorWindow.");
+            }
+
+            window.Show();
+            window.Focus();
         }
     }
 }
