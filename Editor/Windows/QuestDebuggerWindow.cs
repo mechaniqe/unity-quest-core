@@ -35,7 +35,7 @@ namespace DynamicBox.Quest.Editor.Windows
 
         #endregion
 
-        [MenuItem("Tools/DynamicBox/Quest System/Quest Debugger")]
+        [MenuItem("Tools/DynamicBox/Quest System/Debugger", false, 100)]
         public static void ShowWindow()
         {
             GetWindow<QuestDebuggerWindow>("Quest Debugger");

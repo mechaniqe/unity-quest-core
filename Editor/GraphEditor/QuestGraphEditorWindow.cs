@@ -17,7 +17,7 @@ namespace DynamicBox.Quest.Editor.GraphEditor
         private GraphEditorKeyboardHandler _keyboardHandler;
         private QuestAsset _currentQuest;
         
-        [MenuItem("Tools/DynamicBox/Quest System/Quest Graph Editor")]
+        [MenuItem("Tools/DynamicBox/Quest System/Graph Editor", false, 1)]
         public static void OpenWindow()
         {
             var window = GetWindow<QuestGraphEditorWindow>();
