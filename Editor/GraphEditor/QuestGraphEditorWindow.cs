@@ -171,6 +171,17 @@ namespace DynamicBox.Quest.Editor.GraphEditor
             loadButton.style.marginTop = 1;
             toolbar.Add(loadButton);
 
+            // Recent Quests dropdown
+            var recentButton = new Button(() => ShowRecentQuestsMenu())
+            {
+                text = "Recent ▾"
+            };
+            recentButton.style.width = 70;
+            recentButton.style.height = 20;
+            recentButton.style.marginLeft = 2;
+            recentButton.style.marginTop = 1;
+            toolbar.Add(recentButton);
+
             // Save button
             var saveButton = new Button(() => SaveQuest())
             {
@@ -204,6 +215,17 @@ namespace DynamicBox.Quest.Editor.GraphEditor
             snapToggle.style.marginTop = 1;
             snapToggle.style.backgroundColor = new Color(0.3f, 0.5f, 0.3f, 1f);
             toolbar.Add(snapToggle);
+
+            // Auto-Layout button
+            var autoLayoutButton = new Button(() => AutoLayoutGraph())
+            {
+                text = "📐 Auto-Layout"
+            };
+            autoLayoutButton.style.width = 100;
+            autoLayoutButton.style.height = 20;
+            autoLayoutButton.style.marginLeft = 2;
+            autoLayoutButton.style.marginTop = 1;
+            toolbar.Add(autoLayoutButton);
 
             // Spacer
             var spacer = new VisualElement();
@@ -325,6 +347,9 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                 label.text = $"Quest: {quest.DisplayName} ({quest.QuestId})";
             }
             
+            // Add to history
+            QuestEditorHistory.AddToHistory(quest);
+            
             Debug.Log($"Loaded quest: {quest.DisplayName}");
         }
 
@@ -378,6 +403,24 @@ namespace DynamicBox.Quest.Editor.GraphEditor
             Debug.Log($"Grid snapping: {(newState ? "Enabled" : "Disabled")}");
         }
 
+        private void AutoLayoutGraph()
+        {
+            if (_currentQuest == null)
+            {
+                EditorUtility.DisplayDialog(
+                    "No Quest Loaded",
+                    "Please create or load a quest first.",
+                    "OK"
+                );
+                return;
+            }
+
+            // Reload the quest to regenerate layout
+            _graphView.LoadQuest(_currentQuest);
+            
+            Debug.Log("Auto-layout applied");
+        }
+
         private void ShowHelp()
         {
             var message = @"Quest Graph Editor - Keyboard Shortcuts
@@ -401,12 +444,53 @@ Editing:
 Graph:
   Right Click - Context menu (add nodes)
   🧲 Snap Toggle - Enable/disable grid snapping (20px grid)
+  📐 Auto-Layout - Reorganize nodes with default spacing
 
 Inspector:
   Click any node to edit its properties in the right panel
   Changes are saved automatically with Undo support";
 
             EditorUtility.DisplayDialog("Quest Graph Editor Help", message, "OK");
+        }
+
+        private void ShowRecentQuestsMenu()
+        {
+            var menu = new GenericMenu();
+            var recentQuests = QuestEditorHistory.GetRecentQuests(5);
+
+            if (recentQuests.Count == 0)
+            {
+                menu.AddDisabledItem(new GUIContent("No recent quests"));
+            }
+            else
+            {
+                foreach (var (path, displayName, questId) in recentQuests)
+                {
+                    var label = $"{displayName} ({questId})";
+                    menu.AddItem(new GUIContent(label), false, () =>
+                    {
+                        var quest = AssetDatabase.LoadAssetAtPath<QuestAsset>(path);
+                        if (quest != null)
+                        {
+                            LoadQuest(quest);
+                        }
+                    });
+                }
+
+                menu.AddSeparator("");
+                menu.AddItem(new GUIContent("Clear Recent Quests"), false, () =>
+                {
+                    if (EditorUtility.DisplayDialog(
+                        "Clear Recent Quests",
+                        "Are you sure you want to clear the recent quests list?",
+                        "Clear", "Cancel"))
+                    {
+                        QuestEditorHistory.ClearHistory();
+                    }
+                });
+            }
+
+            menu.ShowAsContext();
         }
     }
 }

@@ -18,6 +18,7 @@ DynamicBox Quest Core provides a complete, extensible framework for creating que
 - Create quests and objectives as ScriptableObjects
 - Define conditions visually without code
 - Support for prerequisites and optional objectives
+- **Visual Graph Editor** – Node-based interface for creating and visualizing quest structures
 
 ⚡ **Event-Driven Architecture**
 - Conditions respond to game events in real-time
@@ -85,6 +86,16 @@ questManager.GetComponent<QuestManager>().playerRef = playerRef;
 
 ### Step 2: Create Quest Assets
 
+**Method 1: Visual Graph Editor (Recommended)**
+
+1. Open the Quest Graph Editor: `Tools → DynamicBox → Quest System → Quest Graph Editor`
+2. Click "New Quest" to create a new quest
+3. Add objectives and conditions using the node-based interface
+4. Visually connect prerequisites and conditions
+5. Save your quest
+
+**Method 2: Inspector (Traditional)**
+
 ```
 Right-click in Project → Create → Quests → Quest
 ├─ Quest ID: "collect_sword"
@@ -98,6 +109,8 @@ Right-click in Project → Create → Quests → Quest
     │       ├─ Item ID: "ancient_sword"
     │       └─ Required Count: 1
 ```
+
+**Tip**: Double-click any QuestAsset to open it in the Graph Editor for visual editing!
 
 ### Step 3: Integrate with Game Code
 
