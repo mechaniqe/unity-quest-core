@@ -80,6 +80,12 @@ namespace DynamicBox.Quest.Editor.GraphEditor
             {
                 GenerateGraphFromQuest(quest);
             }
+
+            // Restore zoom and pan state
+            if (_layout != null)
+            {
+                UpdateViewTransform(new Vector3(_layout.panX, _layout.panY, 0), new Vector3(_layout.zoom, _layout.zoom, 1));
+            }
         }
 
         /// <summary>
@@ -129,6 +135,11 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                     }
                 }
             }
+
+            // Save zoom and pan state
+            _layout.zoom = contentViewContainer.resolvedStyle.scale.value.x;
+            _layout.panX = contentViewContainer.resolvedStyle.translate.x;
+            _layout.panY = contentViewContainer.resolvedStyle.translate.y;
 
             // Save to file
             var questPath = AssetDatabase.GetAssetPath(_currentQuest);
