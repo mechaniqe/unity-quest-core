@@ -9,6 +9,7 @@
 *.swp
 *.swo
 *~
+!Samples~
 
 # Build
 build/
