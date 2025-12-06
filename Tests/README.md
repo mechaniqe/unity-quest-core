@@ -149,14 +149,14 @@ DynamicBox.Quest.Tests.TestValidation.RunSmokeTest();
 - Edge Cases (4 tests) - Error handling, null safety
 - Complete Flows (2 tests) - End-to-end scenarios
 ### Serialization Tests (QuestSerializationTests.cs)
-- JSON Serialization (2 tests) - Quest and objective state
-- Multiple Quests (1 test) - Batch serialization
-- Partial Progress (1 test) - Mid-quest save/load
+- JSON Serialization (2 tests) - Snapshot capture and JSON conversion
+- Multiple Quests (1 test) - Batch snapshot operations
+- Partial Progress (1 test) - Mid-quest state preservation
 - Data Integrity (1 test) - Consistency validation
-- Error Handling (1 test) - Missing data gracefully handled
-- Performance (1 test) - Serialization benchmarks
+- Error Handling (1 test) - Missing data handling
+- Performance (1 test) - Serialization benchmarks (<10ms for 50 objectives)
 
-### Quest State Restoration Tests (QuestStateRestorationTests.cs) ✨ NEW
+### Quest State Restoration Tests (QuestStateRestorationTests.cs)
 - Basic Restoration (1 test) - Restore quest from snapshot
 - Objective Progress (1 test) - Restore partial objective progress
 - Context Binding (1 test) - Automatic condition re-binding

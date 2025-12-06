@@ -1,0 +1,5 @@
+{
+  "displayName": "Custom Condition",
+  "description": "Create a custom enemy kill condition with event handling (~70 lines)",
+  "createSeparatePackage": false
+}

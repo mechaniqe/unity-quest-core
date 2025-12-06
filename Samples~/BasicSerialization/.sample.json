@@ -1,0 +1,5 @@
+{
+  "displayName": "Basic Serialization",
+  "description": "Minimal snapshot capture and restore example (~30 lines)",
+  "createSeparatePackage": false
+}

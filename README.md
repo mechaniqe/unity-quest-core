@@ -549,102 +549,77 @@ public class CustomQuestPlayerRef : QuestPlayerRef
 }
 ```
 
-### Quest State Persistence (Save/Load)
+### Quest State Serialization
 
-The quest system includes a production-ready save/load system using `QuestStateManager`:
+The quest system provides serializable snapshots for quest progress. You decide when and how to persist them.
+
+#### Basic Usage
 
 ```csharp
 using DynamicBox.Quest.Core.State;
-using System.IO;
 
-public class QuestSaveSystem : MonoBehaviour
+// Capture snapshot
+var snapshot = QuestStateManager.CaptureSnapshot(questState);
+string json = JsonUtility.ToJson(snapshot, prettyPrint: true);
+
+// Restore from snapshot
+var snapshot = JsonUtility.FromJson<QuestStateSnapshot>(json);
+var restored = QuestStateManager.RestoreFromSnapshot(snapshot, questAsset, context);
+```
+
+#### Multiple Quests
+
+```csharp
+// Capture all quests
+var saveData = QuestStateManager.CaptureAllSnapshots(
+    questManager.ActiveQuests,
+    metadata: "Chapter 3"
+);
+
+// Serialize (your choice of format)
+string json = JsonUtility.ToJson(saveData);
+// or: byte[] binary = MySerializer.Serialize(saveData);
+// or: await cloudAPI.Upload(saveData);
+
+// Restore all quests
+var questAssetMap = Resources.LoadAll<QuestAsset>("Quests")
+    .ToDictionary(q => q.QuestId);
+
+var restored = QuestStateManager.RestoreAllFromSnapshots(
+    saveData,
+    questAssetMap,
+    context
+);
+
+foreach (var quest in restored)
 {
-    [SerializeField] private QuestManager questManager;
-    private string SaveFilePath => Path.Combine(Application.persistentDataPath, "quest_save.json");
-    
-    // Save all active quests
-    public void SaveQuests()
-    {
-        var activeQuests = questManager.ActiveQuests;
-        QuestStateManager.SaveAllQuestsToFile(
-            activeQuests, 
-            SaveFilePath, 
-            metadata: $"Player Save | {System.DateTime.Now}"
-        );
-        
-        Debug.Log($"Saved {activeQuests.Count} quests");
-    }
-    
-    // Load all quests
-    public void LoadQuests()
-    {
-        if (!File.Exists(SaveFilePath))
-        {
-            Debug.LogWarning("No save file found");
-            return;
-        }
-        
-        // Build quest asset map
-        var questAssets = Resources.LoadAll<QuestAsset>("Quests");
-        var assetMap = questAssets.ToDictionary(q => q.QuestId);
-        
-        // Load from file
-        var context = questManager.GetComponent<QuestPlayerRef>().BuildContext();
-        var loadedQuests = QuestStateManager.LoadAllQuestsFromFile(
-            SaveFilePath, 
-            assetMap, 
-            context
-        );
-        
-        // Add to quest manager
-        foreach (var quest in loadedQuests)
-        {
-            questManager.AddQuest(quest);
-        }
-        
-        Debug.Log($"Loaded {loadedQuests.Count} quests");
-    }
-    
-    // Manual snapshot capture for custom workflows
-    public QuestStateSnapshot CaptureSnapshot(QuestState questState)
-    {
-        return QuestStateManager.CaptureSnapshot(questState);
-    }
-    
-    // Manual restore for custom workflows
-    public QuestState RestoreSnapshot(QuestStateSnapshot snapshot, QuestAsset asset)
-    {
-        var context = questManager.GetComponent<QuestPlayerRef>().BuildContext();
-        return QuestStateManager.RestoreFromSnapshot(snapshot, asset, context);
-    }
+    questManager.AddQuest(quest);
 }
 ```
 
-**Key Features:**
-- Automatic serialization with Unity's `JsonUtility`
-- Preserves quest status, objective progress, and metadata
-- Automatic context re-binding after load
-- Graceful handling of missing quests or corrupted data
-- File I/O helpers for quick implementation
-- See `Examples/SaveLoadExample.cs` for comprehensive usage
+#### Optional File I/O Helpers
 
-**Save Data Structure:**
-```json
-{
-  "SaveTimestamp": "2025-12-06T10:30:00Z",
-  "Metadata": "Player Save | 2025-12-06 10:30:00",
-  "Quests": [
-    {
-      "QuestId": "main_quest_1",
-      "Status": 1,
-      "ObjectiveStatuses": [
-        {"ObjectiveId": "obj_1", "Status": 2},
-        {"ObjectiveId": "obj_2", "Status": 1}
-      ]
-    }
-  ]
-}
+For simple cases, use the built-in file helpers:
+
+```csharp
+// Save to file
+QuestStateManager.SaveAllQuestsToFile(
+    questManager.ActiveQuests,
+    "path/to/save.json",
+    metadata: "Player Save"
+);
+
+// Load from file
+var quests = QuestStateManager.LoadAllQuestsFromFile(
+    "path/to/save.json",
+    questAssetMap,
+    context
+);
 ```
+
+**Design Philosophy:** The quest system provides serializable data structures but doesn't dictate your persistence strategy. Integrate with any save system: local files, cloud saves, server APIs, platform-specific storage, or third-party assets.
+
+See `Documentation/API_REFERENCE.md` for detailed API documentation.
 
 ### Testing and Debugging
 

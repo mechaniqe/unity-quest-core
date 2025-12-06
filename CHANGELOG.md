@@ -8,21 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.3] - 2025-12-06
 
 ### Added
-- **Production Quest State Serialization System**: Complete save/load infrastructure for quest persistence
-  - `Runtime/Core/State/QuestStateSnapshot.cs` - Serializable snapshot classes moved from Tests to Runtime
-  - `Runtime/Core/State/QuestStateManager.cs` - Production-ready save/load manager with file I/O helpers
-  - `QuestStateRestorationTests.cs` - 7 new tests validating snapshot restoration, context binding, error handling
-  - `Examples/SaveLoadExample.cs` - Complete working example with best practices and error handling
-  - Full snapshot capture and restoration with automatic condition re-binding
-  - File I/O helpers: `SaveQuestToFile()`, `LoadQuestFromFile()`, `SaveAllQuestsToFile()`, `LoadAllQuestsFromFile()`
-  - Validation methods: `IsValid()` for snapshots and save data, automatic error detection
-  - Support for save metadata (timestamps, player info, etc.)
+- **Quest State Serialization**: Serializable snapshot infrastructure for quest persistence
+  - `Runtime/Core/State/QuestStateSnapshot.cs` - Serializable snapshot classes (`QuestStateSnapshot`, `QuestSaveData`)
+  - `Runtime/Core/State/QuestStateManager.cs` - Static utility for snapshot capture/restoration
+  - `QuestStateRestorationTests.cs` - 7 tests validating snapshot restoration and error handling
+  - Optional file I/O helpers: `SaveQuestToFile()`, `LoadQuestFromFile()`, etc.
+  - Validation methods: `IsValid()` for snapshots and save data
+  - Graceful handling of missing quests, mismatched IDs, and corrupted data
+- **Samples~/** - Optional importable samples through Package Manager (small, focused examples)
+  - `BasicSerialization` - Snapshot capture and restore (~30 lines)
+  - `QuestEvents` - Event subscription for quest updates (~50 lines)
+  - `CustomCondition` - Create custom enemy kill condition (~70 lines)
 
 ### Improved
-- Serialization classes now available for production use (previously test-only)
-- `QuestSerializationTests` now uses production `QuestStateManager` for consistency
-- Added graceful handling for missing quests, mismatched IDs, and corrupted save data
-- Comprehensive documentation with usage examples and error handling patterns
+- Serialization primitives now in Runtime (moved from Tests)
+- `QuestSerializationTests` uses production `QuestStateManager`
+- Updated API documentation with serialization reference
+- Clarified design philosophy: Quest system provides serializable state, users own persistence strategy
+
+### Changed
+- Moved examples to `Samples~/` structure for optional import via Package Manager
 
 ## [0.7.2] - 2025-12-06
 

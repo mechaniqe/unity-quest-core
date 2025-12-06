@@ -1,0 +1,5 @@
+{
+  "displayName": "Quest Events",
+  "description": "Subscribe to quest completion and objective change events (~50 lines)",
+  "createSeparatePackage": false
+}
