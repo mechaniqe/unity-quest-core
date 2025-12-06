@@ -620,8 +620,11 @@ namespace DynamicBox.Quest.Tests
             var playerRefGO = new GameObject("TestPlayerRef");
             var playerRef = playerRefGO.AddComponent<QuestPlayerRef>();
             
-            // Add DefaultTimeService for TimeElapsed conditions
+            // Add services for condition support
             var timeService = playerRefGO.AddComponent<DefaultTimeService>();
+            var flagService = playerRefGO.AddComponent<DefaultFlagService>();
+            var inventoryService = playerRefGO.AddComponent<SimpleInventoryService>();
+            var areaService = playerRefGO.AddComponent<SimpleAreaService>();
 
             var playerRefField = typeof(QuestManager).GetField("playerRef",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);

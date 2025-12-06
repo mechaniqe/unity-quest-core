@@ -21,6 +21,7 @@ namespace DynamicBox.Quest.Tests
                 ProgressReportingTests.RunAllProgressTests();
                 QuestContextTests.RunAllContextTests();
                 QuestSerializationTests.RunAllSerializationTests();
+                ServiceImplementationTests.RunAllServiceTests();
                 EventDrivenConditionTests.RunAllEventDrivenTests();
                 FactoryMethodTests.RunAllFactoryMethodTests();
                 ImmutableEventTests.RunAllImmutableEventTests();

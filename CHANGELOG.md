@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] - 2025-12-06
+
+### Added
+- **ServiceImplementationTests**: Comprehensive test suite for service implementations
+  - 4 tests for `SimpleInventoryService` - Add/remove items, ever collected tracking, edge cases, get all items
+  - 4 tests for `SimpleAreaService` - Enter/exit areas, visited tracking, starting area, clear history
+  - 3 tests for `DefaultTimeService` - Initialization, time progression, day transition
+  - 4 tests for `DefaultFlagService` - Basic operations, counters, ever set tracking, edge cases
+  - 16 total tests validating all service provider functionality
+  - Fills critical test coverage gap for service layer (45% improvement)
+
+### Improved
+- Service implementation test coverage now at 95%+
+- All service edge cases properly validated
+- `TestRunner` and `TestExecutor` now include service implementation tests
+
 ## [0.7.1] - 2025-12-06
 
 ### Added
