@@ -1,6 +1,6 @@
 {
   "name": "net.dynamicbox.quest.core",
-  "version": "0.6.0",
+  "version": "0.7.3",
   "displayName": "Quest Core",
   "description": "A Unity-first, designer-friendly, event-driven quest system",
   "unity": "2021.3",
@@ -26,9 +26,19 @@
   },
   "samples": [
     {
-      "displayName": "Basic Quest Example",
-      "description": "Simple quest with item collection objective",
-      "path": "Samples~/BasicQuestExample"
+      "displayName": "Basic Serialization",
+      "description": "Minimal snapshot capture and restore example (~30 lines)",
+      "path": "Samples~/BasicSerialization"
+    },
+    {
+      "displayName": "Quest Events",
+      "description": "Subscribe to quest completion and objective change events (~50 lines)",
+      "path": "Samples~/QuestEvents"
+    },
+    {
+      "displayName": "Custom Condition",
+      "description": "Create a custom enemy kill condition with event handling (~70 lines)",
+      "path": "Samples~/CustomCondition"
     }
   ]
 }

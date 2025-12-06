@@ -549,6 +549,78 @@ public class CustomQuestPlayerRef : QuestPlayerRef
 }
 ```
 
+### Quest State Serialization
+
+The quest system provides serializable snapshots for quest progress. You decide when and how to persist them.
+
+#### Basic Usage
+
+```csharp
+using DynamicBox.Quest.Core.State;
+
+// Capture snapshot
+var snapshot = QuestStateManager.CaptureSnapshot(questState);
+string json = JsonUtility.ToJson(snapshot, prettyPrint: true);
+
+// Restore from snapshot
+var snapshot = JsonUtility.FromJson<QuestStateSnapshot>(json);
+var restored = QuestStateManager.RestoreFromSnapshot(snapshot, questAsset, context);
+```
+
+#### Multiple Quests
+
+```csharp
+// Capture all quests
+var saveData = QuestStateManager.CaptureAllSnapshots(
+    questManager.ActiveQuests,
+    metadata: "Chapter 3"
+);
+
+// Serialize (your choice of format)
+string json = JsonUtility.ToJson(saveData);
+// or: byte[] binary = MySerializer.Serialize(saveData);
+// or: await cloudAPI.Upload(saveData);
+
+// Restore all quests
+var questAssetMap = Resources.LoadAll<QuestAsset>("Quests")
+    .ToDictionary(q => q.QuestId);
+
+var restored = QuestStateManager.RestoreAllFromSnapshots(
+    saveData,
+    questAssetMap,
+    context
+);
+
+foreach (var quest in restored)
+{
+    questManager.AddQuest(quest);
+}
+```
+
+#### Optional File I/O Helpers
+
+For simple cases, use the built-in file helpers:
+
+```csharp
+// Save to file
+QuestStateManager.SaveAllQuestsToFile(
+    questManager.ActiveQuests,
+    "path/to/save.json",
+    metadata: "Player Save"
+);
+
+// Load from file
+var quests = QuestStateManager.LoadAllQuestsFromFile(
+    "path/to/save.json",
+    questAssetMap,
+    context
+);
+```
+
+**Design Philosophy:** The quest system provides serializable data structures but doesn't dictate your persistence strategy. Integrate with any save system: local files, cloud saves, server APIs, platform-specific storage, or third-party assets.
+
+See `Documentation/API_REFERENCE.md` for detailed API documentation.
+
 ### Testing and Debugging
 
 ```csharp

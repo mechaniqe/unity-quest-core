@@ -420,12 +420,12 @@ namespace DynamicBox.Quest.Tests
         private static ConditionAsset CreateSimpleCondition(string itemId)
         {
             var conditionAsset = ScriptableObject.CreateInstance<ItemCollectedConditionAsset>();
-            var itemIdField = typeof(ItemCollectedConditionAsset).GetField("itemId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var requiredCountField = typeof(ItemCollectedConditionAsset).GetField("requiredCount",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             
-            itemIdField?.SetValue(conditionAsset, itemId);
+            conditionIdField?.SetValue(conditionAsset, itemId);
             requiredCountField?.SetValue(conditionAsset, 1);
             
             return conditionAsset;

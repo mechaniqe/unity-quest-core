@@ -1,8 +1,8 @@
 # Quest System Test Suite - Quick Reference
 
 **Status:** ✅ **PRODUCTION READY**  
-**Coverage:** 90-95% of core functionality  
-**Total Tests:** 34+ tests across 3 main test suites  
+**Coverage:** 95%+ of core functionality  
+**Total Tests:** 50+ tests across multiple test suites  
 
 ## 🚀 Quick Start
 
@@ -18,6 +18,24 @@ if (DynamicBox.Quest.Tests.TestValidation.ValidateAllComponents()) {
 
 // From code
 DynamicBox.Quest.Tests.TestRunner.RunUnitTests();
+```
+
+### Writing New Tests (Memory-Safe)
+```csharp
+// Automatically cleanup services after test
+ServiceTestHelpers.RunWithCleanup(() => {
+    var timeService = ServiceTestHelpers.CreateTimeService();
+    var flagService = ServiceTestHelpers.CreateFlagService();
+    // Your test code here
+}, "MyTestName");
+
+// Or manually manage cleanup
+var context = ServiceTestHelpers.CreateContextWithAllServices();
+try {
+    // Your test code
+} finally {
+    ServiceTestHelpers.CleanupAll();
+}
 ```
 
 ### Unity Menu
@@ -90,23 +108,32 @@ DynamicBox.Quest.Tests.TestValidation.RunSmokeTest();
 - **Edge Cases** - Null handling, error scenarios
 
 ### ⚠️ Limited Coverage (70-85%)
-- **Service Integration** - Real service provider testing
 - **Manual Quest Control** - Direct completion/failure methods
 - **Performance Testing** - Large scale testing
-
-### ⏳ Not Implemented
-- **Serialization** - Save/load system (when available)
 
 ## 📁 Test Files
 
 ### Core Test Suites
-- **QuestSystemTests.cs** (1,309 lines) - 25+ unit tests
+- **QuestSystemTests.cs** (1,325 lines) - 25+ unit tests
 - **QuestSystemIntegrationTests.cs** (652 lines) - 9 integration tests  
 - **QuestSystemAdvancedTests.cs** (558 lines) - 10+ advanced tests
+- **QuestSerializationTests.cs** - 7 serialization tests
+- **ServiceImplementationTests.cs** ✨ NEW - 16 service implementation tests
+
+### Specialized Test Suites
+- **ProgressReportingTests.cs** - Progress tracking and reporting
+- **QuestContextTests.cs** - Service locator functionality
+- **EventDrivenConditionTests.cs** - Event-driven condition behavior
+- **FactoryMethodTests.cs** - Factory method patterns
+- **ImmutableEventTests.cs** - Event immutability validation
+- **PerformanceBenchmarkTests.cs** - Performance metrics
+- **QuestStateRestorationTests.cs** ✨ NEW - 7 tests for snapshot restoration and save/load validation
 
 ### Infrastructure
 - **TestExecutor.cs** - Unity Inspector test runner
 - **TestValidation.cs** - Infrastructure validation
+- **TestRunner.cs** - Comprehensive test orchestrator
+- **ServiceTestHelpers.cs** ✨ NEW - Memory-safe service creation and cleanup
 - **QuestBuilder.cs / ObjectiveBuilder.cs** - Test data builders
 - **MockCondition.cs** - Mock condition implementations
 
@@ -121,6 +148,27 @@ DynamicBox.Quest.Tests.TestValidation.RunSmokeTest();
 - Integration (4 tests) - QuestManager lifecycle
 - Edge Cases (4 tests) - Error handling, null safety
 - Complete Flows (2 tests) - End-to-end scenarios
+### Serialization Tests (QuestSerializationTests.cs)
+- JSON Serialization (2 tests) - Snapshot capture and JSON conversion
+- Multiple Quests (1 test) - Batch snapshot operations
+- Partial Progress (1 test) - Mid-quest state preservation
+- Data Integrity (1 test) - Consistency validation
+- Error Handling (1 test) - Missing data handling
+- Performance (1 test) - Serialization benchmarks (<10ms for 50 objectives)
+
+### Quest State Restoration Tests (QuestStateRestorationTests.cs)
+- Basic Restoration (1 test) - Restore quest from snapshot
+- Objective Progress (1 test) - Restore partial objective progress
+- Context Binding (1 test) - Automatic condition re-binding
+- Multiple Quests (1 test) - Restore quest collection
+- Missing Objectives (1 test) - Handle version mismatches
+- Error Handling (2 tests) - Invalid snapshots, mismatched IDs
+
+### Service Implementation Tests (ServiceImplementationTests.cs)
+- Inventory Service (4 tests) - Add/remove, ever collected, edge cases, get all items
+- Area Service (4 tests) - Enter/exit, visited tracking, starting area, clear history
+- Time Service (3 tests) - Initialization, time progression, day transition
+- Flag Service (4 tests) - Basic operations, counters, ever set tracking, edge cases
 
 ### Integration Tests (QuestSystemIntegrationTests.cs)
 - GameObject Lifecycle (2 tests) - Creation, cleanup

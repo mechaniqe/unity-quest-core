@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3] - 2025-12-06
+
+### Added
+- **Quest State Serialization**: Serializable snapshot infrastructure for quest persistence
+  - `Runtime/Core/State/QuestStateSnapshot.cs` - Serializable snapshot classes (`QuestStateSnapshot`, `QuestSaveData`)
+  - `Runtime/Core/State/QuestStateManager.cs` - Static utility for snapshot capture/restoration
+  - `QuestStateRestorationTests.cs` - 7 tests validating snapshot restoration and error handling
+  - Optional file I/O helpers: `SaveQuestToFile()`, `LoadQuestFromFile()`, etc.
+  - Validation methods: `IsValid()` for snapshots and save data
+  - Graceful handling of missing quests, mismatched IDs, and corrupted data
+- **Samples~/** - Optional importable samples through Package Manager (small, focused examples)
+  - `BasicSerialization` - Snapshot capture and restore (~30 lines)
+  - `QuestEvents` - Event subscription for quest updates (~50 lines)
+  - `CustomCondition` - Create custom enemy kill condition (~70 lines)
+
+### Improved
+- Serialization primitives now in Runtime (moved from Tests)
+- `QuestSerializationTests` uses production `QuestStateManager`
+- Updated API documentation with serialization reference
+- Clarified design philosophy: Quest system provides serializable state, users own persistence strategy
+
+### Changed
+- Moved examples to `Samples~/` structure for optional import via Package Manager
+
+## [0.7.2] - 2025-12-06
+
+### Added
+- **ServiceImplementationTests**: Comprehensive test suite for service implementations
+  - 4 tests for `SimpleInventoryService` - Add/remove items, ever collected tracking, edge cases, get all items
+  - 4 tests for `SimpleAreaService` - Enter/exit areas, visited tracking, starting area, clear history
+  - 3 tests for `DefaultTimeService` - Initialization, time progression, day transition
+  - 4 tests for `DefaultFlagService` - Basic operations, counters, ever set tracking, edge cases
+  - 16 total tests validating all service provider functionality
+  - Fills critical test coverage gap for service layer (45% improvement)
+
+### Improved
+- Service implementation test coverage now at 95%+
+- All service edge cases properly validated
+- `TestRunner` and `TestExecutor` now include service implementation tests
+
+## [0.7.1] - 2025-12-06
+
+### Added
+- **QuestSerializationTests**: Comprehensive test suite for quest state persistence
+  - `QuestStateSnapshot` - Serializable snapshot class for save/load systems
+  - `QuestSaveData` - Container for multiple quest snapshots
+  - 7 new tests covering JSON serialization, partial progress, data integrity, and performance
+  - Validates quest and objective state can be saved and restored correctly
+  - Benchmark tests ensure serialization performance < 10ms for large quests (50 objectives)
+
+### Fixed
+- **Test Service Initialization**: MonoBehaviour services now created properly in tests
+  - Added `CreateTimeService()` and `CreateFlagService()` helper methods
+  - Tests now use `GameObject.AddComponent<T>()` instead of `new T()`
+  - Fixed warnings about missing IQuestFlagService and IQuestTimeService in condition tests
+  - Enhanced test cleanup to remove service GameObjects
+
+### Improved
+- Test infrastructure now properly supports MonoBehaviour-based services
+- Better test isolation with improved cleanup procedures
+- `TestRunner` and `TestExecutor` now include serialization tests in test runs
+
+## [0.7.0] - 2025-12-05
+
+### Changed
+- **Unified Condition Identification**: Refactored all condition assets to use inherited `conditionId` from base `ConditionAsset` class
+  - Removed `itemId` field from `ItemCollectedConditionAsset` - now uses `ConditionId`
+  - Removed `_areaId` field from `AreaEnteredConditionAsset` - now uses `ConditionId`
+  - Removed `_flagId` field from `CustomFlagConditionAsset` - now uses `ConditionId`
+  - Removed redundant `OnValidate()` methods from subclasses
+  - Auto-generation of IDs handled by base class for consistency
+
+### Added
+- **ConditionAsset.ConditionId**: Public property providing unified access to condition identifiers
+  - Auto-generates IDs based on type and asset name
+  - Format: `{TypeName}_{AssetName}` (lowercase with underscores)
+  - Manually editable in Inspector when needed
+
+### Improved
+- Reduced code duplication across condition asset subclasses
+- Simplified API - all conditions now share the same ID property
+- Consistent behavior across all condition types
+- Better maintainability with less code to manage per condition type
+
 ## [0.6.0] - 2025-11-29
 
 ### Added - Phase 3: Architecture Refinement

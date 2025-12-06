@@ -12,6 +12,19 @@ namespace DynamicBox.Quest.Tests
     /// </summary>
     public static class QuestContextTests
     {
+        // Helper methods to create MonoBehaviour services properly
+        private static DefaultTimeService CreateTimeService()
+        {
+            var go = new GameObject("TestTimeService");
+            return go.AddComponent<DefaultTimeService>();
+        }
+
+        private static DefaultFlagService CreateFlagService()
+        {
+            var go = new GameObject("TestFlagService");
+            return go.AddComponent<DefaultFlagService>();
+        }
+
         public static void RunAllContextTests()
         {
             Debug.Log("\n=== Running Quest Context Tests ===");
@@ -36,8 +49,8 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Service Registration");
 
             // Arrange
-            var timeService = new DefaultTimeService();
-            var flagService = new DefaultFlagService();
+            var timeService = CreateTimeService();
+            var flagService = CreateFlagService();
 
             // Act
             var context = new QuestContext(
@@ -63,7 +76,7 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Service Retrieval via GetService<T>");
 
             // Arrange
-            var timeService = new DefaultTimeService();
+            var timeService = CreateTimeService();
             var context = new QuestContext(timeService: timeService);
 
             // Act
@@ -83,8 +96,8 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Multiple Service Types");
 
             // Arrange
-            var timeService = new DefaultTimeService();
-            var flagService = new DefaultFlagService();
+            var timeService = CreateTimeService();
+            var flagService = CreateFlagService();
             var areaService = new MockAreaService();
 
             var context = new QuestContext(
@@ -154,7 +167,7 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] HasService Check");
 
             // Arrange
-            var timeService = new DefaultTimeService();
+            var timeService = CreateTimeService();
             var context = new QuestContext(timeService: timeService);
 
             // Act & Assert
@@ -171,8 +184,8 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Service Type Safety");
 
             // Arrange
-            var timeService = new DefaultTimeService();
-            var flagService = new DefaultFlagService();
+            var timeService = CreateTimeService();
+            var flagService = CreateFlagService();
             var context = new QuestContext(
                 timeService: timeService,
                 flagService: flagService
@@ -202,8 +215,8 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Service Retrieval Performance");
 
             // Arrange
-            var timeService = new DefaultTimeService();
-            var flagService = new DefaultFlagService();
+            var timeService = CreateTimeService();
+            var flagService = CreateFlagService();
             var areaService = new MockAreaService();
             var inventoryService = new MockInventoryService();
 
@@ -237,7 +250,7 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Null Service Registration");
 
             // Arrange & Act - Create context with some null services
-            var timeService = new DefaultTimeService();
+            var timeService = CreateTimeService();
             var context = new QuestContext(
                 timeService: timeService,
                 flagService: null,
@@ -263,8 +276,8 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Convenience Properties");
 
             // Arrange
-            var timeService = new DefaultTimeService();
-            var flagService = new DefaultFlagService();
+            var timeService = CreateTimeService();
+            var flagService = CreateFlagService();
             var areaService = new MockAreaService();
             var inventoryService = new MockInventoryService();
 
@@ -300,7 +313,7 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] GetRequiredService Success Case");
 
             // Arrange
-            var timeService = new DefaultTimeService();
+            var timeService = CreateTimeService();
             var context = new QuestContext(timeService: timeService);
 
             // Act
@@ -320,8 +333,8 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Multiple Service Instances");
 
             // Arrange - Create multiple contexts with different service instances
-            var timeService1 = new DefaultTimeService();
-            var timeService2 = new DefaultTimeService();
+            var timeService1 = CreateTimeService();
+            var timeService2 = CreateTimeService();
 
             var context1 = new QuestContext(timeService: timeService1);
             var context2 = new QuestContext(timeService: timeService2);
@@ -346,8 +359,8 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Service Interface Polymorphism");
 
             // Arrange - Use concrete implementations
-            var timeService = new DefaultTimeService();
-            var flagService = new DefaultFlagService();
+            var timeService = CreateTimeService();
+            var flagService = CreateFlagService();
 
             // Act - Register concrete types but retrieve via interface
             var context = new QuestContext(

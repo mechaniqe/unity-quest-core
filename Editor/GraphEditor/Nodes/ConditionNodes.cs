@@ -30,12 +30,12 @@ namespace DynamicBox.Quest.Editor.GraphEditor
             }
 
             // Use reflection to read private fields
-            var itemIdField = Asset.GetType().GetField("itemId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 BindingFlags.NonPublic | BindingFlags.Instance);
-            var quantityField = Asset.GetType().GetField("requiredQuantity",
+            var quantityField = Asset.GetType().GetField("requiredCount",
                 BindingFlags.NonPublic | BindingFlags.Instance);
 
-            var itemId = itemIdField?.GetValue(Asset) as string ?? "unknown";
+            var itemId = conditionIdField?.GetValue(Asset) as string ?? "unknown";
             var quantity = (int)(quantityField?.GetValue(Asset) ?? 1);
 
             mainContainer.Add(CreatePropertyDisplay("Item ID", itemId));
@@ -84,10 +84,10 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                 return;
             }
 
-            var areaIdField = Asset.GetType().GetField("_areaId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 BindingFlags.NonPublic | BindingFlags.Instance);
 
-            var areaId = areaIdField?.GetValue(Asset) as string ?? "unknown";
+            var areaId = conditionIdField?.GetValue(Asset) as string ?? "unknown";
 
             mainContainer.Add(CreatePropertyDisplay("Area ID", areaId));
             mainContainer.Add(CreateServiceBadge("Area"));
@@ -184,12 +184,12 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                 return;
             }
 
-            var flagIdField = Asset.GetType().GetField("_flagId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 BindingFlags.NonPublic | BindingFlags.Instance);
-            var expectedValueField = Asset.GetType().GetField("expectedValue",
+            var expectedValueField = Asset.GetType().GetField("_expectedValue",
                 BindingFlags.NonPublic | BindingFlags.Instance);
 
-            var flagId = flagIdField?.GetValue(Asset) as string ?? "unknown";
+            var flagId = conditionIdField?.GetValue(Asset) as string ?? "unknown";
             var expectedValue = (bool)(expectedValueField?.GetValue(Asset) ?? true);
 
             mainContainer.Add(CreatePropertyDisplay("Flag ID", flagId));

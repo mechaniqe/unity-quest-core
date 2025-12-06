@@ -677,6 +677,152 @@ public class DebugEventBus : IQuestEventBus
 
 ---
 
+## Quest State Serialization
+
+### QuestStateSnapshot
+
+**Location**: `DynamicBox.Quest.Core.State`
+
+Serializable snapshot of quest progress for save/load systems.
+
+#### Properties
+
+```csharp
+public string QuestId;
+public QuestStatus Status;
+public List<ObjectiveStatusEntry> ObjectiveStatuses;
+```
+
+#### Methods
+
+```csharp
+public Dictionary<string, ObjectiveStatus> GetObjectiveStatusesDict();
+public bool IsValid();
+```
+
+#### Usage
+
+```csharp
+// Capture snapshot
+var snapshot = QuestStateManager.CaptureSnapshot(questState);
+
+// Serialize to JSON
+string json = JsonUtility.ToJson(snapshot, prettyPrint: true);
+```
+
+---
+
+### QuestSaveData
+
+**Location**: `DynamicBox.Quest.Core.State`
+
+Container for multiple quest snapshots (full save file).
+
+#### Properties
+
+```csharp
+public List<QuestStateSnapshot> Quests;
+public string SaveTimestamp;
+public string Metadata;
+```
+
+#### Methods
+
+```csharp
+public static QuestSaveData Create();
+public QuestStateSnapshot FindQuest(string questId);
+public bool IsValid();
+```
+
+#### JSON Format
+
+```json
+{
+  "SaveTimestamp": "2025-12-06T10:30:00Z",
+  "Metadata": "Player Save",
+  "Quests": [
+    {
+      "QuestId": "main_quest_1",
+      "Status": 1,
+      "ObjectiveStatuses": [
+        {"ObjectiveId": "obj_1", "Status": 2}
+      ]
+    }
+  ]
+}
+```
+
+---
+
+### QuestStateManager
+
+**Location**: `DynamicBox.Quest.Core.State`
+
+Static utility class for quest state serialization and restoration.
+
+#### Snapshot Operations
+
+```csharp
+// Capture single quest
+QuestStateSnapshot snapshot = QuestStateManager.CaptureSnapshot(questState);
+
+// Capture multiple quests
+QuestSaveData saveData = QuestStateManager.CaptureAllSnapshots(
+    questStates, 
+    metadata: "Player Save"
+);
+
+// Restore single quest
+QuestState restored = QuestStateManager.RestoreFromSnapshot(
+    snapshot, 
+    questAsset, 
+    context
+);
+
+// Restore multiple quests
+List<QuestState> restored = QuestStateManager.RestoreAllFromSnapshots(
+    saveData,
+    questAssetMap,
+    context
+);
+```
+
+#### File I/O Helpers (Optional)
+
+```csharp
+// Save to file
+QuestStateManager.SaveQuestToFile(questState, "path/to/save.json");
+QuestStateManager.SaveAllQuestsToFile(quests, "path/to/save.json", "metadata");
+
+// Load from file
+QuestState quest = QuestStateManager.LoadQuestFromFile(
+    "path/to/save.json", 
+    questAsset, 
+    context
+);
+
+List<QuestState> quests = QuestStateManager.LoadAllQuestsFromFile(
+    "path/to/save.json",
+    questAssetMap,
+    context
+);
+```
+
+#### Design Philosophy
+
+`QuestStateManager` provides serializable snapshots and basic utilities, but intentionally does not dictate save/load strategy. This allows integration with any persistence system:
+
+- Unity's `JsonUtility` or `PlayerPrefs`
+- Custom binary formats
+- Server APIs or databases
+- Platform-specific cloud saves (Steam, Xbox, PlayStation)
+- Third-party assets (Easy Save 3, etc.)
+
+**The quest system owns:** Serializable state structure  
+**Your game owns:** When, where, and how to persist
+
+---
+
 ## Migration & Troubleshooting
 
 ### Moving from Other Quest Systems
@@ -697,4 +843,4 @@ Debug.Log($"Quest setup: {watch.ElapsedMilliseconds}ms");
 
 ---
 
-Last Updated: 2025-11-25
+Last Updated: 2025-12-06
