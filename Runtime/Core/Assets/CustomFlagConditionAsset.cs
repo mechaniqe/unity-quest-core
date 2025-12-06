@@ -11,15 +11,8 @@ namespace DynamicBox.Quest.Core.Conditions
     [CreateAssetMenu(menuName = "DynamicBox/Quest/Conditions/Custom Flag Condition", fileName = "NewCustomFlagCondition")]
     public class CustomFlagConditionAsset : ConditionAsset
     {
-        [Header("Flag Settings")]
-        [SerializeField] private string _flagId = string.Empty;
         [SerializeField] private bool _expectedValue = true;
         [SerializeField, TextArea(2, 3)] private string _description = string.Empty;
-
-        /// <summary>
-        /// Gets the unique identifier of the flag to check.
-        /// </summary>
-        public string FlagId => _flagId;
         
         /// <summary>
         /// Gets the expected boolean value for this flag to complete the condition.
@@ -33,15 +26,7 @@ namespace DynamicBox.Quest.Core.Conditions
 
         public override IConditionInstance CreateInstance()
         {
-            return new CustomFlagConditionInstance(_flagId, _expectedValue, _description);
-        }
-
-        private void OnValidate()
-        {
-            if (string.IsNullOrEmpty(_flagId))
-            {
-                _flagId = name.Replace(" ", "_").ToLower();
-            }
+            return new CustomFlagConditionInstance(ConditionId, _expectedValue, _description);
         }
     }
 }

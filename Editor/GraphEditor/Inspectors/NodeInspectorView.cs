@@ -242,17 +242,17 @@ namespace DynamicBox.Quest.Editor.GraphEditor
 
         private void ShowItemCollectedConditionFields(ConditionAsset asset)
         {
-            var itemIdField = asset.GetType().GetField("itemId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var requiredCountField = asset.GetType().GetField("requiredCount",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-            var itemId = itemIdField?.GetValue(asset) as string ?? "";
+            var itemId = conditionIdField?.GetValue(asset) as string ?? "";
             var requiredCount = (int)(requiredCountField?.GetValue(asset) ?? 1);
 
             AddEditableField("Item ID:", itemId, (newValue) =>
             {
-                UpdateConditionField(asset, itemIdField, newValue);
+                UpdateConditionField(asset, conditionIdField, newValue);
             });
 
             AddEditableIntField("Required Count:", requiredCount, (newValue) =>
@@ -263,17 +263,17 @@ namespace DynamicBox.Quest.Editor.GraphEditor
 
         private void ShowAreaEnteredConditionFields(ConditionAsset asset)
         {
-            var areaIdField = asset.GetType().GetField("_areaId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var areaDescField = asset.GetType().GetField("_areaDescription",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-            var areaId = areaIdField?.GetValue(asset) as string ?? "";
+            var areaId = conditionIdField?.GetValue(asset) as string ?? "";
             var areaDesc = areaDescField?.GetValue(asset) as string ?? "";
 
             AddEditableField("Area ID:", areaId, (newValue) =>
             {
-                UpdateConditionField(asset, areaIdField, newValue);
+                UpdateConditionField(asset, conditionIdField, newValue);
             });
 
             AddEditableTextArea("Area Description:", areaDesc, (newValue) =>
@@ -297,20 +297,20 @@ namespace DynamicBox.Quest.Editor.GraphEditor
 
         private void ShowCustomFlagConditionFields(ConditionAsset asset)
         {
-            var flagIdField = asset.GetType().GetField("_flagId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var expectedValueField = asset.GetType().GetField("_expectedValue",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var descriptionField = asset.GetType().GetField("_description",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-            var flagId = flagIdField?.GetValue(asset) as string ?? "";
+            var flagId = conditionIdField?.GetValue(asset) as string ?? "";
             var expectedValue = (bool)(expectedValueField?.GetValue(asset) ?? true);
             var description = descriptionField?.GetValue(asset) as string ?? "";
 
             AddEditableField("Flag ID:", flagId, (newValue) =>
             {
-                UpdateConditionField(asset, flagIdField, newValue);
+                UpdateConditionField(asset, conditionIdField, newValue);
             });
 
             AddEditableToggle("Expected Value:", expectedValue, (newValue) =>
@@ -446,12 +446,12 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                     defaultName = "NewItemCollectedCondition";
                     var condition = ScriptableObject.CreateInstance<ItemCollectedConditionAsset>();
                     
-                    var itemIdField = typeof(ItemCollectedConditionAsset).GetField("itemId",
+                    var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     var requiredCountField = typeof(ItemCollectedConditionAsset).GetField("requiredCount",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     
-                    itemIdField?.SetValue(condition, "item_id_here");
+                    conditionIdField?.SetValue(condition, "item_id_here");
                     requiredCountField?.SetValue(condition, 1);
                     
                     newAsset = condition;
@@ -462,12 +462,12 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                     defaultName = "NewAreaEnteredCondition";
                     var condition = ScriptableObject.CreateInstance<AreaEnteredConditionAsset>();
                     
-                    var areaIdField = typeof(AreaEnteredConditionAsset).GetField("_areaId",
+                    var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     var areaDescField = typeof(AreaEnteredConditionAsset).GetField("_areaDescription",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     
-                    areaIdField?.SetValue(condition, "area_id_here");
+                    conditionIdField?.SetValue(condition, "area_id_here");
                     areaDescField?.SetValue(condition, "Area description");
                     
                     newAsset = condition;
@@ -491,14 +491,14 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                     defaultName = "NewCustomFlagCondition";
                     var condition = ScriptableObject.CreateInstance<CustomFlagConditionAsset>();
                     
-                    var flagIdField = typeof(CustomFlagConditionAsset).GetField("_flagId",
+                    var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     var expectedValueField = typeof(CustomFlagConditionAsset).GetField("_expectedValue",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     var descriptionField = typeof(CustomFlagConditionAsset).GetField("_description",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     
-                    flagIdField?.SetValue(condition, "flag_id_here");
+                    conditionIdField?.SetValue(condition, "flag_id_here");
                     expectedValueField?.SetValue(condition, true);
                     descriptionField?.SetValue(condition, "Flag condition description");
                     

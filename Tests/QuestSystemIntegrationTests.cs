@@ -241,11 +241,11 @@ namespace DynamicBox.Quest.Tests
 
                 // Create quest with event-driven condition
                 var itemCondition = ScriptableObject.CreateInstance<ItemCollectedConditionAsset>();
-                var itemIdField = typeof(ItemCollectedConditionAsset).GetField("itemId",
+                var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var requiredCountField = typeof(ItemCollectedConditionAsset).GetField("requiredCount",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                itemIdField?.SetValue(itemCondition, "integration_test_item");
+                conditionIdField?.SetValue(itemCondition, "integration_test_item");
                 requiredCountField?.SetValue(itemCondition, 1);
 
                 var objective = new ObjectiveBuilder()
@@ -678,11 +678,11 @@ namespace DynamicBox.Quest.Tests
         private ItemCollectedConditionAsset CreateItemCondition(string itemId)
         {
             var itemCondition = ScriptableObject.CreateInstance<ItemCollectedConditionAsset>();
-            var itemIdField = typeof(ItemCollectedConditionAsset).GetField("itemId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var requiredCountField = typeof(ItemCollectedConditionAsset).GetField("requiredCount",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            itemIdField?.SetValue(itemCondition, itemId);
+            conditionIdField?.SetValue(itemCondition, itemId);
             requiredCountField?.SetValue(itemCondition, 1);
             return itemCondition;
         }
@@ -690,20 +690,20 @@ namespace DynamicBox.Quest.Tests
         private AreaEnteredConditionAsset CreateAreaCondition(string areaId)
         {
             var areaCondition = ScriptableObject.CreateInstance<AreaEnteredConditionAsset>();
-            var areaIdField = typeof(AreaEnteredConditionAsset).GetField("_areaId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            areaIdField?.SetValue(areaCondition, areaId);
+            conditionIdField?.SetValue(areaCondition, areaId);
             return areaCondition;
         }
 
         private CustomFlagConditionAsset CreateFlagCondition(string flagId, bool expectedValue)
         {
             var flagCondition = ScriptableObject.CreateInstance<CustomFlagConditionAsset>();
-            var flagIdField = typeof(CustomFlagConditionAsset).GetField("_flagId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var expectedValueField = typeof(CustomFlagConditionAsset).GetField("_expectedValue",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            flagIdField?.SetValue(flagCondition, flagId);
+            conditionIdField?.SetValue(flagCondition, flagId);
             expectedValueField?.SetValue(flagCondition, expectedValue);
             return flagCondition;
         }

@@ -14,6 +14,29 @@ namespace DynamicBox.Quest.Tests
     /// </summary>
     public static class QuestSystemTests
     {
+        // Helper methods to create test services
+        private static DynamicBox.Quest.Core.Services.DefaultTimeService CreateTimeService()
+        {
+            var go = new GameObject("TestTimeService");
+            return go.AddComponent<DynamicBox.Quest.Core.Services.DefaultTimeService>();
+        }
+
+        private static DynamicBox.Quest.Core.Services.DefaultFlagService CreateFlagService()
+        {
+            var go = new GameObject("TestFlagService");
+            return go.AddComponent<DynamicBox.Quest.Core.Services.DefaultFlagService>();
+        }
+
+        private static QuestContext CreateContextWithServices()
+        {
+            var timeService = CreateTimeService();
+            var flagService = CreateFlagService();
+            return new QuestContext(
+                timeService: timeService,
+                flagService: flagService
+            );
+        }
+
         public static void RunAllTests()
         {
             // Clean up any existing test objects before starting
@@ -85,6 +108,10 @@ namespace DynamicBox.Quest.Tests
                 .Where(go => go.name.StartsWith("TestPlayerRef"))
                 .ToArray();
 
+            var testServices = UnityEngine.Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None)
+                .Where(go => go.name.StartsWith("TestTimeService") || go.name.StartsWith("TestFlagService"))
+                .ToArray();
+
             foreach (var obj in testQuestManagers)
             {
                 UnityEngine.Object.DestroyImmediate(obj);
@@ -95,9 +122,14 @@ namespace DynamicBox.Quest.Tests
                 UnityEngine.Object.DestroyImmediate(obj);
             }
 
-            if (testQuestManagers.Length > 0 || testPlayerRefs.Length > 0)
+            foreach (var obj in testServices)
             {
-                Debug.Log($"Cleaned up {testQuestManagers.Length} test quest managers and {testPlayerRefs.Length} test player refs");
+                UnityEngine.Object.DestroyImmediate(obj);
+            }
+
+            if (testQuestManagers.Length > 0 || testPlayerRefs.Length > 0 || testServices.Length > 0)
+            {
+                Debug.Log($"Cleaned up {testQuestManagers.Length} test quest managers, {testPlayerRefs.Length} test player refs, and {testServices.Length} test services");
             }
         }
 
@@ -565,9 +597,9 @@ namespace DynamicBox.Quest.Tests
 
             // Create area condition asset and instance
             var areaAsset = ScriptableObject.CreateInstance<AreaEnteredConditionAsset>();
-            var areaIdField = typeof(AreaEnteredConditionAsset).GetField("_areaId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            areaIdField?.SetValue(areaAsset, "forest_entrance");
+            conditionIdField?.SetValue(areaAsset, "forest_entrance");
 
             var condition = areaAsset.CreateInstance();
             bool changeTriggered = false;
@@ -599,16 +631,16 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Custom Flag Condition");
 
             var eventManager = EventManager.Instance;
-            var context = new QuestContext(null, null, null);
+            var context = CreateContextWithServices();
 
             // Create flag condition asset and instance
             var flagAsset = ScriptableObject.CreateInstance<CustomFlagConditionAsset>();
-            var flagIdField = typeof(CustomFlagConditionAsset).GetField("_flagId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var expectedValueField = typeof(CustomFlagConditionAsset).GetField("_expectedValue",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             
-            flagIdField?.SetValue(flagAsset, "quest_started");
+            conditionIdField?.SetValue(flagAsset, "quest_started");
             expectedValueField?.SetValue(flagAsset, true);
 
             var condition = flagAsset.CreateInstance();
@@ -642,15 +674,15 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Custom Flag Condition Toggle");
 
             var eventManager = EventManager.Instance;
-            var context = new QuestContext(null, null, null);
+            var context = CreateContextWithServices();
 
             var flagAsset = ScriptableObject.CreateInstance<CustomFlagConditionAsset>();
-            var flagIdField = typeof(CustomFlagConditionAsset).GetField("_flagId",
+            var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var expectedValueField = typeof(CustomFlagConditionAsset).GetField("_expectedValue",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             
-            flagIdField?.SetValue(flagAsset, "door_open");
+            conditionIdField?.SetValue(flagAsset, "door_open");
             expectedValueField?.SetValue(flagAsset, true);
 
             var condition = flagAsset.CreateInstance();
@@ -679,7 +711,7 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Time Elapsed Condition");
 
             var eventManager = EventManager.Instance;
-            var context = new QuestContext(null, null, null);
+            var context = CreateContextWithServices();
 
             var timeAsset = ScriptableObject.CreateInstance<TimeElapsedConditionAsset>();
             var requiredSecondsField = typeof(TimeElapsedConditionAsset).GetField("requiredSeconds",
@@ -1100,17 +1132,15 @@ namespace DynamicBox.Quest.Tests
             {
                 // Create a realistic quest: collect 2 swords and enter the armory
                 var itemCondition = ScriptableObject.CreateInstance<ItemCollectedConditionAsset>();
-                var itemIdField = typeof(ItemCollectedConditionAsset).GetField("itemId",
+                var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 var requiredCountField = typeof(ItemCollectedConditionAsset).GetField("requiredCount",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                itemIdField?.SetValue(itemCondition, "sword");
+                conditionIdField?.SetValue(itemCondition, "sword");
                 requiredCountField?.SetValue(itemCondition, 2);
 
                 var areaCondition = ScriptableObject.CreateInstance<AreaEnteredConditionAsset>();
-                var areaIdField = typeof(AreaEnteredConditionAsset).GetField("_areaId",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                areaIdField?.SetValue(areaCondition, "armory");
+                conditionIdField?.SetValue(areaCondition, "armory");
 
                 var obj1 = new ObjectiveBuilder()
                     .WithObjectiveId("collect_swords")
