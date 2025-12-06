@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2025-12-06
+
+### Added
+- **QuestSerializationTests**: Comprehensive test suite for quest state persistence
+  - `QuestStateSnapshot` - Serializable snapshot class for save/load systems
+  - `QuestSaveData` - Container for multiple quest snapshots
+  - 7 new tests covering JSON serialization, partial progress, data integrity, and performance
+  - Validates quest and objective state can be saved and restored correctly
+  - Benchmark tests ensure serialization performance < 10ms for large quests (50 objectives)
+
+### Fixed
+- **Test Service Initialization**: MonoBehaviour services now created properly in tests
+  - Added `CreateTimeService()` and `CreateFlagService()` helper methods
+  - Tests now use `GameObject.AddComponent<T>()` instead of `new T()`
+  - Fixed warnings about missing IQuestFlagService and IQuestTimeService in condition tests
+  - Enhanced test cleanup to remove service GameObjects
+
+### Improved
+- Test infrastructure now properly supports MonoBehaviour-based services
+- Better test isolation with improved cleanup procedures
+- `TestRunner` and `TestExecutor` now include serialization tests in test runs
+
 ## [0.7.0] - 2025-12-05
 
 ### Changed

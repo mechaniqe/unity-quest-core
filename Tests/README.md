@@ -100,13 +100,23 @@ DynamicBox.Quest.Tests.TestValidation.RunSmokeTest();
 ## 📁 Test Files
 
 ### Core Test Suites
-- **QuestSystemTests.cs** (1,309 lines) - 25+ unit tests
+- **QuestSystemTests.cs** (1,325 lines) - 25+ unit tests
 - **QuestSystemIntegrationTests.cs** (652 lines) - 9 integration tests  
 - **QuestSystemAdvancedTests.cs** (558 lines) - 10+ advanced tests
+- **QuestSerializationTests.cs** (NEW) - 7 serialization tests
+
+### Specialized Test Suites
+- **ProgressReportingTests.cs** - Progress tracking and reporting
+- **QuestContextTests.cs** - Service locator functionality
+- **EventDrivenConditionTests.cs** - Event-driven condition behavior
+- **FactoryMethodTests.cs** - Factory method patterns
+- **ImmutableEventTests.cs** - Event immutability validation
+- **PerformanceBenchmarkTests.cs** - Performance metrics
 
 ### Infrastructure
 - **TestExecutor.cs** - Unity Inspector test runner
 - **TestValidation.cs** - Infrastructure validation
+- **TestRunner.cs** - Comprehensive test orchestrator
 - **QuestBuilder.cs / ObjectiveBuilder.cs** - Test data builders
 - **MockCondition.cs** - Mock condition implementations
 
@@ -121,6 +131,14 @@ DynamicBox.Quest.Tests.TestValidation.RunSmokeTest();
 - Integration (4 tests) - QuestManager lifecycle
 - Edge Cases (4 tests) - Error handling, null safety
 - Complete Flows (2 tests) - End-to-end scenarios
+
+### Serialization Tests (QuestSerializationTests.cs) ✨ NEW
+- JSON Serialization (2 tests) - Quest and objective state
+- Multiple Quests (1 test) - Batch serialization
+- Partial Progress (1 test) - Mid-quest save/load
+- Data Integrity (1 test) - Consistency validation
+- Error Handling (1 test) - Missing data gracefully handled
+- Performance (1 test) - Serialization benchmarks
 
 ### Integration Tests (QuestSystemIntegrationTests.cs)
 - GameObject Lifecycle (2 tests) - Creation, cleanup
