@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DynamicBox.Quest.Core;
 using DynamicBox.Quest.Core.Conditions;
+using DynamicBox.Quest.Core.State;
 using UnityEngine;
 
 namespace DynamicBox.Quest.Tests
@@ -324,23 +325,8 @@ namespace DynamicBox.Quest.Tests
 
         private static QuestStateSnapshot CaptureQuestSnapshot(QuestState state)
         {
-            var snapshot = new QuestStateSnapshot
-            {
-                QuestId = state.Definition.QuestId,
-                Status = state.Status,
-                ObjectiveStatuses = new List<ObjectiveStatusEntry>()
-            };
-
-            foreach (var obj in state.GetObjectiveStates())
-            {
-                snapshot.ObjectiveStatuses.Add(new ObjectiveStatusEntry
-                {
-                    ObjectiveId = obj.Definition.ObjectiveId,
-                    Status = obj.Status
-                });
-            }
-
-            return snapshot;
+            // Use the production QuestStateManager for consistency
+            return QuestStateManager.CaptureSnapshot(state);
         }
 
         private static QuestAsset CreateTestQuest()
@@ -375,47 +361,5 @@ namespace DynamicBox.Quest.Tests
             conditionIdField?.SetValue(mockAsset, "mock_condition");
             return mockAsset;
         }
-    }
-
-    /// <summary>
-    /// Serializable snapshot of quest state for save/load systems.
-    /// Contains only the data needed to restore quest progress.
-    /// </summary>
-    [Serializable]
-    public class QuestStateSnapshot
-    {
-        public string QuestId;
-        public QuestStatus Status;
-        public List<ObjectiveStatusEntry> ObjectiveStatuses = new List<ObjectiveStatusEntry>();
-
-        // Helper method to get objective status as dictionary
-        public Dictionary<string, ObjectiveStatus> GetObjectiveStatusesDict()
-        {
-            var dict = new Dictionary<string, ObjectiveStatus>();
-            foreach (var entry in ObjectiveStatuses)
-            {
-                dict[entry.ObjectiveId] = entry.Status;
-            }
-            return dict;
-        }
-    }
-
-    /// <summary>
-    /// Serializable entry for objective status (Unity JsonUtility doesn't support Dictionary).
-    /// </summary>
-    [Serializable]
-    public class ObjectiveStatusEntry
-    {
-        public string ObjectiveId;
-        public ObjectiveStatus Status;
-    }
-
-    /// <summary>
-    /// Container for multiple quest snapshots (full save file).
-    /// </summary>
-    [Serializable]
-    public class QuestSaveData
-    {
-        public List<QuestStateSnapshot> Quests = new List<QuestStateSnapshot>();
     }
 }

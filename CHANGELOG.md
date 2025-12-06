@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3] - 2025-12-06
+
+### Added
+- **Production Quest State Serialization System**: Complete save/load infrastructure for quest persistence
+  - `Runtime/Core/State/QuestStateSnapshot.cs` - Serializable snapshot classes moved from Tests to Runtime
+  - `Runtime/Core/State/QuestStateManager.cs` - Production-ready save/load manager with file I/O helpers
+  - `QuestStateRestorationTests.cs` - 7 new tests validating snapshot restoration, context binding, error handling
+  - `Examples/SaveLoadExample.cs` - Complete working example with best practices and error handling
+  - Full snapshot capture and restoration with automatic condition re-binding
+  - File I/O helpers: `SaveQuestToFile()`, `LoadQuestFromFile()`, `SaveAllQuestsToFile()`, `LoadAllQuestsFromFile()`
+  - Validation methods: `IsValid()` for snapshots and save data, automatic error detection
+  - Support for save metadata (timestamps, player info, etc.)
+
+### Improved
+- Serialization classes now available for production use (previously test-only)
+- `QuestSerializationTests` now uses production `QuestStateManager` for consistency
+- Added graceful handling for missing quests, mismatched IDs, and corrupted save data
+- Comprehensive documentation with usage examples and error handling patterns
+
 ## [0.7.2] - 2025-12-06
 
 ### Added
