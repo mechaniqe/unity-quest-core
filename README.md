@@ -1043,8 +1043,8 @@ We welcome contributions from the community! Here's how to get started:
 
 ---
 
-**Version**: 0.1.0  
-**Last Updated**: November 28, 2025  
+**Version**: 0.8.0  
+**Last Updated**: December 11, 2025  
 **Unity Compatibility**: 2021.3 LTS+  
 **Status**: Production Ready ✅
 

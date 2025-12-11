@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-12-11
+
+### Added
+- **OnObjectiveStatusChanged Event Enhancement**: Now fires for ALL objective status changes, not just completion/failure
+  - Fires when objectives transition: `NotStarted` → `InProgress`, `InProgress` → `Completed`, `InProgress` → `Failed`
+  - Added `SetStatusChangedCallback()` to `ObjectiveEvaluator` for immediate status change notifications
+  - Updated `ActivateReadyObjectives()` to trigger events when objectives are activated
+  - Ensures UI updates reflect every stage of objective progression
+- **OnConditionStatusChanged Event**: Fine-grained condition state tracking
+  - New event: `Action<ObjectiveState, IConditionInstance, bool>` fires when any condition's met/unmet state changes
+  - Added `SetConditionChangedCallback()` to `ConditionBindingService`
+  - Wraps condition callbacks in both `BindObjective()` and `RefreshPollingConditions()` to track all changes
+  - Enables detailed progress UI (e.g., "3/5 enemies killed", "50% complete")
+  - Works with both event-driven and polling conditions
+  - Provides access to condition instance for type checking and property inspection
+
+### Improved
+- Event architecture now provides three levels of granularity:
+  - `OnQuestCompleted`/`OnQuestFailed` - Quest-level events
+  - `OnObjectiveStatusChanged` - Objective-level events (now fires for all transitions)
+  - `OnConditionStatusChanged` - Condition-level events (new)
+- Better support for real-time UI updates and progress tracking
+- Enhanced debugging capabilities with condition-level visibility
+
+### Changed
+- `ObjectiveEvaluator.Evaluate()` now tracks status changes throughout evaluation
+- `ConditionBindingService` callback wrapping ensures no condition changes are missed
+- README updated with `OnConditionStatusChanged` usage examples and patterns
+
 ## [0.7.3] - 2025-12-06
 
 ### Added
