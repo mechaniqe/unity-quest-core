@@ -16,6 +16,10 @@ namespace DynamicBox.Quest.Core.Conditions
 
         public override bool IsMet => _currentCount >= _requiredCount;
 
+        public int CurrentCount => _currentCount;
+        
+        public int RequiredCount => _requiredCount;
+
         public float Progress => _requiredCount > 0 ? Mathf.Clamp01((float)_currentCount / _requiredCount) : 1f;
         
         public string ProgressDescription => $"{_currentCount}/{_requiredCount} items collected";
