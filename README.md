@@ -132,6 +132,7 @@ public class GameManager : MonoBehaviour
         questManager.OnQuestCompleted += HandleQuestCompleted;
         questManager.OnQuestFailed += HandleQuestFailed;
         questManager.OnObjectiveStatusChanged += HandleObjectiveChanged;
+        questManager.OnConditionStatusChanged += HandleConditionChanged;
         
         // Start the tutorial quest
         questManager.StartQuest(tutorialQuest);
@@ -153,6 +154,12 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log($"Objective updated: {objectiveState.Definition.DisplayName} - {objectiveState.Status}");
         // Update UI, show notifications
+    }
+    
+    void HandleConditionChanged(ObjectiveState objective, IConditionInstance condition, bool isMet)
+    {
+        Debug.Log($"Condition changed for {objective.Definition.DisplayName}: {condition.GetType().Name} = {isMet}");
+        // Update detailed progress UI (e.g., "3/5 enemies killed")
     }
 }
 ```

@@ -48,6 +48,12 @@ namespace DynamicBox.Quest.Core
         /// Event raised when any objective's status changes.
         /// </summary>
         public event Action<ObjectiveState>? OnObjectiveStatusChanged;
+        
+        /// <summary>
+        /// Event raised when a condition's met/unmet state changes.
+        /// Provides the objective, condition instance, and new met state.
+        /// </summary>
+        public event Action<ObjectiveState, IConditionInstance, bool>? OnConditionStatusChanged;
 
         private void Awake()
         {
@@ -74,6 +80,8 @@ namespace DynamicBox.Quest.Core
             _evaluator.SetDirtyCallback(_processor.MarkDirty);
             // Set callback for evaluator to notify about status changes
             _evaluator.SetStatusChangedCallback((o) => OnObjectiveStatusChanged?.Invoke(o));
+            // Set callback for binding service to notify about condition changes
+            _bindingService.SetConditionChangedCallback((obj, cond, isMet) => OnConditionStatusChanged?.Invoke(obj, cond, isMet));
         }
 
         private void Update()

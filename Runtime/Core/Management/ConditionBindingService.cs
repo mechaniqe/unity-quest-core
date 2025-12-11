@@ -12,11 +12,21 @@ namespace DynamicBox.Quest.Core
     {
         private readonly EventManager _eventManager;
         private readonly QuestContext _context;
+        private Action<ObjectiveState, IConditionInstance, bool>? _onConditionChanged;
 
         public ConditionBindingService(EventManager eventManager, QuestContext context)
         {
             _eventManager = eventManager;
             _context = context;
+        }
+
+        /// <summary>
+        /// Sets the callback to invoke when a condition's status changes.
+        /// </summary>
+        /// <param name="callback">The callback with objective, condition instance, and new met state.</param>
+        public void SetConditionChangedCallback(Action<ObjectiveState, IConditionInstance, bool> callback)
+        {
+            _onConditionChanged = callback;
         }
 
         /// <summary>
@@ -26,12 +36,22 @@ namespace DynamicBox.Quest.Core
         {
             if (objective.CompletionInstance != null)
             {
-                objective.CompletionInstance.Bind(_eventManager, _context, onDirty);
+                var condition = objective.CompletionInstance;
+                objective.CompletionInstance.Bind(_eventManager, _context, () =>
+                {
+                    _onConditionChanged?.Invoke(objective, condition, condition.IsMet);
+                    onDirty();
+                });
             }
 
             if (objective.FailInstance != null)
             {
-                objective.FailInstance.Bind(_eventManager, _context, onDirty);
+                var condition = objective.FailInstance;
+                objective.FailInstance.Bind(_eventManager, _context, () =>
+                {
+                    _onConditionChanged?.Invoke(objective, condition, condition.IsMet);
+                    onDirty();
+                });
             }
         }
 
@@ -69,12 +89,22 @@ namespace DynamicBox.Quest.Core
         {
             if (objective.CompletionInstance is IPollingConditionInstance pollingCompletion)
             {
-                pollingCompletion.Refresh(_context, onDirty);
+                var condition = objective.CompletionInstance;
+                pollingCompletion.Refresh(_context, () =>
+                {
+                    _onConditionChanged?.Invoke(objective, condition, condition.IsMet);
+                    onDirty();
+                });
             }
 
             if (objective.FailInstance is IPollingConditionInstance pollingFail)
             {
-                pollingFail.Refresh(_context, onDirty);
+                var condition = objective.FailInstance;
+                pollingFail.Refresh(_context, () =>
+                {
+                    _onConditionChanged?.Invoke(objective, condition, condition.IsMet);
+                    onDirty();
+                });
             }
         }
     }
