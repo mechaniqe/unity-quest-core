@@ -5,7 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.2] - 2025-12-11
+
+### Changed
+- Updated README documentation with improved event subscription examples
+- Enhanced code samples for quest event handling patterns
+
 ## [0.8.1] - 2025-12-11
+
+### Fixed
+- **Safe Event Invocation**: Added exception handling to prevent one subscriber's exception from breaking the event chain
+  - `SafeInvoke<T>()` helper methods in `QuestManager` and `DirtyQueueProcessor`
+  - All event invocations now wrapped with try-catch to isolate subscriber exceptions
+  - Exceptions are logged with full stack trace without disrupting other subscribers
+  - Applies to: `OnQuestCompleted`, `OnQuestFailed`, `OnObjectiveStatusChanged`, `OnConditionStatusChanged`
+  - Ensures robust event handling even when user code throws exceptions
+
+## [0.8.0] - 2025-12-11
 
 ### Added
 - **ItemCollectedConditionInstance Properties**: Added `CurrentCount` and `RequiredCount` public properties for direct access to collection progress values

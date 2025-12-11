@@ -49,18 +49,18 @@ namespace DynamicBox.Quest.Core
                 switch (result)
                 {
                     case QuestEvaluationResult.ObjectiveCompleted:
-                        OnObjectiveStatusChanged?.Invoke(obj);
+                        SafeInvoke(OnObjectiveStatusChanged, obj);
                         _evaluator.ActivateReadyObjectives(quest);
                         break;
                     
                     case QuestEvaluationResult.QuestCompleted:
-                        OnObjectiveStatusChanged?.Invoke(obj);
-                        OnQuestCompleted?.Invoke(quest);
+                        SafeInvoke(OnObjectiveStatusChanged, obj);
+                        SafeInvoke(OnQuestCompleted, quest);
                         break;
                     
                     case QuestEvaluationResult.QuestFailed:
-                        OnObjectiveStatusChanged?.Invoke(obj);
-                        OnQuestFailed?.Invoke(quest);
+                        SafeInvoke(OnObjectiveStatusChanged, obj);
+                        SafeInvoke(OnQuestFailed, quest);
                         break;
                 }
             }
@@ -72,5 +72,25 @@ namespace DynamicBox.Quest.Core
         /// Gets the current number of dirty objectives pending evaluation.
         /// </summary>
         public int DirtyCount => _dirtySet.Count;
+
+        /// <summary>
+        /// Safely invokes an event, catching exceptions from individual subscribers to prevent breaking the event chain.
+        /// </summary>
+        private void SafeInvoke<T>(Action<T>? eventDelegate, T arg)
+        {
+            if (eventDelegate == null) return;
+
+            foreach (Action<T> handler in eventDelegate.GetInvocationList())
+            {
+                try
+                {
+                    handler(arg);
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"Exception in quest event subscriber: {ex.Message}\n{ex.StackTrace}");
+                }
+            }
+        }
     }
 }

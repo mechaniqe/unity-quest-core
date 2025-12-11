@@ -71,17 +71,58 @@ namespace DynamicBox.Quest.Core
             _evaluator = new ObjectiveEvaluator(_log, _bindingService);
             _processor = new DirtyQueueProcessor(_evaluator);
             
-            // Wire up events from processor
-            _processor.OnQuestCompleted += (q) => OnQuestCompleted?.Invoke(q);
-            _processor.OnQuestFailed += (q) => OnQuestFailed?.Invoke(q);
-            _processor.OnObjectiveStatusChanged += (o) => OnObjectiveStatusChanged?.Invoke(o);
+            // Wire up events from processor with safe invocation
+            _processor.OnQuestCompleted += (q) => SafeInvoke(OnQuestCompleted, q, "OnQuestCompleted");
+            _processor.OnQuestFailed += (q) => SafeInvoke(OnQuestFailed, q, "OnQuestFailed");
+            _processor.OnObjectiveStatusChanged += (o) => SafeInvoke(OnObjectiveStatusChanged, o, "OnObjectiveStatusChanged");
             
             // Set callback for evaluator to mark objectives as dirty
             _evaluator.SetDirtyCallback(_processor.MarkDirty);
             // Set callback for evaluator to notify about status changes
-            _evaluator.SetStatusChangedCallback((o) => OnObjectiveStatusChanged?.Invoke(o));
+            _evaluator.SetStatusChangedCallback((o) => SafeInvoke(OnObjectiveStatusChanged, o, "OnObjectiveStatusChanged"));
             // Set callback for binding service to notify about condition changes
-            _bindingService.SetConditionChangedCallback((obj, cond, isMet) => OnConditionStatusChanged?.Invoke(obj, cond, isMet));
+            _bindingService.SetConditionChangedCallback((obj, cond, isMet) => SafeInvokeCondition(OnConditionStatusChanged, obj, cond, isMet));
+        }
+
+        /// <summary>
+        /// Safely invokes an event, catching exceptions from individual subscribers to prevent breaking the event chain.
+        /// </summary>
+        private void SafeInvoke<T>(Action<T>? eventDelegate, T arg, string eventName)
+        {
+            if (eventDelegate == null) return;
+
+            foreach (Action<T> handler in eventDelegate.GetInvocationList())
+            {
+                try
+                {
+                    handler(arg);
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"Exception in {eventName} subscriber: {ex.Message}\n{ex.StackTrace}", this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Safely invokes the condition status changed event with three parameters.
+        /// </summary>
+        private void SafeInvokeCondition(Action<ObjectiveState, IConditionInstance, bool>? eventDelegate, 
+            ObjectiveState objective, IConditionInstance condition, bool isMet)
+        {
+            if (eventDelegate == null) return;
+
+            foreach (Action<ObjectiveState, IConditionInstance, bool> handler in eventDelegate.GetInvocationList())
+            {
+                try
+                {
+                    handler(objective, condition, isMet);
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogError($"Exception in OnConditionStatusChanged subscriber: {ex.Message}\n{ex.StackTrace}", this);
+                }
+            }
         }
 
         private void Update()
