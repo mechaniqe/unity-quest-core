@@ -13,6 +13,7 @@ namespace DynamicBox.Quest.Core
         private readonly QuestLog _log;
         private readonly ConditionBindingService _bindingService;
         private Action<QuestState, ObjectiveState>? _onDirtyCallback;
+        private Action<ObjectiveState>? _onStatusChanged;
 
         public ObjectiveEvaluator(QuestLog log, ConditionBindingService bindingService)
         {
@@ -27,6 +28,15 @@ namespace DynamicBox.Quest.Core
         public void SetDirtyCallback(Action<QuestState, ObjectiveState> callback)
         {
             _onDirtyCallback = callback;
+        }
+
+        /// <summary>
+        /// Sets the callback to invoke when an objective's status changes.
+        /// </summary>
+        /// <param name="callback">The callback action to invoke with the objective state.</param>
+        public void SetStatusChangedCallback(Action<ObjectiveState> callback)
+        {
+            _onStatusChanged = callback;
         }
 
         /// <summary>
@@ -62,6 +72,7 @@ namespace DynamicBox.Quest.Core
                 if (objective.Status == ObjectiveStatus.NotStarted)
                 {
                     objective.SetStatus(ObjectiveStatus.InProgress);
+                    _onStatusChanged?.Invoke(objective);
                 }
 
                 _bindingService.UnbindObjective(objective);
@@ -84,6 +95,8 @@ namespace DynamicBox.Quest.Core
                 {
                     obj.SetStatus(ObjectiveStatus.InProgress);
                     _bindingService.BindObjective(quest, obj, () => _onDirtyCallback?.Invoke(quest, obj));
+                    // Fire status changed event for InProgress state
+                    _onStatusChanged?.Invoke(obj);
                 }
             }
         }

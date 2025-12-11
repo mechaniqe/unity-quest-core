@@ -72,6 +72,8 @@ namespace DynamicBox.Quest.Core
             
             // Set callback for evaluator to mark objectives as dirty
             _evaluator.SetDirtyCallback(_processor.MarkDirty);
+            // Set callback for evaluator to notify about status changes
+            _evaluator.SetStatusChangedCallback((o) => OnObjectiveStatusChanged?.Invoke(o));
         }
 
         private void Update()

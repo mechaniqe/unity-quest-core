@@ -118,9 +118,11 @@ Right-click in Project → Create → Quests → Quest
 using DynamicBox.Quest.Core;
 using DynamicBox.Quest.GameEvents;
 using DynamicBox.EventManagement;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    [Header ("References")]
     [SerializeField] private QuestManager questManager;
     [SerializeField] private QuestAsset tutorialQuest;
     
