@@ -182,6 +182,25 @@ namespace DynamicBox.Quest.Core
         }
 
         /// <summary>
+        /// Stops a quest by its asset definition and cleans up all event subscriptions and bindings.
+        /// Quest will no longer be tracked or updated.
+        /// </summary>
+        /// <param name="questAsset">The quest asset definition to stop.</param>
+        /// <returns>True if the quest was found and stopped, false otherwise.</returns>
+        public bool StopQuest(QuestAsset questAsset)
+        {
+            Debug.Assert(_log != null, "QuestManager._log should be initialized in Awake()");
+
+            var questState = _log!.Active.FirstOrDefault(q => q.Definition == questAsset);
+            if (questState != null)
+            {
+                StopQuest(questState);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Manually completes a quest (for debugging/editor support).
         /// Cleans up bindings and raises OnQuestCompleted event.
         /// </summary>

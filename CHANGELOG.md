@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.3] - 2025-12-13
+
+### Added
+- **StopQuest(QuestAsset) Overload**: Added convenience method to stop quests using the quest asset instead of quest state
+  - Automatically finds the active quest matching the provided asset definition
+  - Returns `bool` indicating whether the quest was found and stopped
+  - Allows developers to stop quests using the same asset reference used to start them
+  - Eliminates need to track `QuestState` objects when you only have the `QuestAsset`
+
 ## [0.8.2] - 2025-12-11
 
 ### Changed
