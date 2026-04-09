@@ -58,16 +58,9 @@ namespace DynamicBox.Quest.Core
 
         private void Awake()
         {
-            if (playerRef == null)
-            {
-                Debug.LogError("QuestManager requires a QuestPlayerRef to be assigned!", this);
-                enabled = false;
-                return;
-            }
-
             _eventManager = EventManager.Instance;
             _log = new QuestLog();
-            _context = playerRef.BuildContext();
+            _context = playerRef != null ? playerRef.BuildContext() : new QuestContext();
             _bindingService = new ConditionBindingService(_eventManager, _context);
             _evaluator = new ObjectiveEvaluator(_log, _bindingService);
             _processor = new DirtyQueueProcessor(_evaluator);
@@ -240,6 +233,29 @@ namespace DynamicBox.Quest.Core
         {
             Debug.Assert(_processor != null, "QuestManager._processor should be initialized in Awake()");
             _processor!.ProcessAll();
+        }
+
+        /// <summary>
+        /// Registers player-provided services into the shared context.
+        /// Call this when the player spawns. Already-bound conditions will
+        /// pick up the services automatically since they share the same context.
+        /// </summary>
+        /// <param name="player">The player's <see cref="QuestPlayerRef"/> component.</param>
+        public void RegisterPlayer(QuestPlayerRef player)
+        {
+            Debug.Assert(_context != null, "QuestManager._context should be initialized in Awake()");
+            player.RegisterServicesInto(_context!);
+        }
+
+        /// <summary>
+        /// Removes player-provided services from the shared context.
+        /// Call this when the player despawns.
+        /// </summary>
+        /// <param name="player">The player's <see cref="QuestPlayerRef"/> component.</param>
+        public void UnregisterPlayer(QuestPlayerRef player)
+        {
+            Debug.Assert(_context != null, "QuestManager._context should be initialized in Awake()");
+            player.UnregisterServicesFrom(_context!);
         }
 
         private void PollConditions()

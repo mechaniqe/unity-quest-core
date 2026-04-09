@@ -93,5 +93,24 @@ namespace DynamicBox.Quest.Core
         {
             return _services.ContainsKey(typeof(T));
         }
+
+        /// <summary>
+        /// Registers or replaces a service of the specified type at runtime.
+        /// </summary>
+        /// <typeparam name="T">The service interface type to register.</typeparam>
+        /// <param name="service">The service implementation to register.</param>
+        public void RegisterService<T>(T service) where T : class
+        {
+            _services[typeof(T)] = service;
+        }
+
+        /// <summary>
+        /// Removes a service of the specified type, if registered.
+        /// </summary>
+        /// <typeparam name="T">The service interface type to remove.</typeparam>
+        public void UnregisterService<T>() where T : class
+        {
+            _services.Remove(typeof(T));
+        }
     }
 }

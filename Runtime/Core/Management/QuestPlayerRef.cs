@@ -52,5 +52,44 @@ namespace DynamicBox.Quest.Core
 
             return new QuestContext(area, inv, time, flag);
         }
+
+        /// <summary>
+        /// Discovers services (same logic as <see cref="BuildContext"/>) and registers
+        /// them into an existing context. Called when the player spawns at runtime.
+        /// </summary>
+        /// <param name="context">The shared context owned by <see cref="QuestManager"/>.</param>
+        public void RegisterServicesInto(QuestContext context)
+        {
+            IQuestAreaService? area = areaServiceProvider;
+            IQuestInventoryService? inv = inventoryServiceProvider;
+            IQuestTimeService? time = timeServiceProvider;
+            IQuestFlagService? flag = flagServiceProvider;
+
+            if (autoDiscoverServices)
+            {
+                area ??= GetComponent<QuestAreaServiceBase>();
+                inv ??= GetComponent<QuestInventoryServiceBase>();
+                time ??= GetComponent<QuestTimeServiceBase>();
+                flag ??= GetComponent<QuestFlagServiceBase>();
+            }
+
+            if (area != null)  context.RegisterService<IQuestAreaService>(area);
+            if (inv != null)   context.RegisterService<IQuestInventoryService>(inv);
+            if (time != null)  context.RegisterService<IQuestTimeService>(time);
+            if (flag != null)  context.RegisterService<IQuestFlagService>(flag);
+        }
+
+        /// <summary>
+        /// Removes all services this component registered from the shared context.
+        /// Called when the player despawns at runtime.
+        /// </summary>
+        /// <param name="context">The shared context owned by <see cref="QuestManager"/>.</param>
+        public void UnregisterServicesFrom(QuestContext context)
+        {
+            context.UnregisterService<IQuestAreaService>();
+            context.UnregisterService<IQuestInventoryService>();
+            context.UnregisterService<IQuestTimeService>();
+            context.UnregisterService<IQuestFlagService>();
+        }
     }
 }
