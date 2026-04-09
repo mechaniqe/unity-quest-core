@@ -2,7 +2,6 @@ using System;
 using DynamicBox.Quest.Core;
 using DynamicBox.Quest.Core.Conditions;
 using DynamicBox.Quest.GameEvents;
-using DynamicBox.EventManagement;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -137,21 +136,21 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Item Collected Condition Completion");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             // Create a simple condition
             var condition = new ItemCollectedConditionInstance("sword", 1);
             bool changeTriggered = false;
 
-            condition.Bind(eventManager, context, () => changeTriggered = true);
+            condition.Bind(eventBus, context, () => changeTriggered = true);
 
             // Verify not met initially
             if (condition.IsMet)
                 throw new Exception("Condition should not be met initially");
 
             // Publish the event
-            eventManager.Raise(new ItemCollectedEvent("sword", 1));
+            eventBus.Publish(new ItemCollectedEvent("sword", 1));
 
             if (!condition.IsMet)
                 throw new Exception("Condition should be met after event");
@@ -166,35 +165,35 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Item Collected Condition - Multiple Events");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             var condition = new ItemCollectedConditionInstance("potion", 3);
             bool changeTriggered = false;
             int changeCount = 0;
 
-            condition.Bind(eventManager, context, () => {
+            condition.Bind(eventBus, context, () => {
                 changeTriggered = true;
                 changeCount++;
             });
 
             // Test partial collection
-            eventManager.Raise(new ItemCollectedEvent("potion", 1));
+            eventBus.Publish(new ItemCollectedEvent("potion", 1));
             if (condition.IsMet)
                 throw new Exception("Condition should not be met after collecting 1/3");
 
             // Test another partial collection
-            eventManager.Raise(new ItemCollectedEvent("potion", 1));
+            eventBus.Publish(new ItemCollectedEvent("potion", 1));
             if (condition.IsMet)
                 throw new Exception("Condition should not be met after collecting 2/3");
 
             // Test completion
-            eventManager.Raise(new ItemCollectedEvent("potion", 1));
+            eventBus.Publish(new ItemCollectedEvent("potion", 1));
             if (!condition.IsMet)
                 throw new Exception("Condition should be met after collecting 3/3");
 
             // Test over-collection
-            eventManager.Raise(new ItemCollectedEvent("potion", 2));
+            eventBus.Publish(new ItemCollectedEvent("potion", 2));
             if (!condition.IsMet)
                 throw new Exception("Condition should remain met after over-collection");
 
@@ -211,25 +210,25 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Item Collected Condition - Unbinding");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             var condition = new ItemCollectedConditionInstance("key", 1);
             bool changeTriggered = false;
 
-            condition.Bind(eventManager, context, () => changeTriggered = true);
+            condition.Bind(eventBus, context, () => changeTriggered = true);
             
             // Test that event works before unbinding
-            eventManager.Raise(new ItemCollectedEvent("key", 1));
+            eventBus.Publish(new ItemCollectedEvent("key", 1));
             if (!changeTriggered)
                 throw new Exception("Change should be triggered before unbinding");
 
             // Unbind and reset
-            condition.Unbind(eventManager, context);
+            condition.Unbind(eventBus, context);
             changeTriggered = false;
 
             // Test that event no longer works after unbinding
-            eventManager.Raise(new ItemCollectedEvent("key", 1));
+            eventBus.Publish(new ItemCollectedEvent("key", 1));
             if (changeTriggered)
                 throw new Exception("Change should not be triggered after unbinding");
 
@@ -240,7 +239,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Fail Condition Triggers Quest Failure");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             // Create objective with fail condition
@@ -266,7 +265,7 @@ namespace DynamicBox.Quest.Tests
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             failField?.SetValue(objState, failCondition);
 
-            failCondition.Bind(eventManager, context, () => { });
+            failCondition.Bind(eventBus, context, () => { });
 
             // Trigger fail condition
             failCondition.SetMet(true);
@@ -285,7 +284,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Condition Group AND Logic");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             var cond1 = UnityEngine.ScriptableObject.CreateInstance<MockConditionAsset>().CreateInstance() as MockConditionInstance;
@@ -294,7 +293,7 @@ namespace DynamicBox.Quest.Tests
             var group = new ConditionGroupInstance(ConditionOperator.And, new System.Collections.Generic.List<IConditionInstance> { cond1, cond2 });
             bool changeTriggered = false;
 
-            group.Bind(eventManager, context, () => changeTriggered = true);
+            group.Bind(eventBus, context, () => changeTriggered = true);
 
             if (group.IsMet)
                 throw new Exception("AND group should not be met when both are false");
@@ -317,7 +316,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Condition Group OR Logic");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             var cond1 = UnityEngine.ScriptableObject.CreateInstance<MockConditionAsset>().CreateInstance() as MockConditionInstance;
@@ -326,7 +325,7 @@ namespace DynamicBox.Quest.Tests
             var group = new ConditionGroupInstance(ConditionOperator.Or, new System.Collections.Generic.List<IConditionInstance> { cond1, cond2 });
             bool changeTriggered = false;
 
-            group.Bind(eventManager, context, () => changeTriggered = true);
+            group.Bind(eventBus, context, () => changeTriggered = true);
 
             if (group.IsMet)
                 throw new Exception("OR group should not be met when both are false");
@@ -345,7 +344,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Condition Group - Nested Logic");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             // Create nested structure: (A AND B) OR (C AND D)
@@ -363,7 +362,7 @@ namespace DynamicBox.Quest.Tests
                 new List<IConditionInstance> { groupAB, groupCD });
 
             bool changeTriggered = false;
-            rootGroup.Bind(eventManager, context, () => changeTriggered = true);
+            rootGroup.Bind(eventBus, context, () => changeTriggered = true);
 
             // Should not be met initially
             if (rootGroup.IsMet)
@@ -389,7 +388,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Condition Group - Polling Children");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             // Create a mock polling condition
@@ -400,7 +399,7 @@ namespace DynamicBox.Quest.Tests
                 new List<IConditionInstance> { mockPollingCondition, regularCondition });
 
             bool changeTriggered = false;
-            group.Bind(eventManager, context, () => changeTriggered = true);
+            group.Bind(eventBus, context, () => changeTriggered = true);
 
             // Test that polling is called on polling children
             group.Refresh(context, () => { });
@@ -592,7 +591,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Area Entered Condition");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             // Create area condition asset and instance
@@ -604,19 +603,19 @@ namespace DynamicBox.Quest.Tests
             var condition = areaAsset.CreateInstance();
             bool changeTriggered = false;
 
-            condition.Bind(eventManager, context, () => changeTriggered = true);
+            condition.Bind(eventBus, context, () => changeTriggered = true);
 
             // Initially not met
             if (condition.IsMet)
                 throw new Exception("Area condition should not be met initially");
 
             // Enter wrong area - should not trigger
-            eventManager.Raise(new AreaEnteredEvent("town_square"));
+            eventBus.Publish(new AreaEnteredEvent("town_square"));
             if (condition.IsMet || changeTriggered)
                 throw new Exception("Area condition should not trigger for wrong area");
 
             // Enter correct area - should trigger
-            eventManager.Raise(new AreaEnteredEvent("forest_entrance"));
+            eventBus.Publish(new AreaEnteredEvent("forest_entrance"));
             if (!condition.IsMet)
                 throw new Exception("Area condition should be met after entering correct area");
 
@@ -630,7 +629,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Custom Flag Condition");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = CreateContextWithServices();
 
             // Create flag condition asset and instance
@@ -646,20 +645,20 @@ namespace DynamicBox.Quest.Tests
             var condition = flagAsset.CreateInstance();
             bool changeTriggered = false;
 
-            condition.Bind(eventManager, context, () => changeTriggered = true);
+            condition.Bind(eventBus, context, () => changeTriggered = true);
 
             // Initially not met
             if (condition.IsMet)
                 throw new Exception("Flag condition should not be met initially");
 
             // Set wrong flag - should not trigger
-            eventManager.Raise(new FlagChangedEvent("other_flag", true));
+            eventBus.Publish(new FlagChangedEvent("other_flag", true));
             if (condition.IsMet || changeTriggered)
                 throw new Exception("Flag condition should not trigger for wrong flag");
 
             // Set correct flag to correct value - should trigger
             changeTriggered = false;
-            eventManager.Raise(new FlagChangedEvent("quest_started", true));
+            eventBus.Publish(new FlagChangedEvent("quest_started", true));
             if (!condition.IsMet)
                 throw new Exception("Flag condition should be met after setting correct flag");
 
@@ -673,7 +672,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Custom Flag Condition Toggle");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = CreateContextWithServices();
 
             var flagAsset = ScriptableObject.CreateInstance<CustomFlagConditionAsset>();
@@ -688,15 +687,15 @@ namespace DynamicBox.Quest.Tests
             var condition = flagAsset.CreateInstance();
             int changeCount = 0;
 
-            condition.Bind(eventManager, context, () => changeCount++);
+            condition.Bind(eventBus, context, () => changeCount++);
 
             // Set flag to true - should complete
-            eventManager.Raise(new FlagChangedEvent("door_open", true));
+            eventBus.Publish(new FlagChangedEvent("door_open", true));
             if (!condition.IsMet)
                 throw new Exception("Flag condition should be met when set to expected value");
 
             // Set flag back to false - should become incomplete
-            eventManager.Raise(new FlagChangedEvent("door_open", false));
+            eventBus.Publish(new FlagChangedEvent("door_open", false));
             if (condition.IsMet)
                 throw new Exception("Flag condition should not be met when set to unexpected value");
 
@@ -710,7 +709,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Time Elapsed Condition");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = CreateContextWithServices();
 
             var timeAsset = ScriptableObject.CreateInstance<TimeElapsedConditionAsset>();
@@ -722,7 +721,7 @@ namespace DynamicBox.Quest.Tests
             var pollingCondition = condition as IPollingConditionInstance;
             bool changeTriggered = false;
 
-            condition.Bind(eventManager, context, () => changeTriggered = true);
+            condition.Bind(eventBus, context, () => changeTriggered = true);
 
             // Initially not met
             if (condition.IsMet)
@@ -753,10 +752,10 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Polling Condition Integration");
 
             var mockPollingCondition = new MockPollingConditionInstance();
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
-            mockPollingCondition.Bind(eventManager, context, () => { });
+            mockPollingCondition.Bind(eventBus, context, () => { });
 
             // Test that polling works
             mockPollingCondition.Refresh(context, () => { });
@@ -1126,7 +1125,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Complete Quest Flow");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var questManager = CreateTestQuestManager();
             try
             {
@@ -1166,22 +1165,22 @@ namespace DynamicBox.Quest.Tests
                 var questState = questManager.StartQuest(quest);
 
                 // Collect first sword
-                eventManager.Raise(new ItemCollectedEvent("sword", 1));
+                eventBus.Publish(new ItemCollectedEvent("sword", 1));
                 
                 // Try to enter armory (should not complete quest yet - prerequisite not met)
-                eventManager.Raise(new AreaEnteredEvent("armory"));
+                eventBus.Publish(new AreaEnteredEvent("armory"));
                 
                 if (questCompleted)
                     throw new Exception("Quest should not complete without prerequisite");
 
                 // Collect second sword
-                eventManager.Raise(new ItemCollectedEvent("sword", 1));
+                eventBus.Publish(new ItemCollectedEvent("sword", 1));
 
                 // Process pending evaluations to complete first objective
                 questManager.ProcessPendingEvaluations();
 
                 // Now enter armory (should complete quest)
-                eventManager.Raise(new AreaEnteredEvent("armory"));
+                eventBus.Publish(new AreaEnteredEvent("armory"));
                 questManager.ProcessPendingEvaluations();
 
                 if (!questCompleted)
@@ -1199,7 +1198,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[TEST] Complex Quest With Failure");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var questManager = CreateTestQuestManager();
             try
             {
@@ -1315,12 +1314,12 @@ namespace DynamicBox.Quest.Tests
             }
         }
 
-        public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
+        public void Bind(IEventBus eventBus, QuestContext context, Action onChanged)
         {
             _onChanged = onChanged;
         }
 
-        public void Unbind(EventManager eventManager, QuestContext context)
+        public void Unbind(IEventBus eventBus, QuestContext context)
         {
             _onChanged = null;
         }

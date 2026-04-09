@@ -1,6 +1,5 @@
 #nullable enable
 using System;
-using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core
 {
@@ -20,18 +19,18 @@ namespace DynamicBox.Quest.Core
         /// Binds this condition to the event system and context.
         /// Subscribe to relevant events and invoke onChanged when IsMet value changes.
         /// </summary>
-        /// <param name="eventManager">The event manager to subscribe to events.</param>
+        /// <param name="eventBus">The event bus to subscribe to events.</param>
         /// <param name="context">Game services available to this condition.</param>
         /// <param name="onChanged">Callback to invoke when condition state changes.</param>
-        void Bind(EventManager eventManager, QuestContext context, Action onChanged);
+        void Bind(IEventBus eventBus, QuestContext context, Action onChanged);
 
         /// <summary>
         /// Unbinds this condition from the event system.
         /// Clean up event subscriptions and release references.
         /// </summary>
-        /// <param name="eventManager">The event manager to unsubscribe from.</param>
+        /// <param name="eventBus">The event bus to unsubscribe from.</param>
         /// <param name="context">Game services context.</param>
-        void Unbind(EventManager eventManager, QuestContext context);
+        void Unbind(IEventBus eventBus, QuestContext context);
     }
 
     /// <summary>

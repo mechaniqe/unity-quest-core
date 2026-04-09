@@ -1,6 +1,5 @@
 #nullable enable
 using System;
-using DynamicBox.EventManagement;
 using UnityEngine;
 
 namespace DynamicBox.Quest.Core.Conditions
@@ -38,7 +37,7 @@ namespace DynamicBox.Quest.Core.Conditions
             _isInitialized = false;
         }
 
-        public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
+        public void Bind(IEventBus eventBus, QuestContext context, Action onChanged)
         {
             _onChanged = onChanged;
             _elapsedTime = 0f;
@@ -54,7 +53,7 @@ namespace DynamicBox.Quest.Core.Conditions
             }
         }
 
-        public void Unbind(EventManager eventManager, QuestContext context)
+        public void Unbind(IEventBus eventBus, QuestContext context)
         {
             _onChanged = null;
             _isInitialized = false;

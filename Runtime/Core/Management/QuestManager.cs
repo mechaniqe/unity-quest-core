@@ -1,5 +1,4 @@
 #nullable enable
-using DynamicBox.EventManagement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +20,7 @@ namespace DynamicBox.Quest.Core
         [SerializeField] private bool enablePolling = true;
         [SerializeField] private float pollingInterval = 0.25f;
 
-        private EventManager? _eventManager;
+        private IEventBus _eventBus = new SimpleEventBus();
         private QuestLog? _log;
         private QuestContext? _context;
         private ConditionBindingService? _bindingService;
@@ -29,6 +28,28 @@ namespace DynamicBox.Quest.Core
         private DirtyQueueProcessor? _processor;
 
         private float _pollTimer;
+
+        /// <summary>
+        /// The event bus used by quest conditions to subscribe to and receive events.
+        /// Set this before the component initializes (before <c>Awake</c>) to use a
+        /// custom implementation. Defaults to <see cref="SimpleEventBus"/>.
+        /// </summary>
+        /// <remarks>
+        /// To integrate with the DynamicBox EventManager package:
+        /// <code>
+        /// questManager.EventBus = new EventManagerAdapter();
+        /// </code>
+        /// The property is readable after initialization so that game code can
+        /// publish events through the same bus the quest system subscribed to:
+        /// <code>
+        /// questManager.EventBus.Publish(new ItemCollectedEvent("sword", 1));
+        /// </code>
+        /// </remarks>
+        public IEventBus EventBus
+        {
+            get => _eventBus;
+            set => _eventBus = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         /// <summary>
         /// Gets the list of all active quests currently being tracked.
@@ -58,10 +79,9 @@ namespace DynamicBox.Quest.Core
 
         private void Awake()
         {
-            _eventManager = EventManager.Instance;
             _log = new QuestLog();
             _context = playerRef != null ? playerRef.BuildContext() : new QuestContext();
-            _bindingService = new ConditionBindingService(_eventManager, _context);
+            _bindingService = new ConditionBindingService(_eventBus, _context);
             _evaluator = new ObjectiveEvaluator(_log, _bindingService);
             _processor = new DirtyQueueProcessor(_evaluator);
             

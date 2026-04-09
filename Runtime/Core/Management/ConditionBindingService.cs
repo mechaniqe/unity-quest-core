@@ -1,6 +1,5 @@
 #nullable enable
 using System;
-using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.Core
 {
@@ -10,13 +9,13 @@ namespace DynamicBox.Quest.Core
     /// </summary>
     internal sealed class ConditionBindingService
     {
-        private readonly EventManager _eventManager;
+        private readonly IEventBus _eventBus;
         private readonly QuestContext _context;
         private Action<ObjectiveState, IConditionInstance, bool>? _onConditionChanged;
 
-        public ConditionBindingService(EventManager eventManager, QuestContext context)
+        public ConditionBindingService(IEventBus eventBus, QuestContext context)
         {
-            _eventManager = eventManager;
+            _eventBus = eventBus;
             _context = context;
         }
 
@@ -37,7 +36,7 @@ namespace DynamicBox.Quest.Core
             if (objective.CompletionInstance != null)
             {
                 var condition = objective.CompletionInstance;
-                objective.CompletionInstance.Bind(_eventManager, _context, () =>
+                objective.CompletionInstance.Bind(_eventBus, _context, () =>
                 {
                     _onConditionChanged?.Invoke(objective, condition, condition.IsMet);
                     onDirty();
@@ -47,7 +46,7 @@ namespace DynamicBox.Quest.Core
             if (objective.FailInstance != null)
             {
                 var condition = objective.FailInstance;
-                objective.FailInstance.Bind(_eventManager, _context, () =>
+                objective.FailInstance.Bind(_eventBus, _context, () =>
                 {
                     _onConditionChanged?.Invoke(objective, condition, condition.IsMet);
                     onDirty();
@@ -62,12 +61,12 @@ namespace DynamicBox.Quest.Core
         {
             if (objective.CompletionInstance != null)
             {
-                objective.CompletionInstance.Unbind(_eventManager, _context);
+                objective.CompletionInstance.Unbind(_eventBus, _context);
             }
 
             if (objective.FailInstance != null)
             {
-                objective.FailInstance.Unbind(_eventManager, _context);
+                objective.FailInstance.Unbind(_eventBus, _context);
             }
         }
 

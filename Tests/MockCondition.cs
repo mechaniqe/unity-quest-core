@@ -1,6 +1,5 @@
 #nullable enable
 using DynamicBox.Quest.Core;
-using DynamicBox.EventManagement;
 using System;
 
 namespace DynamicBox.Quest.Tests
@@ -32,12 +31,12 @@ namespace DynamicBox.Quest.Tests
             }
         }
 
-        public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
+        public void Bind(IEventBus eventBus, QuestContext context, Action onChanged)
         {
             _onChanged = onChanged;
         }
 
-        public void Unbind(EventManager eventManager, QuestContext context)
+        public void Unbind(IEventBus eventBus, QuestContext context)
         {
             _onChanged = null;
         }

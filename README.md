@@ -45,8 +45,9 @@ In Unity Package Manager, click the `+` button and select "Add package from git 
 https://github.com/mechaniqe/unity-quest-core.git
 ```
 
-**Dependencies**: You must manually install the DynamicBox EventManagement package:
+**Dependencies**: None required by default. The DynamicBox EventManagement package is **optional** — use it only if you need global EventManager integration (see [Event Bus Integration](#event-bus-integration) below).
 
+To optionally install EventManagement:
 ```
 https://github.com/mechaniqe/event-management.git
 ```
@@ -55,17 +56,14 @@ https://github.com/mechaniqe/event-management.git
 
 1. Clone the repository
 2. Copy the `Packages/net.dynamicbox.quest.core` folder to your project's `Packages/` directory
-3. Install the DynamicBox EventManagement dependency manually:
-   - Via UPM: `https://github.com/mechaniqe/event-management.git`
-   - Or copy it to your `Packages/` directory
+3. No additional dependencies required for standalone use
 
 ### Setup
 
-The Quest System automatically uses `EventManager.Instance` - no manual setup required!
-
-1. Add a QuestManager component to a GameObject in your scene
-2. Assign a QuestPlayerRef to provide quest context
-3. Start creating quests!
+1. Add a `QuestManager` component to a GameObject in your scene
+2. Assign a `QuestPlayerRef` to provide quest context
+3. (Optional) Assign an event bus — defaults to `SimpleEventBus` (no extra packages needed)
+4. Start creating quests!
 
 ## Quick Start
 
@@ -117,7 +115,6 @@ Right-click in Project → Create → Quests → Quest
 ```csharp
 using DynamicBox.Quest.Core;
 using DynamicBox.Quest.GameEvents;
-using DynamicBox.EventManagement;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -166,16 +163,20 @@ public class GameManager : MonoBehaviour
 
 ### Step 4: Publish Game Events
 
+Publish events through the same bus the `QuestManager` is subscribed to:
+
 ```csharp
 // In your inventory system
 public class InventorySystem : MonoBehaviour
 {
+    [SerializeField] private QuestManager questManager;
+
     public void CollectItem(string itemId, int amount)
     {
         // Add to inventory logic here...
-        
-        // Notify quest system
-        EventManager.Instance.Raise(new ItemCollectedEvent(itemId, amount));
+
+        // Notify quest system via the shared event bus
+        questManager.EventBus.Publish(new ItemCollectedEvent(itemId, amount));
     }
 }
 
@@ -183,12 +184,13 @@ public class InventorySystem : MonoBehaviour
 public class AreaTrigger : MonoBehaviour
 {
     [SerializeField] private string areaId;
-    
+    [SerializeField] private QuestManager questManager;
+
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            EventManager.Instance.Raise(new AreaEnteredEvent(areaId));
+            questManager.EventBus.Publish(new AreaEnteredEvent(areaId));
         }
     }
 }
@@ -196,12 +198,14 @@ public class AreaTrigger : MonoBehaviour
 // In your game state system
 public class GameStateManager : MonoBehaviour
 {
+    [SerializeField] private QuestManager questManager;
+
     public void SetFlag(string flagId, bool value)
     {
         // Update game state...
-        
+
         // Notify quest system
-        EventManager.Instance.Raise(new FlagChangedEvent(flagId, value));
+        questManager.EventBus.Publish(new FlagChangedEvent(flagId, value));
     }
 }
 ```
@@ -292,29 +296,43 @@ public class QuestController : MonoBehaviour
 
 ### Creating Event-Driven Conditions
 
+Event types are plain C# classes — no base class required.
+
 ```csharp
-// 1. Create the asset class
+// 1. Create the event type (plain C# class, no base class needed)
+public class EnemyKilledEvent
+{
+    public string EnemyType { get; }
+    public Vector3 Position { get; }
+
+    public EnemyKilledEvent(string enemyType, Vector3 position)
+    {
+        EnemyType = enemyType;
+        Position = position;
+    }
+}
+
+// 2. Create the asset class
 [CreateAssetMenu(menuName = "Quests/Conditions/Enemy Killed")]
 public class EnemyKilledConditionAsset : ConditionAsset
 {
     [SerializeField] private string enemyType;
     [SerializeField] private int requiredKills = 1;
-    
+
     public override IConditionInstance CreateInstance()
     {
         return new EnemyKilledConditionInstance(enemyType, requiredKills);
     }
 }
 
-// 2. Create the instance class
-public class EnemyKilledConditionInstance : IConditionInstance
+// 3. Create the instance class — use EventDrivenConditionBase<T> for less boilerplate
+public class EnemyKilledConditionInstance : EventDrivenConditionBase<EnemyKilledEvent>
 {
     private readonly string _enemyType;
     private readonly int _requiredKills;
     private int _currentKills;
-    private Action _onChanged;
 
-    public bool IsMet => _currentKills >= _requiredKills;
+    public override bool IsMet => _currentKills >= _requiredKills;
 
     public EnemyKilledConditionInstance(string enemyType, int requiredKills)
     {
@@ -322,42 +340,23 @@ public class EnemyKilledConditionInstance : IConditionInstance
         _requiredKills = requiredKills;
     }
 
-    public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
-    {
-        _onChanged = onChanged;
-        eventManager.Subscribe<EnemyKilledEvent>(OnEnemyKilled);
-    }
-
-    public void Unbind(EventManager eventManager, QuestContext context)
-    {
-        eventManager.Unsubscribe<EnemyKilledEvent>(OnEnemyKilled);
-    }
-
-    private void OnEnemyKilled(EnemyKilledEvent evt)
+    protected override void HandleEvent(EnemyKilledEvent evt)
     {
         if (evt.EnemyType == _enemyType)
         {
             _currentKills++;
             if (_currentKills <= _requiredKills)
-            {
-                _onChanged?.Invoke();
-            }
+                NotifyChanged();
         }
     }
 }
+```
 
-// 3. Create the corresponding event
-public class EnemyKilledEvent
-{
-    public string EnemyType { get; }
-    public Vector3 Position { get; }
-    
-    public EnemyKilledEvent(string enemyType, Vector3 position)
-    {
-        EnemyType = enemyType;
-        Position = position;
-    }
-}
+Publish the event from game code:
+
+```csharp
+// Kill detected in your combat system:
+questManager.EventBus.Publish(new EnemyKilledEvent("goblin", transform.position));
 ```
 
 ### Creating Polling Conditions
@@ -391,12 +390,12 @@ public class PlayerDistanceConditionInstance : IConditionInstance, IPollingCondi
         _requiredDistance = requiredDistance;
     }
 
-    public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
+    public void Bind(IEventBus eventBus, QuestContext context, Action onChanged)
     {
         _onChanged = onChanged;
     }
 
-    public void Unbind(EventManager eventManager, QuestContext context)
+    public void Unbind(IEventBus eventBus, QuestContext context)
     {
         _onChanged = null;
     }
@@ -416,6 +415,55 @@ public class PlayerDistanceConditionInstance : IConditionInstance, IPollingCondi
     }
 }
 ```
+
+## Event Bus Integration
+
+`QuestManager` uses an `IEventBus` to connect conditions to your game's event pipeline. The default is `SimpleEventBus` — a self-contained, zero-dependency implementation that is isolated to that manager instance.
+
+### Default (SimpleEventBus)
+
+No configuration needed. Publish events through `questManager.EventBus`:
+
+```csharp
+questManager.EventBus.Publish(new ItemCollectedEvent("sword", 1));
+```
+
+### Using DynamicBox EventManagement (EventManagerAdapter)
+
+If you use the DynamicBox EventManagement package and want quest conditions to subscribe to the global `EventManager.Instance`, assign an `EventManagerAdapter` **before** the component initializes:
+
+```csharp
+// Option A: set in Awake before QuestManager's Awake runs (script execution order)
+questManager.EventBus = new EventManagerAdapter();
+
+// Option B: disable the GameObject, set the bus, then enable
+questManagerGO.SetActive(false);
+questManager.EventBus = new EventManagerAdapter();
+questManagerGO.SetActive(true);
+
+// Game code continues to use:
+EventManager.Instance.Raise(new ItemCollectedEvent("sword", 1));
+```
+
+> **Note**: `EventManagerAdapter` requires all event types to derive from `GameEvent`. Use `SimpleEventBus` for plain C# event types.
+
+### Custom Event Bus
+
+Implement `IEventBus` to integrate any pub/sub solution (UniRx, MessagePipe, etc.):
+
+```csharp
+public class MyCustomEventBus : IEventBus
+{
+    public void Subscribe<TEvent>(Action<TEvent> handler) { /* ... */ }
+    public void Unsubscribe<TEvent>(Action<TEvent> handler) { /* ... */ }
+    public void Publish<TEvent>(TEvent evt) { /* ... */ }
+}
+
+// Assign:
+questManager.EventBus = new MyCustomEventBus();
+```
+
+---
 
 ## Advanced Usage
 
@@ -686,10 +734,10 @@ public class QuestDebugger : MonoBehaviour
     [ContextMenu("Trigger Test Events")]
     void TriggerTestEvents()
     {
-        // Useful for testing
-        EventManager.Instance.Raise(new ItemCollectedEvent("test_item", 1));
-        EventManager.Instance.Raise(new AreaEnteredEvent("test_area"));
-        EventManager.Instance.Raise(new FlagChangedEvent("test_flag", true));
+        // Publish through the quest manager's event bus
+        questManager.EventBus.Publish(new ItemCollectedEvent("test_item", 1));
+        questManager.EventBus.Publish(new AreaEnteredEvent("test_area"));
+        questManager.EventBus.Publish(new FlagChangedEvent("test_flag", true));
     }
 }
 ```
@@ -762,7 +810,7 @@ DynamicBox.Quest.Tests.TestValidation.ValidateAllComponents();
 ```
 Game Event (ItemCollected)
     ↓
-EventManager.Raise()
+IEventBus.Publish()       ← SimpleEventBus (default) or EventManagerAdapter
     ↓
 ConditionInstance.HandleEvent()
     ↓
@@ -796,15 +844,16 @@ OnQuestCompleted event
 ### Infrastructure
 - `QuestManager` – Main MonoBehaviour orchestrator
 - `QuestContext` – Service container
-- `IQuestEventBus` – Event bus interface
+- `IEventBus` – Event bus interface (`QuestManager.EventBus`)
+- `SimpleEventBus` – Default built-in implementation
+- `EventManagerAdapter` – Wraps DynamicBox EventManager (optional)
 - `QuestPlayerRef` – Context builder
 
 ## Requirements
 
 - **Unity**: 2021.3 or later
 - **C#**: .NET Standard 2.1 compatible
-- **Dependencies**: 
-  - [DynamicBox EventManagement](https://github.com/mechaniqe/event-management) (automatically installed via UPM)
+- **Dependencies**: None required. [DynamicBox EventManagement](https://github.com/mechaniqe/event-management) is optional (needed only when using `EventManagerAdapter`)
 
 ## Performance Considerations
 
@@ -823,19 +872,15 @@ public class QuestTriggerSystem : MonoBehaviour
 {
     [SerializeField] private QuestManager questManager;
     [SerializeField] private QuestAsset[] levelQuests;
-    
-    void Start()
-    {
-        EventManager.Instance.Subscribe<LevelStartedEvent>(OnLevelStarted);
-        EventManager.Instance.Subscribe<PlayerLevelUpEvent>(OnPlayerLevelUp);
-    }
-    
+
     void OnLevelStarted(LevelStartedEvent evt)
     {
         var questForLevel = levelQuests.FirstOrDefault(q => q.QuestId.Contains(evt.LevelName));
         if (questForLevel != null)
         {
             questManager.StartQuest(questForLevel);
+            // Publish through the shared bus so conditions can react:
+            questManager.EventBus.Publish(evt);
         }
     }
 }
@@ -934,7 +979,6 @@ public class QuestPersistence : MonoBehaviour
 ### Current Limitations (v0.1)
 - **No Built-in Persistence**: Save/load system requires custom implementation (examples provided)
 - **Single Player Focus**: Multi-actor/party support not included (planned for future)
-- **EventManager Dependency**: Requires DynamicBox EventManagement package
 
 ### Version 0.2.0 (Planned)
 - 🔄 Enhanced event system integration
@@ -986,7 +1030,7 @@ A: The system uses event-driven architecture and dirty queue patterns. Our tests
 
 ### Troubleshooting
 
-**Quest not progressing**: Check that events are being published correctly using `EventManager.Instance.Raise()`  
+**Quest not progressing**: Check that events are published through `questManager.EventBus.Publish()` on the same instance the `QuestManager` uses  
 **Conditions not evaluating**: Verify condition binding in the QuestDebugger window  
 **UI not updating**: Ensure you're subscribed to `OnObjectiveStatusChanged` events  
 **Performance issues**: Use the profiler to check event frequency and consider polling rate adjustments

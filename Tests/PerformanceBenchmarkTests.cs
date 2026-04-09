@@ -6,7 +6,6 @@ using DynamicBox.Quest.Core;
 using DynamicBox.Quest.Core.Conditions;
 using DynamicBox.Quest.Core.Services;
 using DynamicBox.Quest.GameEvents;
-using DynamicBox.EventManagement;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
@@ -116,7 +115,7 @@ namespace DynamicBox.Quest.Tests
         {
             Debug.Log("\n[BENCHMARK] Condition Evaluation Speed");
 
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
             // Create 100 item collection conditions
@@ -124,14 +123,14 @@ namespace DynamicBox.Quest.Tests
             for (int i = 0; i < 100; i++)
             {
                 var condition = new ItemCollectedConditionInstance($"item_{i}", 1);
-                condition.Bind(eventManager, context, () => { });
+                condition.Bind(eventBus, context, () => { });
                 conditions.Add(condition);
             }
 
             // Warmup
             for (int i = 0; i < WarmupIterations; i++)
             {
-                eventManager.Raise(new ItemCollectedEvent("item_0", 1));
+                eventBus.Publish(new ItemCollectedEvent("item_0", 1));
             }
 
             // Benchmark: Raise 10000 events
@@ -140,7 +139,7 @@ namespace DynamicBox.Quest.Tests
 
             for (int i = 0; i < eventCount; i++)
             {
-                eventManager.Raise(new ItemCollectedEvent($"item_{i % 100}", 1));
+                eventBus.Publish(new ItemCollectedEvent($"item_{i % 100}", 1));
             }
 
             stopwatch.Stop();
@@ -153,7 +152,7 @@ namespace DynamicBox.Quest.Tests
             // Cleanup
             foreach (var condition in conditions)
             {
-                condition.Unbind(eventManager, context);
+                condition.Unbind(eventBus, context);
             }
 
             if (avgMicroseconds > 100) // Threshold: 100μs per event
@@ -310,11 +309,11 @@ namespace DynamicBox.Quest.Tests
 
                 // Benchmark: Complete objectives sequentially
                 stopwatch.Restart();
-                var eventManager = EventManager.Instance;
+                var eventBus = new SimpleEventBus();
                 
                 for (int i = 0; i < 100; i++)
                 {
-                    eventManager.Raise(new ItemCollectedEvent($"item_{i}", 1));
+                    eventBus.Publish(new ItemCollectedEvent($"item_{i}", 1));
                     questManager.ProcessPendingEvaluations();
                 }
 
@@ -387,11 +386,11 @@ namespace DynamicBox.Quest.Tests
 
                 // Benchmark: Complete all quests with single event burst
                 stopwatch.Restart();
-                var eventManager = EventManager.Instance;
+                var eventBus = new SimpleEventBus();
                 
                 for (int i = 0; i < 100; i++)
                 {
-                    eventManager.Raise(new ItemCollectedEvent($"item_{i}", 1));
+                    eventBus.Publish(new ItemCollectedEvent($"item_{i}", 1));
                 }
                 
                 questManager.ProcessPendingEvaluations();

@@ -5,7 +5,6 @@ using DynamicBox.Quest.Core;
 using DynamicBox.Quest.Core.Conditions;
 using DynamicBox.Quest.Core.Services;
 using DynamicBox.Quest.GameEvents;
-using DynamicBox.EventManagement;
 using System.Linq;
 
 namespace DynamicBox.Quest.Tests
@@ -237,8 +236,6 @@ namespace DynamicBox.Quest.Tests
             var questManager = CreateQuestManager();
             try
             {
-                var eventManager = EventManager.Instance;
-
                 // Create quest with event-driven condition
                 var itemCondition = ScriptableObject.CreateInstance<ItemCollectedConditionAsset>();
                 var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
@@ -264,7 +261,7 @@ namespace DynamicBox.Quest.Tests
                 questManager.StartQuest(quest);
 
                 // Publish event to complete quest
-                eventManager.Raise(new ItemCollectedEvent("integration_test_item", 1));
+                questManager.EventBus.Publish(new ItemCollectedEvent("integration_test_item", 1));
 
                 // Wait a frame for event processing
                 yield return null;
@@ -288,8 +285,6 @@ namespace DynamicBox.Quest.Tests
             var questManager = CreateQuestManager();
             try
             {
-                var eventManager = EventManager.Instance;
-
                 // Create multiple quests with different requirements
                 var quest1 = CreateTestQuestWithItemCondition("quest1", "item1");
                 var quest2 = CreateTestQuestWithItemCondition("quest2", "item2");
@@ -307,13 +302,13 @@ namespace DynamicBox.Quest.Tests
                     throw new Exception("QuestManager should have 3 active quests");
 
                 // Complete quests in different order
-                eventManager.Raise(new ItemCollectedEvent("item2", 1)); // Complete quest2
+                questManager.EventBus.Publish(new ItemCollectedEvent("item2", 1)); // Complete quest2
                 yield return null;
 
-                eventManager.Raise(new ItemCollectedEvent("item1", 1)); // Complete quest1
+                questManager.EventBus.Publish(new ItemCollectedEvent("item1", 1)); // Complete quest1
                 yield return null;
 
-                eventManager.Raise(new ItemCollectedEvent("item3", 1)); // Complete quest3
+                questManager.EventBus.Publish(new ItemCollectedEvent("item3", 1)); // Complete quest3
                 yield return null;
 
                 if (completedCount != 3)
@@ -338,8 +333,6 @@ namespace DynamicBox.Quest.Tests
             var questManager = CreateQuestManager();
             try
             {
-                var eventManager = EventManager.Instance;
-
                 // Create quest with prerequisites
                 var obj1 = new ObjectiveBuilder()
                     .WithObjectiveId("first_obj")
@@ -367,18 +360,18 @@ namespace DynamicBox.Quest.Tests
                 var questState = questManager.StartQuest(quest);
 
                 // Try to complete second objective first (should not work due to prerequisites)
-                eventManager.Raise(new ItemCollectedEvent("treasure", 1));
+                questManager.EventBus.Publish(new ItemCollectedEvent("treasure", 1));
                 yield return null;
 
                 if (questCompleted)
                     throw new Exception("Quest should not complete without prerequisites");
 
                 // Complete first objective
-                eventManager.Raise(new ItemCollectedEvent("key", 1));
+                questManager.EventBus.Publish(new ItemCollectedEvent("key", 1));
                 yield return null;
 
                 // Now complete second objective
-                eventManager.Raise(new ItemCollectedEvent("treasure", 1));
+                questManager.EventBus.Publish(new ItemCollectedEvent("treasure", 1));
                 yield return null;
 
                 if (!questCompleted)
@@ -451,8 +444,6 @@ namespace DynamicBox.Quest.Tests
             var questManager = CreateQuestManager();
             try
             {
-                var eventManager = EventManager.Instance;
-
                 // Create a complex quest with multiple condition types
                 var itemCondition = CreateItemCondition("artifact");
                 var areaCondition = CreateAreaCondition("ancient_temple");
@@ -488,19 +479,19 @@ namespace DynamicBox.Quest.Tests
                 questManager.StartQuest(quest);
 
                 // Complete conditions in sequence
-                eventManager.Raise(new ItemCollectedEvent("artifact", 1));
+                questManager.EventBus.Publish(new ItemCollectedEvent("artifact", 1));
                 yield return null;
 
                 if (questCompleted)
                     throw new Exception("Quest should not complete with only 1/3 conditions");
 
-                eventManager.Raise(new AreaEnteredEvent("ancient_temple"));
+                questManager.EventBus.Publish(new AreaEnteredEvent("ancient_temple"));
                 yield return null;
 
                 if (questCompleted)
                     throw new Exception("Quest should not complete with only 2/3 conditions");
 
-                eventManager.Raise(new FlagChangedEvent("ritual_completed", true));
+                questManager.EventBus.Publish(new FlagChangedEvent("ritual_completed", true));
                 yield return null;
 
                 if (!questCompleted)
@@ -531,7 +522,7 @@ namespace DynamicBox.Quest.Tests
                     var questState = questManager.StartQuest(quest);
                     
                     // Complete quest immediately
-                    EventManager.Instance.Raise(new ItemCollectedEvent($"item_{i}", 1));
+                    questManager.EventBus.Publish(new ItemCollectedEvent($"item_{i}", 1));
                     yield return null;
                 }
 
@@ -566,7 +557,6 @@ namespace DynamicBox.Quest.Tests
             var questManager = CreateQuestManager();
             try
             {
-                var eventManager = EventManager.Instance;
                 var startTime = Time.realtimeSinceStartup;
 
                 // Create many quests simultaneously
@@ -581,7 +571,7 @@ namespace DynamicBox.Quest.Tests
                     throw new Exception($"Expected {questCount} active quests");
 
                 // Complete all quests with single event
-                eventManager.Raise(new ItemCollectedEvent("shared_item", 1));
+                questManager.EventBus.Publish(new ItemCollectedEvent("shared_item", 1));
 
                 // Wait for all quests to complete
                 var timeout = 2.0f;

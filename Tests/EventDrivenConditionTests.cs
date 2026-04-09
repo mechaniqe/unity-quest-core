@@ -30,14 +30,14 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Bind Subscribes To Events");
 
             // Arrange
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext();
             var condition = new TestEventDrivenCondition();
             bool callbackInvoked = false;
 
             // Act
-            condition.Bind(eventManager, context, () => callbackInvoked = true);
-            eventManager.Raise(new TestGameEvent("test"));
+            condition.Bind(eventBus, context, () => callbackInvoked = true);
+            eventBus.Publish(new TestGameEvent("test"));
 
             // Assert - Event should be received and processed
             if (!condition.EventReceived)
@@ -57,19 +57,19 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Unbind Unsubscribes From Events");
 
             // Arrange
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext();
             var condition = new TestEventDrivenCondition();
             bool callbackInvoked = false;
 
             // Act
-            condition.Bind(eventManager, context, () => callbackInvoked = true);
+            condition.Bind(eventBus, context, () => callbackInvoked = true);
             if (!callbackInvoked) { } // Suppress unused warning - callback is tested implicitly
-            condition.Unbind(eventManager, context);
+            condition.Unbind(eventBus, context);
             
             // Reset state and trigger event
             condition.Reset();
-            eventManager.Raise(new TestGameEvent("after-unbind"));
+            eventBus.Publish(new TestGameEvent("after-unbind"));
 
             // Assert
             if (condition.EventReceived)
@@ -83,14 +83,14 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] HandleEvent Called On Event Raised");
 
             // Arrange
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext();
             var condition = new TestEventDrivenCondition();
 
             // Act
-            condition.Bind(eventManager, context, () => { });
-            eventManager.Raise(new TestGameEvent("data1"));
-            eventManager.Raise(new TestGameEvent("data2"));
+            condition.Bind(eventBus, context, () => { });
+            eventBus.Publish(new TestGameEvent("data1"));
+            eventBus.Publish(new TestGameEvent("data2"));
 
             // Assert
             if (!condition.EventReceived)
@@ -108,13 +108,13 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] NotifyChanged Invokes Callback");
 
             // Arrange
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext();
             var condition = new TestEventDrivenCondition();
             int callbackCount = 0;
 
             // Act
-            condition.Bind(eventManager, context, () => callbackCount++);
+            condition.Bind(eventBus, context, () => callbackCount++);
             condition.TriggerNotifyChanged(); // Direct call to NotifyChanged
             condition.TriggerNotifyChanged();
 
@@ -130,31 +130,31 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] Multiple Bind/Unbind Cycles");
 
             // Arrange
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext();
             var condition = new TestEventDrivenCondition();
 
             // Act & Assert - Cycle 1
-            condition.Bind(eventManager, context, () => { });
-            eventManager.Raise(new TestGameEvent("cycle1"));
+            condition.Bind(eventBus, context, () => { });
+            eventBus.Publish(new TestGameEvent("cycle1"));
             if (!condition.EventReceived || condition.ReceivedEventData != "cycle1")
                 throw new Exception("Cycle 1 failed");
 
-            condition.Unbind(eventManager, context);
+            condition.Unbind(eventBus, context);
             condition.Reset();
 
             // Act & Assert - Cycle 2
-            condition.Bind(eventManager, context, () => { });
-            eventManager.Raise(new TestGameEvent("cycle2"));
+            condition.Bind(eventBus, context, () => { });
+            eventBus.Publish(new TestGameEvent("cycle2"));
             if (!condition.EventReceived || condition.ReceivedEventData != "cycle2")
                 throw new Exception("Cycle 2 failed");
 
-            condition.Unbind(eventManager, context);
+            condition.Unbind(eventBus, context);
             condition.Reset();
 
             // Act & Assert - Cycle 3
-            condition.Bind(eventManager, context, () => { });
-            eventManager.Raise(new TestGameEvent("cycle3"));
+            condition.Bind(eventBus, context, () => { });
+            eventBus.Publish(new TestGameEvent("cycle3"));
             if (!condition.EventReceived || condition.ReceivedEventData != "cycle3")
                 throw new Exception("Cycle 3 failed");
 
@@ -166,12 +166,12 @@ namespace DynamicBox.Quest.Tests
             Debug.Log("\n[TEST] OnBind/OnUnbind Lifecycle Hooks");
 
             // Arrange
-            var eventManager = EventManager.Instance;
+            var eventBus = new SimpleEventBus();
             var context = new QuestContext();
             var condition = new TestEventDrivenCondition();
 
             // Act
-            condition.Bind(eventManager, context, () => { });
+            condition.Bind(eventBus, context, () => { });
 
             // Assert
             if (!condition.OnBindCalled)
@@ -180,7 +180,7 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception("OnUnbind should not be called before Unbind");
 
             // Act
-            condition.Unbind(eventManager, context);
+            condition.Unbind(eventBus, context);
 
             // Assert
             if (!condition.OnUnbindCalled)

@@ -195,7 +195,7 @@ namespace DynamicBox.Quest.Tests
             try
             {
                 // This should not crash even with null services in context
-                itemCondition.Bind(DynamicBox.EventManagement.EventManager.Instance, context, () => { });
+                itemCondition.Bind(new SimpleEventBus(), context, () => { });
                 Debug.Log("   ✓ Condition binding handles null services gracefully");
             }
             catch (Exception ex)
@@ -428,7 +428,7 @@ namespace DynamicBox.Quest.Tests
 
             // Test binding performance
             var startTime = DateTime.Now;
-            currentGroup.Bind(DynamicBox.EventManagement.EventManager.Instance, new QuestContext(null, null, null), () => { });
+            currentGroup.Bind(new SimpleEventBus(), new QuestContext(null, null, null), () => { });
             var bindTime = DateTime.Now - startTime;
 
             // Test evaluation performance

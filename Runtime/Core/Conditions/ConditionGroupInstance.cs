@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DynamicBox.EventManagement;
 using UnityEngine;
 
 namespace DynamicBox.Quest.Core
@@ -62,20 +61,20 @@ namespace DynamicBox.Quest.Core
             _progressChildren = _children.OfType<IProgressReportingCondition>().ToList();
         }
 
-        public void Bind(EventManager eventManager, QuestContext context, Action onChanged)
+        public void Bind(IEventBus eventBus, QuestContext context, Action onChanged)
         {
             _onChanged = onChanged;
 
             foreach (var child in _children)
-                child.Bind(eventManager, context, ChildChanged);
+                child.Bind(eventBus, context, ChildChanged);
 
             Recompute();
         }
 
-        public void Unbind(EventManager eventManager, QuestContext context)
+        public void Unbind(IEventBus eventBus, QuestContext context)
         {
             foreach (var child in _children)
-                child.Unbind(eventManager, context);
+                child.Unbind(eventBus, context);
 
             _onChanged = null;
         }
