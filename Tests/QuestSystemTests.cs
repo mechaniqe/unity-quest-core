@@ -1,7 +1,6 @@
 using System;
 using DynamicBox.Quest.Core;
 using DynamicBox.Quest.Core.Conditions;
-using DynamicBox.Quest.GameEvents;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -140,7 +139,7 @@ namespace DynamicBox.Quest.Tests
             var context = new QuestContext(null, null, null);
 
             // Create a simple condition
-            var condition = new ItemCollectedConditionInstance("sword", 1);
+            var condition = new TestItemConditionInstance("sword", 1);
             bool changeTriggered = false;
 
             condition.Bind(eventBus, context, () => changeTriggered = true);
@@ -150,7 +149,7 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception("Condition should not be met initially");
 
             // Publish the event
-            eventBus.Publish(new ItemCollectedEvent("sword", 1));
+            eventBus.Publish(new TestItemEvent("sword", 1));
 
             if (!condition.IsMet)
                 throw new Exception("Condition should be met after event");
@@ -168,7 +167,7 @@ namespace DynamicBox.Quest.Tests
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
-            var condition = new ItemCollectedConditionInstance("potion", 3);
+            var condition = new TestItemConditionInstance("potion", 3);
             bool changeTriggered = false;
             int changeCount = 0;
 
@@ -178,22 +177,22 @@ namespace DynamicBox.Quest.Tests
             });
 
             // Test partial collection
-            eventBus.Publish(new ItemCollectedEvent("potion", 1));
+            eventBus.Publish(new TestItemEvent("potion", 1));
             if (condition.IsMet)
                 throw new Exception("Condition should not be met after collecting 1/3");
 
             // Test another partial collection
-            eventBus.Publish(new ItemCollectedEvent("potion", 1));
+            eventBus.Publish(new TestItemEvent("potion", 1));
             if (condition.IsMet)
                 throw new Exception("Condition should not be met after collecting 2/3");
 
             // Test completion
-            eventBus.Publish(new ItemCollectedEvent("potion", 1));
+            eventBus.Publish(new TestItemEvent("potion", 1));
             if (!condition.IsMet)
                 throw new Exception("Condition should be met after collecting 3/3");
 
             // Test over-collection
-            eventBus.Publish(new ItemCollectedEvent("potion", 2));
+            eventBus.Publish(new TestItemEvent("potion", 2));
             if (!condition.IsMet)
                 throw new Exception("Condition should remain met after over-collection");
 
@@ -213,13 +212,13 @@ namespace DynamicBox.Quest.Tests
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
-            var condition = new ItemCollectedConditionInstance("key", 1);
+            var condition = new TestItemConditionInstance("key", 1);
             bool changeTriggered = false;
 
             condition.Bind(eventBus, context, () => changeTriggered = true);
             
             // Test that event works before unbinding
-            eventBus.Publish(new ItemCollectedEvent("key", 1));
+            eventBus.Publish(new TestItemEvent("key", 1));
             if (!changeTriggered)
                 throw new Exception("Change should be triggered before unbinding");
 
@@ -228,7 +227,7 @@ namespace DynamicBox.Quest.Tests
             changeTriggered = false;
 
             // Test that event no longer works after unbinding
-            eventBus.Publish(new ItemCollectedEvent("key", 1));
+            eventBus.Publish(new TestItemEvent("key", 1));
             if (changeTriggered)
                 throw new Exception("Change should not be triggered after unbinding");
 
@@ -595,7 +594,7 @@ namespace DynamicBox.Quest.Tests
             var context = new QuestContext(null, null, null);
 
             // Create area condition asset and instance
-            var areaAsset = ScriptableObject.CreateInstance<AreaEnteredConditionAsset>();
+            var areaAsset = ScriptableObject.CreateInstance<TestAreaConditionAsset>();
             var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             conditionIdField?.SetValue(areaAsset, "forest_entrance");
@@ -610,12 +609,12 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception("Area condition should not be met initially");
 
             // Enter wrong area - should not trigger
-            eventBus.Publish(new AreaEnteredEvent("town_square"));
+            eventBus.Publish(new TestAreaEvent("town_square"));
             if (condition.IsMet || changeTriggered)
                 throw new Exception("Area condition should not trigger for wrong area");
 
             // Enter correct area - should trigger
-            eventBus.Publish(new AreaEnteredEvent("forest_entrance"));
+            eventBus.Publish(new TestAreaEvent("forest_entrance"));
             if (!condition.IsMet)
                 throw new Exception("Area condition should be met after entering correct area");
 
@@ -633,10 +632,10 @@ namespace DynamicBox.Quest.Tests
             var context = CreateContextWithServices();
 
             // Create flag condition asset and instance
-            var flagAsset = ScriptableObject.CreateInstance<CustomFlagConditionAsset>();
+            var flagAsset = ScriptableObject.CreateInstance<TestFlagConditionAsset>();
             var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var expectedValueField = typeof(CustomFlagConditionAsset).GetField("_expectedValue",
+            var expectedValueField = typeof(TestFlagConditionAsset).GetField("_expectedValue",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             
             conditionIdField?.SetValue(flagAsset, "quest_started");
@@ -652,13 +651,13 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception("Flag condition should not be met initially");
 
             // Set wrong flag - should not trigger
-            eventBus.Publish(new FlagChangedEvent("other_flag", true));
+            eventBus.Publish(new TestFlagEvent("other_flag", true));
             if (condition.IsMet || changeTriggered)
                 throw new Exception("Flag condition should not trigger for wrong flag");
 
             // Set correct flag to correct value - should trigger
             changeTriggered = false;
-            eventBus.Publish(new FlagChangedEvent("quest_started", true));
+            eventBus.Publish(new TestFlagEvent("quest_started", true));
             if (!condition.IsMet)
                 throw new Exception("Flag condition should be met after setting correct flag");
 
@@ -675,10 +674,10 @@ namespace DynamicBox.Quest.Tests
             var eventBus = new SimpleEventBus();
             var context = CreateContextWithServices();
 
-            var flagAsset = ScriptableObject.CreateInstance<CustomFlagConditionAsset>();
+            var flagAsset = ScriptableObject.CreateInstance<TestFlagConditionAsset>();
             var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var expectedValueField = typeof(CustomFlagConditionAsset).GetField("_expectedValue",
+            var expectedValueField = typeof(TestFlagConditionAsset).GetField("_expectedValue",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             
             conditionIdField?.SetValue(flagAsset, "door_open");
@@ -690,12 +689,12 @@ namespace DynamicBox.Quest.Tests
             condition.Bind(eventBus, context, () => changeCount++);
 
             // Set flag to true - should complete
-            eventBus.Publish(new FlagChangedEvent("door_open", true));
+            eventBus.Publish(new TestFlagEvent("door_open", true));
             if (!condition.IsMet)
                 throw new Exception("Flag condition should be met when set to expected value");
 
             // Set flag back to false - should become incomplete
-            eventBus.Publish(new FlagChangedEvent("door_open", false));
+            eventBus.Publish(new TestFlagEvent("door_open", false));
             if (condition.IsMet)
                 throw new Exception("Flag condition should not be met when set to unexpected value");
 
@@ -1130,15 +1129,15 @@ namespace DynamicBox.Quest.Tests
             try
             {
                 // Create a realistic quest: collect 2 swords and enter the armory
-                var itemCondition = ScriptableObject.CreateInstance<ItemCollectedConditionAsset>();
+                var itemCondition = ScriptableObject.CreateInstance<TestItemConditionAsset>();
                 var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                var requiredCountField = typeof(ItemCollectedConditionAsset).GetField("requiredCount",
+                var requiredCountField = typeof(TestItemConditionAsset).GetField("requiredCount",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 conditionIdField?.SetValue(itemCondition, "sword");
                 requiredCountField?.SetValue(itemCondition, 2);
 
-                var areaCondition = ScriptableObject.CreateInstance<AreaEnteredConditionAsset>();
+                var areaCondition = ScriptableObject.CreateInstance<TestAreaConditionAsset>();
                 conditionIdField?.SetValue(areaCondition, "armory");
 
                 var obj1 = new ObjectiveBuilder()
@@ -1165,22 +1164,22 @@ namespace DynamicBox.Quest.Tests
                 var questState = questManager.StartQuest(quest);
 
                 // Collect first sword
-                eventBus.Publish(new ItemCollectedEvent("sword", 1));
+                eventBus.Publish(new TestItemEvent("sword", 1));
                 
                 // Try to enter armory (should not complete quest yet - prerequisite not met)
-                eventBus.Publish(new AreaEnteredEvent("armory"));
+                eventBus.Publish(new TestAreaEvent("armory"));
                 
                 if (questCompleted)
                     throw new Exception("Quest should not complete without prerequisite");
 
                 // Collect second sword
-                eventBus.Publish(new ItemCollectedEvent("sword", 1));
+                eventBus.Publish(new TestItemEvent("sword", 1));
 
                 // Process pending evaluations to complete first objective
                 questManager.ProcessPendingEvaluations();
 
                 // Now enter armory (should complete quest)
-                eventBus.Publish(new AreaEnteredEvent("armory"));
+                eventBus.Publish(new TestAreaEvent("armory"));
                 questManager.ProcessPendingEvaluations();
 
                 if (!questCompleted)
