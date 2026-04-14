@@ -1,5 +1,4 @@
 #nullable enable
-using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.GameEvents
 {
@@ -7,7 +6,7 @@ namespace DynamicBox.Quest.GameEvents
     /// Event published when a gameplay flag changes value.
     /// Immutable event following CQRS best practices.
     /// </summary>
-    public sealed class FlagChangedEvent : GameEvent
+    public sealed class FlagChangedEvent
     {
         /// <summary>
         /// Gets the unique identifier of the flag that changed.

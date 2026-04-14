@@ -1,5 +1,4 @@
 #nullable enable
-using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.GameEvents
 {
@@ -8,7 +7,7 @@ namespace DynamicBox.Quest.GameEvents
     /// Games will publish this event from their item pickup systems.
     /// Immutable event following CQRS best practices.
     /// </summary>
-    public sealed class ItemCollectedEvent : GameEvent
+    public sealed class ItemCollectedEvent
     {
         /// <summary>
         /// Gets the unique identifier of the item that was collected.

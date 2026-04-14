@@ -1,6 +1,5 @@
 #nullable enable
 using UnityEngine;
-using DynamicBox.EventManagement;
 
 namespace DynamicBox.Quest.GameEvents
 {
@@ -8,7 +7,7 @@ namespace DynamicBox.Quest.GameEvents
     /// Event published when the player enters a specific area/zone.
     /// Immutable event following CQRS best practices.
     /// </summary>
-    public sealed class AreaEnteredEvent : GameEvent
+    public sealed class AreaEnteredEvent
     {
         /// <summary>
         /// Gets the unique identifier of the area that was entered.

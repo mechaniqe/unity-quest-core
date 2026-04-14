@@ -39,6 +39,11 @@
       "displayName": "Custom Condition",
       "description": "Create a custom enemy kill condition with event handling (~70 lines)",
       "path": "Samples~/CustomCondition"
+    },
+    {
+      "displayName": "EventManager Integration",
+      "description": "Adapter bridging DynamicBox EventManagement and Quest Core IEventBus. Requires the DynamicBox EventManagement package.",
+      "path": "Samples~/EventManagerIntegration"
     }
   ]
 }

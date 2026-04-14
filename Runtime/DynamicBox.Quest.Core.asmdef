@@ -2,7 +2,6 @@
     "name": "DynamicBox.Quest.Core",
     "rootNamespace": "DynamicBox.Quest.Core",
     "references": [
-        "DynamicBox.EventManagement",
         "DynamicBox.Quest.GameEvents"
     ],
     "includePlatforms": [],

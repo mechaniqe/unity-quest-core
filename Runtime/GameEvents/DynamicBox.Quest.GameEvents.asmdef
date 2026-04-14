@@ -1,8 +1,6 @@
 {
     "name": "DynamicBox.Quest.GameEvents",
-    "references": [
-        "DynamicBox.EventManagement"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
