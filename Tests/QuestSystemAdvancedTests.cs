@@ -190,7 +190,7 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception("QuestContext should be created with null services");
 
             // Test that conditions can handle null service context
-            var itemCondition = new ItemCollectedConditionInstance("test_item", 1);
+            var itemCondition = new TestItemConditionInstance("test_item", 1);
             
             try
             {

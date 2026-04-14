@@ -1,0 +1,5 @@
+{
+  "displayName": "EventManager Integration",
+  "description": "Adapter that bridges DynamicBox EventManagement and the Quest Core IEventBus. Requires the DynamicBox EventManagement package.",
+  "createSeparatePackage": false
+}

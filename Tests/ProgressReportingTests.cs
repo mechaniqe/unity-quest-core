@@ -2,7 +2,6 @@ using System;
 using DynamicBox.Quest.Core;
 using DynamicBox.Quest.Core.Conditions;
 using DynamicBox.Quest.Core.Services;
-using DynamicBox.Quest.GameEvents;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -44,7 +43,7 @@ namespace DynamicBox.Quest.Tests
 
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
-            var conditionInstance = new ItemCollectedConditionInstance("sword", 5);
+            var conditionInstance = new TestItemConditionInstance("sword", 5);
             var condition = conditionInstance as IProgressReportingCondition;
 
             if (condition == null)
@@ -57,17 +56,17 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception($"Expected 0% progress initially, got {condition.Progress * 100}%");
 
             // Test 20% progress (1/5)
-            eventBus.Publish(new ItemCollectedEvent("sword", 1));
+            eventBus.Publish(new TestItemEvent("sword", 1));
             if (Math.Abs(condition.Progress - 0.2f) > 0.001f)
                 throw new Exception($"Expected 20% progress (1/5), got {condition.Progress * 100}%");
 
             // Test 60% progress (3/5)
-            eventBus.Publish(new ItemCollectedEvent("sword", 2));
+            eventBus.Publish(new TestItemEvent("sword", 2));
             if (Math.Abs(condition.Progress - 0.6f) > 0.001f)
                 throw new Exception($"Expected 60% progress (3/5), got {condition.Progress * 100}%");
 
             // Test 100% progress (5/5)
-            eventBus.Publish(new ItemCollectedEvent("sword", 2));
+            eventBus.Publish(new TestItemEvent("sword", 2));
             if (Math.Abs(condition.Progress - 1.0f) > 0.001f)
                 throw new Exception($"Expected 100% progress (5/5), got {condition.Progress * 100}%");
 
@@ -80,7 +79,7 @@ namespace DynamicBox.Quest.Tests
 
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
-            var conditionInstance = new ItemCollectedConditionInstance("potion", 10);
+            var conditionInstance = new TestItemConditionInstance("potion", 10);
             var condition = conditionInstance as IProgressReportingCondition;
 
             conditionInstance.Bind(eventBus, context, () => { });
@@ -91,7 +90,7 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception($"Expected description with '0/10', got: {desc}");
 
             // After collecting some
-            eventBus.Publish(new ItemCollectedEvent("potion", 3));
+            eventBus.Publish(new TestItemEvent("potion", 3));
             desc = condition.ProgressDescription;
             if (!desc.Contains("3") || !desc.Contains("10"))
                 throw new Exception($"Expected description with '3/10', got: {desc}");
@@ -194,8 +193,8 @@ namespace DynamicBox.Quest.Tests
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
-            var cond1 = new ItemCollectedConditionInstance("sword", 2);
-            var cond2 = new ItemCollectedConditionInstance("shield", 1);
+            var cond1 = new TestItemConditionInstance("sword", 2);
+            var cond2 = new TestItemConditionInstance("shield", 1);
 
             var groupInstance = new ConditionGroupInstance(ConditionOperator.And,
                 new List<IConditionInstance> { cond1, cond2 });
@@ -211,12 +210,12 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception($"Expected 0% progress initially, got {group.Progress * 100}%");
 
             // Complete first condition: 50% (1/2 children complete)
-            eventBus.Publish(new ItemCollectedEvent("sword", 2));
+            eventBus.Publish(new TestItemEvent("sword", 2));
             if (Math.Abs(group.Progress - 0.5f) > 0.05f)
                 throw new Exception($"Expected ~50% progress (1/2 complete), got {group.Progress * 100}%");
 
             // Complete second condition: 100% (2/2 children complete)
-            eventBus.Publish(new ItemCollectedEvent("shield", 1));
+            eventBus.Publish(new TestItemEvent("shield", 1));
             if (Math.Abs(group.Progress - 1.0f) > 0.001f)
                 throw new Exception($"Expected 100% progress (2/2 complete), got {group.Progress * 100}%");
 
@@ -230,8 +229,8 @@ namespace DynamicBox.Quest.Tests
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
-            var cond1 = new ItemCollectedConditionInstance("sword", 2);
-            var cond2 = new ItemCollectedConditionInstance("shield", 1);
+            var cond1 = new TestItemConditionInstance("sword", 2);
+            var cond2 = new TestItemConditionInstance("shield", 1);
 
             var groupInstance = new ConditionGroupInstance(ConditionOperator.Or,
                 new List<IConditionInstance> { cond1, cond2 });
@@ -240,14 +239,14 @@ namespace DynamicBox.Quest.Tests
             groupInstance.Bind(eventBus, context, () => { });
 
             // For OR: progress should be the MAX of children
-            eventBus.Publish(new ItemCollectedEvent("sword", 1));
+            eventBus.Publish(new TestItemEvent("sword", 1));
             float swordProgress = 0.5f; // 1/2
             
             if (Math.Abs(group.Progress - swordProgress) > 0.05f)
                 throw new Exception($"Expected OR progress to be max child progress (~50%), got {group.Progress * 100}%");
 
             // Complete shield (100%) - OR should now show 100%
-            eventBus.Publish(new ItemCollectedEvent("shield", 1));
+            eventBus.Publish(new TestItemEvent("shield", 1));
             if (Math.Abs(group.Progress - 1.0f) > 0.001f)
                 throw new Exception($"Expected 100% progress (one child complete in OR), got {group.Progress * 100}%");
 
@@ -261,12 +260,12 @@ namespace DynamicBox.Quest.Tests
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
 
-            var cond1 = new ItemCollectedConditionInstance("sword", 1);
-            var cond2 = new ItemCollectedConditionInstance("shield", 1);
+            var cond1 = new TestItemConditionInstance("sword", 1);
+            var cond2 = new TestItemConditionInstance("shield", 1);
             var innerGroup = new ConditionGroupInstance(ConditionOperator.And,
                 new List<IConditionInstance> { cond1, cond2 });
 
-            var cond3 = new ItemCollectedConditionInstance("potion", 1);
+            var cond3 = new TestItemConditionInstance("potion", 1);
             var outerGroupInstance = new ConditionGroupInstance(ConditionOperator.And,
                 new List<IConditionInstance> { innerGroup, cond3 });
             var outerGroup = outerGroupInstance as IProgressReportingCondition;
@@ -278,15 +277,15 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception($"Expected 0% progress initially, got {outerGroup.Progress * 100}%");
 
             // Complete inner group first child (sword)
-            eventBus.Publish(new ItemCollectedEvent("sword", 1));
+            eventBus.Publish(new TestItemEvent("sword", 1));
             
             // Progress should reflect partial completion
             if (outerGroup.Progress >= 1.0f)
                 throw new Exception($"Progress should not be 100% with incomplete nested conditions");
 
             // Complete all conditions
-            eventBus.Publish(new ItemCollectedEvent("shield", 1));
-            eventBus.Publish(new ItemCollectedEvent("potion", 1));
+            eventBus.Publish(new TestItemEvent("shield", 1));
+            eventBus.Publish(new TestItemEvent("potion", 1));
 
             if (Math.Abs(outerGroup.Progress - 1.0f) > 0.001f)
                 throw new Exception($"Expected 100% progress when all nested conditions complete, got {outerGroup.Progress * 100}%");
@@ -302,7 +301,7 @@ namespace DynamicBox.Quest.Tests
             var context = new QuestContext(null, null, null);
 
             // Test zero-quantity condition
-            var zeroConditionInstance = new ItemCollectedConditionInstance("item", 0);
+            var zeroConditionInstance = new TestItemConditionInstance("item", 0);
             var zeroCondition = zeroConditionInstance as IProgressReportingCondition;
             zeroConditionInstance.Bind(eventBus, context, () => { });
             
@@ -329,13 +328,13 @@ namespace DynamicBox.Quest.Tests
 
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
-            var conditionInstance = new ItemCollectedConditionInstance("gem", 5);
+            var conditionInstance = new TestItemConditionInstance("gem", 5);
             var condition = conditionInstance as IProgressReportingCondition;
 
             conditionInstance.Bind(eventBus, context, () => { });
 
             // Collect way more than required
-            eventBus.Publish(new ItemCollectedEvent("gem", 100));
+            eventBus.Publish(new TestItemEvent("gem", 100));
 
             // Progress should be clamped to 100%
             if (condition.Progress > 1.0f)
@@ -353,20 +352,20 @@ namespace DynamicBox.Quest.Tests
 
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
-            var conditionInstance = new ItemCollectedConditionInstance("coin", 10);
+            var conditionInstance = new TestItemConditionInstance("coin", 10);
             var condition = conditionInstance as IProgressReportingCondition;
 
             conditionInstance.Bind(eventBus, context, () => { });
 
             // Try to add negative amount (edge case)
-            eventBus.Publish(new ItemCollectedEvent("coin", -5));
+            eventBus.Publish(new TestItemEvent("coin", -5));
 
             // Progress should not go negative
             if (condition.Progress < 0.0f)
                 throw new Exception($"Progress should not be negative, got {condition.Progress * 100}%");
 
             // Now add positive amount
-            eventBus.Publish(new ItemCollectedEvent("coin", 5));
+            eventBus.Publish(new TestItemEvent("coin", 5));
             
             // Progress should be correct based on implementation
             if (condition.Progress > 1.0f || condition.Progress < 0.0f)
@@ -381,7 +380,7 @@ namespace DynamicBox.Quest.Tests
 
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
-            var conditionInstance = new ItemCollectedConditionInstance("resource", 100);
+            var conditionInstance = new TestItemConditionInstance("resource", 100);
             var condition = conditionInstance as IProgressReportingCondition;
 
             bool progressChanged = false;
@@ -392,7 +391,7 @@ namespace DynamicBox.Quest.Tests
             for (int i = 1; i <= 10; i++)
             {
                 progressChanged = false;
-                eventBus.Publish(new ItemCollectedEvent("resource", 10));
+                eventBus.Publish(new TestItemEvent("resource", 10));
                 
                 float expectedProgress = i * 0.1f;
                 if (Math.Abs(condition.Progress - expectedProgress) > 0.01f)
@@ -419,9 +418,9 @@ namespace DynamicBox.Quest.Tests
             var eventBus = new SimpleEventBus();
             var context = new QuestContext(null, null, null);
             
-            var cond1 = new ItemCollectedConditionInstance("gold", 10);
-            var cond2 = new ItemCollectedConditionInstance("silver", 20);
-            var cond3 = new ItemCollectedConditionInstance("bronze", 30);
+            var cond1 = new TestItemConditionInstance("gold", 10);
+            var cond2 = new TestItemConditionInstance("silver", 20);
+            var cond3 = new TestItemConditionInstance("bronze", 30);
             
             var groupInstance = new ConditionGroupInstance(ConditionOperator.And,
                 new List<IConditionInstance> { cond1, cond2, cond3 });
@@ -430,9 +429,9 @@ namespace DynamicBox.Quest.Tests
             groupInstance.Bind(eventBus, context, () => { });
 
             // Fire multiple events in quick succession
-            eventBus.Publish(new ItemCollectedEvent("gold", 5));
-            eventBus.Publish(new ItemCollectedEvent("silver", 10));
-            eventBus.Publish(new ItemCollectedEvent("bronze", 15));
+            eventBus.Publish(new TestItemEvent("gold", 5));
+            eventBus.Publish(new TestItemEvent("silver", 10));
+            eventBus.Publish(new TestItemEvent("bronze", 15));
 
             // All should be at 50%
             float expectedProgress = 0.5f;
@@ -440,9 +439,9 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception($"Expected ~{expectedProgress * 100}% progress, got {group.Progress * 100}%");
 
             // Complete all
-            eventBus.Publish(new ItemCollectedEvent("gold", 5));
-            eventBus.Publish(new ItemCollectedEvent("silver", 10));
-            eventBus.Publish(new ItemCollectedEvent("bronze", 15));
+            eventBus.Publish(new TestItemEvent("gold", 5));
+            eventBus.Publish(new TestItemEvent("silver", 10));
+            eventBus.Publish(new TestItemEvent("bronze", 15));
 
             if (Math.Abs(group.Progress - 1.0f) > 0.001f)
                 throw new Exception($"Expected 100% progress, got {group.Progress * 100}%");
@@ -467,7 +466,7 @@ namespace DynamicBox.Quest.Tests
 
             foreach (var (itemId, count, testName) in tests)
             {
-                var conditionInstance = new ItemCollectedConditionInstance(itemId, count);
+                var conditionInstance = new TestItemConditionInstance(itemId, count);
                 var condition = conditionInstance as IProgressReportingCondition;
                 conditionInstance.Bind(eventBus, context, () => { });
 
@@ -495,7 +494,7 @@ namespace DynamicBox.Quest.Tests
             var context = new QuestContext(null, null, null);
 
             // Test with quantity of 1 (single item)
-            var singleInstance = new ItemCollectedConditionInstance("unique", 1);
+            var singleInstance = new TestItemConditionInstance("unique", 1);
             var single = singleInstance as IProgressReportingCondition;
             singleInstance.Bind(eventBus, context, () => { });
 
@@ -504,16 +503,16 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception($"Single-item condition should start at 0%, got {single.Progress * 100}%");
 
             // Should jump to 100% after one event
-            eventBus.Publish(new ItemCollectedEvent("unique", 1));
+            eventBus.Publish(new TestItemEvent("unique", 1));
             if (Math.Abs(single.Progress - 1.0f) > 0.001f)
                 throw new Exception($"Single-item condition should be 100% after one event, got {single.Progress * 100}%");
 
             // Test with very large quantity
-            var largeInstance = new ItemCollectedConditionInstance("huge", int.MaxValue);
+            var largeInstance = new TestItemConditionInstance("huge", int.MaxValue);
             var large = largeInstance as IProgressReportingCondition;
             largeInstance.Bind(eventBus, context, () => { });
 
-            eventBus.Publish(new ItemCollectedEvent("huge", 1000000));
+            eventBus.Publish(new TestItemEvent("huge", 1000000));
             
             // Progress should be very small but non-zero
             if (large.Progress <= 0.0f || large.Progress > 0.1f)
@@ -530,9 +529,9 @@ namespace DynamicBox.Quest.Tests
             var context = new QuestContext(null, null, null);
 
             // Mix of complete and incomplete conditions
-            var complete1 = new ItemCollectedConditionInstance("done1", 1);
-            var complete2 = new ItemCollectedConditionInstance("done2", 1);
-            var incomplete = new ItemCollectedConditionInstance("todo", 10);
+            var complete1 = new TestItemConditionInstance("done1", 1);
+            var complete2 = new TestItemConditionInstance("done2", 1);
+            var incomplete = new TestItemConditionInstance("todo", 10);
 
             var groupInstance = new ConditionGroupInstance(ConditionOperator.And,
                 new List<IConditionInstance> { complete1, complete2, incomplete });
@@ -541,8 +540,8 @@ namespace DynamicBox.Quest.Tests
             groupInstance.Bind(eventBus, context, () => { });
 
             // Complete first two
-            eventBus.Publish(new ItemCollectedEvent("done1", 1));
-            eventBus.Publish(new ItemCollectedEvent("done2", 1));
+            eventBus.Publish(new TestItemEvent("done1", 1));
+            eventBus.Publish(new TestItemEvent("done2", 1));
 
             // Progress should be between 0-100% (2 of 3 complete = ~66%)
             float progress = group.Progress;
@@ -550,7 +549,7 @@ namespace DynamicBox.Quest.Tests
                 throw new Exception($"Expected progress ~66% with 2/3 conditions complete, got {progress * 100}%");
 
             // Partially complete the third
-            eventBus.Publish(new ItemCollectedEvent("todo", 5));
+            eventBus.Publish(new TestItemEvent("todo", 5));
             
             // Progress should have increased
             if (group.Progress <= progress)
@@ -567,7 +566,7 @@ namespace DynamicBox.Quest.Tests
             var context = new QuestContext(null, null, null);
 
             // Create a condition group with a non-progress-reporting condition
-            var progressCond = new ItemCollectedConditionInstance("item", 10);
+            var progressCond = new TestItemConditionInstance("item", 10);
             
             // Mock condition that doesn't implement IProgressReportingCondition
             var mockCond = new MockConditionInstance();
@@ -579,7 +578,7 @@ namespace DynamicBox.Quest.Tests
             groupInstance.Bind(eventBus, context, () => { });
 
             // Should still calculate progress based on conditions that support it
-            eventBus.Publish(new ItemCollectedEvent("item", 5));
+            eventBus.Publish(new TestItemEvent("item", 5));
             
             // Progress should be calculable (50% from one condition)
             float progress = group.Progress;

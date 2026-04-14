@@ -26,7 +26,6 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
-*~
 .project
 .classpath
 .c9/

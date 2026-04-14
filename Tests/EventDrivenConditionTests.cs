@@ -1,8 +1,6 @@
 #nullable enable
 using System;
-using DynamicBox.EventManagement;
 using DynamicBox.Quest.Core;
-using DynamicBox.Quest.GameEvents;
 using UnityEngine;
 
 namespace DynamicBox.Quest.Tests
@@ -233,7 +231,7 @@ namespace DynamicBox.Quest.Tests
         }
 
         // Test event type
-        private class TestGameEvent : GameEvent
+        private class TestGameEvent
         {
             public string Data { get; }
 

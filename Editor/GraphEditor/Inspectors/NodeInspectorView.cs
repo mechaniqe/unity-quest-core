@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -444,11 +445,13 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                 {
                     assetType = "ItemCollected";
                     defaultName = "NewItemCollectedCondition";
-                    var condition = ScriptableObject.CreateInstance<ItemCollectedConditionAsset>();
+                    var conditionType = FindConditionAssetType("ItemCollectedConditionAsset");
+                    if (conditionType == null) { EditorUtility.DisplayDialog("Missing Sample", "Import the 'Common Events' sample to use this node type.", "OK"); return; }
+                    var condition = ScriptableObject.CreateInstance(conditionType) as ConditionAsset;
                     
                     var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    var requiredCountField = typeof(ItemCollectedConditionAsset).GetField("requiredCount",
+                    var requiredCountField = conditionType.GetField("requiredCount",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     
                     conditionIdField?.SetValue(condition, "item_id_here");
@@ -460,11 +463,13 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                 {
                     assetType = "AreaEntered";
                     defaultName = "NewAreaEnteredCondition";
-                    var condition = ScriptableObject.CreateInstance<AreaEnteredConditionAsset>();
+                    var conditionType = FindConditionAssetType("AreaEnteredConditionAsset");
+                    if (conditionType == null) { EditorUtility.DisplayDialog("Missing Sample", "Import the 'Common Events' sample to use this node type.", "OK"); return; }
+                    var condition = ScriptableObject.CreateInstance(conditionType) as ConditionAsset;
                     
                     var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    var areaDescField = typeof(AreaEnteredConditionAsset).GetField("_areaDescription",
+                    var areaDescField = conditionType.GetField("_areaDescription",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     
                     conditionIdField?.SetValue(condition, "area_id_here");
@@ -489,13 +494,15 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                 {
                     assetType = "CustomFlag";
                     defaultName = "NewCustomFlagCondition";
-                    var condition = ScriptableObject.CreateInstance<CustomFlagConditionAsset>();
+                    var conditionType = FindConditionAssetType("CustomFlagConditionAsset");
+                    if (conditionType == null) { EditorUtility.DisplayDialog("Missing Sample", "Import the 'Common Events' sample to use this node type.", "OK"); return; }
+                    var condition = ScriptableObject.CreateInstance(conditionType) as ConditionAsset;
                     
                     var conditionIdField = typeof(ConditionAsset).GetField("conditionId",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    var expectedValueField = typeof(CustomFlagConditionAsset).GetField("_expectedValue",
+                    var expectedValueField = conditionType.GetField("_expectedValue",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    var descriptionField = typeof(CustomFlagConditionAsset).GetField("_description",
+                    var descriptionField = conditionType.GetField("_description",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     
                     conditionIdField?.SetValue(condition, "flag_id_here");
@@ -577,6 +584,13 @@ namespace DynamicBox.Quest.Editor.GraphEditor
                 $"{assetType} asset created successfully at:\n{path}",
                 "OK"
             );
+        }
+
+        private static System.Type FindConditionAssetType(string typeName)
+        {
+            return System.AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => { try { return a.GetTypes(); } catch { return System.Array.Empty<System.Type>(); } })
+                .FirstOrDefault(t => t.Name == typeName && typeof(ConditionAsset).IsAssignableFrom(t) && !t.IsAbstract);
         }
 
         private void AddSectionHeader(string title)

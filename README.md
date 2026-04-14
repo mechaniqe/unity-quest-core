@@ -114,7 +114,9 @@ Right-click in Project → Create → Quests → Quest
 
 ```csharp
 using DynamicBox.Quest.Core;
-using DynamicBox.Quest.GameEvents;
+// Note: ItemCollectedEvent, AreaEnteredEvent, FlagChangedEvent are in the
+// "Common Events" sample. Import it via Package Manager → Samples → Common Events.
+// Or define your own event types — they're plain C# classes, no base class required.
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -164,6 +166,8 @@ public class GameManager : MonoBehaviour
 ### Step 4: Publish Game Events
 
 Publish events through the same bus the `QuestManager` is subscribed to:
+
+> **Note**: The event types used below (`ItemCollectedEvent`, `AreaEnteredEvent`, `FlagChangedEvent`) are provided by the **Common Events** sample (`Samples~/CommonEvents`). Import it via *Package Manager → Quest Core → Samples → Common Events*, or define your own event types — they are plain C# classes with no required base class.
 
 ```csharp
 // In your inventory system
@@ -445,7 +449,7 @@ questManagerGO.SetActive(true);
 EventManager.Instance.Raise(new ItemCollectedEvent("sword", 1));
 ```
 
-> **Note**: `EventManagerAdapter` requires all event types to derive from `GameEvent`. Use `SimpleEventBus` for plain C# event types.
+> **Note**: `EventManagerAdapter` requires all event types to implement `IGameEvent` (from the DynamicBox EventManagement package). Use `SimpleEventBus` for plain C# event types.
 
 ### Custom Event Bus
 
@@ -734,10 +738,11 @@ public class QuestDebugger : MonoBehaviour
     [ContextMenu("Trigger Test Events")]
     void TriggerTestEvents()
     {
-        // Publish through the quest manager's event bus
-        questManager.EventBus.Publish(new ItemCollectedEvent("test_item", 1));
-        questManager.EventBus.Publish(new AreaEnteredEvent("test_area"));
-        questManager.EventBus.Publish(new FlagChangedEvent("test_flag", true));
+        // Publish your own event types through the quest manager's event bus.
+        // If you've imported the Common Events sample, you can use:
+        // questManager.EventBus.Publish(new ItemCollectedEvent("test_item", 1));
+        // questManager.EventBus.Publish(new AreaEnteredEvent("test_area"));
+        // questManager.EventBus.Publish(new FlagChangedEvent("test_flag", true));
     }
 }
 ```
@@ -772,6 +777,18 @@ The package includes custom inspectors for:
 - `QuestAsset` - Enhanced quest editing with objective management and validation
 - `ObjectiveAsset` - Streamlined objective configuration with condition setup
 - `ConditionGroupAsset` - Visual AND/OR logic builder with condition management
+
+## Samples
+
+Import optional samples via *Package Manager → Quest Core → Samples*:
+
+| Sample | Description |
+|---|---|
+| **Basic Serialization** | Minimal snapshot capture and restore example |
+| **Quest Events** | Subscribe to quest completion and objective change events |
+| **Custom Condition** | Create a custom enemy kill condition with event handling |
+| **Common Events** | Bundled event types (`ItemCollectedEvent`, `AreaEnteredEvent`, `FlagChangedEvent`) and matching condition assets. No extra dependencies required. |
+| **EventManager Integration** | Adapter bridging DynamicBox EventManagement and Quest Core `IEventBus`. Requires the DynamicBox EventManagement package. Includes `IGameEvent` versions of all Common Events types. |
 
 ## Documentation
 
@@ -838,8 +855,10 @@ OnQuestCompleted event
 - `IConditionInstance` – Event-driven condition interface
 - `IPollingConditionInstance` – Optional polling interface
 - `ConditionGroupInstance` – AND/OR logic
-- `ItemCollectedConditionInstance` – Example condition
-- `TimeElapsedConditionInstance` – Example polling condition
+- `EventDrivenConditionBase<T>` – Convenience base for event-driven conditions
+- `TimeElapsedConditionInstance` – Built-in polling condition
+
+> **Bundled event/condition types** (`ItemCollectedConditionInstance`, `AreaEnteredConditionInstance`, etc.) are in the **Common Events** sample, not the core assembly.
 
 ### Infrastructure
 - `QuestManager` – Main MonoBehaviour orchestrator
@@ -1087,8 +1106,8 @@ We welcome contributions from the community! Here's how to get started:
 
 ---
 
-**Version**: 0.8.2  
-**Last Updated**: December 11, 2025  
+**Version**: 0.8.5  
+**Last Updated**: April 14, 2026  
 **Unity Compatibility**: 2021.3 LTS+  
 **Status**: Production Ready ✅
 

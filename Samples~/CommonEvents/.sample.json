@@ -1,0 +1,5 @@
+{
+  "displayName": "Common Events",
+  "description": "Bundled event types and condition instances for common game scenarios (item collection, area entry, flag changes). Uses SimpleEventBus — no external dependencies required.",
+  "createSeparatePackage": false
+}

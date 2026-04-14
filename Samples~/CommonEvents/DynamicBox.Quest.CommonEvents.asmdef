@@ -1,7 +1,8 @@
 {
-    "name": "DynamicBox.Quest.Core",
-    "rootNamespace": "DynamicBox.Quest.Core",
-    "references": [],
+    "name": "DynamicBox.Quest.CommonEvents",
+    "references": [
+        "DynamicBox.Quest.Core"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

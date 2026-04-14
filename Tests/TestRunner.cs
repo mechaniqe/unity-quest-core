@@ -25,7 +25,6 @@ namespace DynamicBox.Quest.Tests
                 ServiceImplementationTests.RunAllServiceTests();
                 EventDrivenConditionTests.RunAllEventDrivenTests();
                 FactoryMethodTests.RunAllFactoryMethodTests();
-                ImmutableEventTests.RunAllImmutableEventTests();
                 Debug.Log("=== Unit Tests Completed Successfully ===");
             }
             catch (Exception ex)

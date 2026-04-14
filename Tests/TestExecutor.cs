@@ -67,7 +67,6 @@ namespace DynamicBox.Quest.Tests
                     ServiceImplementationTests.RunAllServiceTests();
                     EventDrivenConditionTests.RunAllEventDrivenTests();
                     FactoryMethodTests.RunAllFactoryMethodTests();
-                    ImmutableEventTests.RunAllImmutableEventTests();
                     Debug.Log("Unit tests completed successfully!");
                 }
                 

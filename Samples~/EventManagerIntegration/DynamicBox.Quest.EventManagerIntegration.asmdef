@@ -1,7 +1,9 @@
 {
-    "name": "DynamicBox.Quest.Core",
-    "rootNamespace": "DynamicBox.Quest.Core",
-    "references": [],
+    "name": "DynamicBox.Quest.EventManagerIntegration",
+    "references": [
+        "DynamicBox.Quest.Core",
+        "DynamicBox.EventManagement"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
