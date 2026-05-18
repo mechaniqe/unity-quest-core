@@ -1323,6 +1323,12 @@ namespace DynamicBox.Quest.Tests
             _onChanged = null;
         }
 
+        public void Reset()
+        {
+            _isMet = false;
+            RefreshCalled = false;
+        }
+
         public void Refresh(QuestContext context, Action onChanged)
         {
             RefreshCalled = true;

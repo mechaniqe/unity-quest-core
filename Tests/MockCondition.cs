@@ -40,5 +40,10 @@ namespace DynamicBox.Quest.Tests
         {
             _onChanged = null;
         }
+
+        public void Reset()
+        {
+            _isMet = false;
+        }
     }
 }

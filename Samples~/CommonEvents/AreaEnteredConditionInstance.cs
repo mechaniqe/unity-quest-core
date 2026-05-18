@@ -29,6 +29,8 @@ namespace DynamicBox.Quest.Samples.CommonEvents
             }
         }
 
+        public override void Reset() => _isCompleted = false;
+
         public override string ToString() => $"Enter area: {_areaDescription ?? _areaId}";
     }
 }

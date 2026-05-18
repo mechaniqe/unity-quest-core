@@ -77,6 +77,12 @@ namespace DynamicBox.Quest.Core
         /// </summary>
         public event Action<ObjectiveState, IConditionInstance, bool>? OnConditionStatusChanged;
 
+        /// <summary>
+        /// Event raised when a retryable objective's fail condition was met and the objective has been reset.
+        /// The objective's status is <see cref="ObjectiveStatus.NotStarted"/> when this fires.
+        /// </summary>
+        public event Action<ObjectiveState>? OnObjectiveRetried;
+
         private void Awake()
         {
             _log = new QuestLog();
@@ -89,6 +95,7 @@ namespace DynamicBox.Quest.Core
             _processor.OnQuestCompleted += (q) => SafeInvoke(OnQuestCompleted, q, "OnQuestCompleted");
             _processor.OnQuestFailed += (q) => SafeInvoke(OnQuestFailed, q, "OnQuestFailed");
             _processor.OnObjectiveStatusChanged += (o) => SafeInvoke(OnObjectiveStatusChanged, o, "OnObjectiveStatusChanged");
+            _processor.OnObjectiveRetried += (o) => SafeInvoke(OnObjectiveRetried, o, "OnObjectiveRetried");
             
             // Set callback for evaluator to mark objectives as dirty
             _evaluator.SetDirtyCallback(_processor.MarkDirty);

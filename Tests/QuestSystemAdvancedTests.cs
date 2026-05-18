@@ -36,7 +36,11 @@ namespace DynamicBox.Quest.Tests
             // Error recovery and robustness
             TestCorruptedConditionHandling();
             TestMissingPrerequisiteHandling();
-            
+
+            // Retryable objectives
+            TestNonRetryableObjectiveStillFailsQuest();
+            TestRetryableObjectiveConditionsReset();
+
             Debug.Log("✓ All advanced tests passed!");
         }
 
@@ -513,6 +517,113 @@ namespace DynamicBox.Quest.Tests
                 Debug.Log("   Note: Missing prerequisites are skipped (lenient validation)");
 
             Debug.Log("✓ Missing prerequisite handling works correctly");
+        }
+
+        private static void TestNonRetryableObjectiveStillFailsQuest()
+        {
+            Debug.Log("\n[ADVANCED TEST] Non-Retryable Objective Fails Quest");
+
+            var questManager = CreateTestQuestManager();
+            try
+            {
+                var completionCondition = ScriptableObject.CreateInstance<MockConditionAsset>();
+                var failCondition = ScriptableObject.CreateInstance<MockConditionAsset>();
+
+                var objective = new ObjectiveBuilder()
+                    .WithObjectiveId("obj1")
+                    .WithCompletionCondition(completionCondition)
+                    .WithFailCondition(failCondition)
+                    // IsRetryable is false by default
+                    .Build();
+
+                var quest = new QuestBuilder()
+                    .WithQuestId("non_retryable_test")
+                    .AddObjective(objective)
+                    .Build();
+
+                bool questFailed = false;
+                bool objectiveRetried = false;
+
+                questManager.OnQuestFailed += (q) => questFailed = true;
+                questManager.OnObjectiveRetried += (obj) => objectiveRetried = true;
+
+                var questState = questManager.StartQuest(quest);
+                var failInstance = questState.Objectives["obj1"].FailInstance as MockConditionInstance;
+                failInstance?.SetMet(true);
+
+                questManager.ProcessPendingEvaluations();
+
+                if (!questFailed)
+                    throw new Exception("Quest should fail for non-retryable objective");
+
+                if (objectiveRetried)
+                    throw new Exception("OnObjectiveRetried should NOT fire for non-retryable objective");
+
+                if (questState.Status != QuestStatus.Failed)
+                    throw new Exception("Quest status should be Failed");
+
+                Debug.Log("✓ Non-retryable objective correctly fails quest");
+            }
+            finally
+            {
+                CleanupTestQuestManager(questManager);
+            }
+        }
+
+        private static void TestRetryableObjectiveConditionsReset()
+        {
+            Debug.Log("\n[ADVANCED TEST] Retryable Objective Conditions Reset");
+
+            var questManager = CreateTestQuestManager();
+            try
+            {
+                var completionCondition = ScriptableObject.CreateInstance<MockConditionAsset>();
+                var failCondition = ScriptableObject.CreateInstance<MockConditionAsset>();
+
+                var objective = new ObjectiveBuilder()
+                    .WithObjectiveId("obj1")
+                    .WithCompletionCondition(completionCondition)
+                    .WithFailCondition(failCondition)
+                    .AsRetryable()
+                    .Build();
+
+                var quest = new QuestBuilder()
+                    .WithQuestId("reset_test")
+                    .AddObjective(objective)
+                    .Build();
+
+                bool objectiveRetried = false;
+                questManager.OnObjectiveRetried += (obj) => objectiveRetried = true;
+
+                var questState = questManager.StartQuest(quest);
+                var failInstance = questState.Objectives["obj1"].FailInstance as MockConditionInstance;
+                failInstance?.SetMet(true);
+
+                questManager.ProcessPendingEvaluations();
+
+                if (!objectiveRetried)
+                    throw new Exception("OnObjectiveRetried should fire");
+
+                var completionInstance = questState.Objectives["obj1"].CompletionInstance as MockConditionInstance;
+
+                if (completionInstance?.IsMet == true)
+                    throw new Exception("Completion condition should be false after retry reset");
+
+                if (failInstance?.IsMet == true)
+                    throw new Exception("Fail condition should be false after retry reset");
+
+                if (questState.Objectives["obj1"].Status != ObjectiveStatus.InProgress)
+                    throw new Exception("Objective should be InProgress after retry");
+
+                if (questManager.ActiveQuests.Count != 1)
+                    throw new Exception("Quest should still be active after retry");
+
+                Debug.Log("✓ Retryable objective condition reset works correctly");
+            }
+            finally
+            {
+                CleanupTestQuestManager(questManager);
+            }
         }
 
         // Helper methods

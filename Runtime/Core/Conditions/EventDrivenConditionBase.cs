@@ -70,6 +70,9 @@ namespace DynamicBox.Quest.Core
         /// </summary>
         protected virtual void OnUnbind(QuestContext context) { }
 
+        /// <inheritdoc/>
+        public virtual void Reset() { }
+
         private void OnEventReceived(TEvent evt)
         {
             HandleEvent(evt);

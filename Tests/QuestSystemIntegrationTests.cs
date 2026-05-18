@@ -39,6 +39,7 @@ namespace DynamicBox.Quest.Tests
             yield return StartCoroutine(TestMultipleQuestsSimultaneously());
             yield return StartCoroutine(TestQuestCompletionFlow());
             yield return StartCoroutine(TestQuestFailureFlow());
+            yield return StartCoroutine(TestRetryableObjectiveFlow());
             yield return StartCoroutine(TestComplexQuestScenario());
             yield return StartCoroutine(TestMemoryManagement());
             yield return StartCoroutine(TestPerformanceUnderLoad());
@@ -380,6 +381,71 @@ namespace DynamicBox.Quest.Tests
                     throw new Exception("Expected at least 2 objective status changes");
 
                 Debug.Log("✓ Quest completion flow test passed");
+                yield return new WaitForSeconds(testDelay);
+            }
+            finally
+            {
+                CleanupQuestManager(questManager);
+            }
+        }
+
+        private IEnumerator TestRetryableObjectiveFlow()
+        {
+            Debug.Log("\n[INTEGRATION TEST] Retryable Objective Flow");
+
+            var questManager = CreateQuestManager();
+            try
+            {
+                var completionCondition = ScriptableObject.CreateInstance<MockConditionAsset>();
+                var failCondition = ScriptableObject.CreateInstance<MockConditionAsset>();
+
+                var objective = new ObjectiveBuilder()
+                    .WithObjectiveId("retryable_obj")
+                    .WithCompletionCondition(completionCondition)
+                    .WithFailCondition(failCondition)
+                    .AsRetryable()
+                    .Build();
+
+                var quest = new QuestBuilder()
+                    .WithQuestId("retryable_quest")
+                    .AddObjective(objective)
+                    .Build();
+
+                bool questFailed = false;
+                bool questCompleted = false;
+                bool objectiveRetried = false;
+
+                questManager.OnQuestFailed += (q) => questFailed = true;
+                questManager.OnQuestCompleted += (q) => questCompleted = true;
+                questManager.OnObjectiveRetried += (obj) => objectiveRetried = true;
+
+                var questState = questManager.StartQuest(quest);
+
+                // Trigger fail condition — should retry, not fail the quest
+                var failInstance = questState.Objectives["retryable_obj"].FailInstance as MockConditionInstance;
+                failInstance?.SetMet(true);
+
+                yield return null;
+
+                if (questFailed)
+                    throw new Exception("Quest should NOT fail for a retryable objective");
+
+                if (!objectiveRetried)
+                    throw new Exception("OnObjectiveRetried should fire");
+
+                if (questState.Status != QuestStatus.InProgress)
+                    throw new Exception("Quest should remain InProgress after retry");
+
+                // Now complete the objective
+                var completionInstance = questState.Objectives["retryable_obj"].CompletionInstance as MockConditionInstance;
+                completionInstance?.SetMet(true);
+
+                yield return null;
+
+                if (!questCompleted)
+                    throw new Exception("Quest should complete after objective completed post-retry");
+
+                Debug.Log("✓ Retryable objective flow test passed");
                 yield return new WaitForSeconds(testDelay);
             }
             finally

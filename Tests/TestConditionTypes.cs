@@ -65,6 +65,8 @@ namespace DynamicBox.Quest.Tests
             if (oldCount < _requiredCount)
                 NotifyChanged();
         }
+
+        public override void Reset() => _currentCount = 0;
     }
 
     public sealed class TestAreaConditionInstance : EventDrivenConditionBase<TestAreaEvent>
@@ -84,6 +86,8 @@ namespace DynamicBox.Quest.Tests
                 NotifyChanged();
             }
         }
+
+        public override void Reset() => _isCompleted = false;
     }
 
     public sealed class TestFlagConditionInstance : EventDrivenConditionBase<TestFlagEvent>
@@ -121,6 +125,8 @@ namespace DynamicBox.Quest.Tests
                 NotifyChanged();
             }
         }
+
+        public override void Reset() => _isCompleted = false;
     }
 
     // ---------------------------------------------------------------------------

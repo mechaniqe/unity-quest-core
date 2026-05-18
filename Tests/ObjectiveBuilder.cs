@@ -12,6 +12,7 @@ namespace DynamicBox.Quest.Tests
         private string _title = "Test Objective";
         private string _description = "A test objective";
         private bool _isOptional = false;
+        private bool _isRetryable = false;
         private List<ObjectiveAsset> _prerequisites = new();
         private ConditionAsset _completionCondition;
         private ConditionAsset _failCondition;
@@ -59,6 +60,12 @@ namespace DynamicBox.Quest.Tests
             return this;
         }
 
+        public ObjectiveBuilder AsRetryable(bool isRetryable = true)
+        {
+            _isRetryable = isRetryable;
+            return this;
+        }
+
         public ObjectiveAsset Build()
         {
             // Use factory method instead of reflection for type safety and performance
@@ -69,7 +76,8 @@ namespace DynamicBox.Quest.Tests
                 _isOptional,
                 _prerequisites,
                 _completionCondition,
-                _failCondition
+                _failCondition,
+                _isRetryable
             );
         }
     }
