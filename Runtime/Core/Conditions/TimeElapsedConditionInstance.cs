@@ -9,7 +9,7 @@ namespace DynamicBox.Quest.Core.Conditions
     /// Uses IQuestTimeService for time tracking instead of Unity's Time.deltaTime.
     /// Implements progress reporting for UI integration.
     /// </summary>
-    public sealed class TimeElapsedConditionInstance : IConditionInstance, IPollingConditionInstance, IProgressReportingCondition
+    public sealed class TimeElapsedConditionInstance : IConditionInstance, IPollingConditionInstance, IProgressReportingCondition, IRemainingTimeCondition
     {
         private readonly float _requiredSeconds;
         private float _elapsedTime;
@@ -93,5 +93,8 @@ namespace DynamicBox.Quest.Core.Conditions
         {
             return Mathf.Max(0f, _requiredSeconds - _elapsedTime);
         }
+
+        /// <inheritdoc />
+        public float RemainingSeconds => GetRemainingTime();
     }
 }

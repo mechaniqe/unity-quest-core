@@ -30,6 +30,12 @@ namespace DynamicBox.Quest.Core
         /// </summary>
         public IProgressReportingCondition? CompletionProgress => CompletionInstance as IProgressReportingCondition;
 
+        /// <summary>
+        /// Returns remaining-time access for the completion condition, if it is time-based.
+        /// Returns <c>null</c> for non-timed objectives — use this to show/hide a countdown widget.
+        /// </summary>
+        public IRemainingTimeCondition? RemainingTime => CompletionInstance as IRemainingTimeCondition;
+
         public ObjectiveState(ObjectiveAsset definition)
         {
             Definition = definition;
