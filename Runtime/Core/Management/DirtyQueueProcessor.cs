@@ -17,6 +17,7 @@ namespace DynamicBox.Quest.Core
         public event Action<QuestState>? OnQuestCompleted;
         public event Action<QuestState>? OnQuestFailed;
         public event Action<ObjectiveState>? OnObjectiveStatusChanged;
+        public event Action<ObjectiveState>? OnObjectiveRetried;
 
         public DirtyQueueProcessor(ObjectiveEvaluator evaluator)
         {
@@ -61,6 +62,12 @@ namespace DynamicBox.Quest.Core
                     case QuestEvaluationResult.QuestFailed:
                         SafeInvoke(OnObjectiveStatusChanged, obj);
                         SafeInvoke(OnQuestFailed, quest);
+                        break;
+
+                    case QuestEvaluationResult.ObjectiveRetried:
+                        SafeInvoke(OnObjectiveStatusChanged, obj);
+                        SafeInvoke(OnObjectiveRetried, obj);
+                        _evaluator.ActivateReadyObjectives(quest);
                         break;
                 }
             }

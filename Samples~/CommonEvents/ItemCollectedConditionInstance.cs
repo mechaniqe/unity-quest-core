@@ -38,5 +38,7 @@ namespace DynamicBox.Quest.Samples.CommonEvents
             if (oldCount < _requiredCount)
                 NotifyChanged();
         }
+
+        public override void Reset() => _currentCount = 0;
     }
 }

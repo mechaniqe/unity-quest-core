@@ -79,6 +79,13 @@ namespace DynamicBox.Quest.Core
             _onChanged = null;
         }
 
+        public void Reset()
+        {
+            _isMet = false;
+            foreach (var child in _children)
+                child.Reset();
+        }
+
         public void Refresh(QuestContext context, Action onChanged)
         {
             foreach (var child in _pollingChildren)

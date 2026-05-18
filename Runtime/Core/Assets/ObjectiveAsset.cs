@@ -15,6 +15,7 @@ namespace DynamicBox.Quest.Core
         [SerializeField] private string title = string.Empty;
         [TextArea] [SerializeField] private string description = string.Empty;
         [SerializeField] private bool isOptional;
+        [SerializeField] private bool isRetryable;
 
         [SerializeField] private List<ObjectiveAsset> prerequisites = new();
         [SerializeField] private ConditionAsset? completionCondition;
@@ -39,6 +40,11 @@ namespace DynamicBox.Quest.Core
         /// Gets whether this objective is optional (quest can complete without it).
         /// </summary>
         public bool IsOptional => isOptional;
+
+        /// <summary>
+        /// Gets whether this objective retries instead of failing the quest when its fail condition is met.
+        /// </summary>
+        public bool IsRetryable => isRetryable;
 
         /// <summary>
         /// Gets the display name, using Title if available, otherwise ObjectiveId.
@@ -78,13 +84,15 @@ namespace DynamicBox.Quest.Core
             bool isOptional,
             List<ObjectiveAsset>? prerequisites,
             ConditionAsset? completionCondition,
-            ConditionAsset? failCondition)
+            ConditionAsset? failCondition,
+            bool isRetryable = false)
         {
             var objective = CreateInstance<ObjectiveAsset>();
             objective.objectiveId = objectiveId;
             objective.title = title;
             objective.description = description;
             objective.isOptional = isOptional;
+            objective.isRetryable = isRetryable;
             objective.prerequisites = prerequisites ?? new List<ObjectiveAsset>();
             objective.completionCondition = completionCondition;
             objective.failCondition = failCondition;

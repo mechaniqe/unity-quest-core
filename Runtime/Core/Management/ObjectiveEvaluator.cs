@@ -58,11 +58,20 @@ namespace DynamicBox.Quest.Core
             if (objective.FailInstance != null && objective.FailInstance.IsMet)
             {
                 _bindingService.UnbindObjective(objective);
+
+                if (objective.Definition.IsRetryable)
+                {
+                    objective.CompletionInstance?.Reset();
+                    objective.FailInstance.Reset();
+                    objective.SetStatus(ObjectiveStatus.NotStarted);
+                    return QuestEvaluationResult.ObjectiveRetried;
+                }
+
                 objective.SetStatus(ObjectiveStatus.Failed);
-                
+
                 quest.SetStatus(QuestStatus.Failed);
                 _log.RemoveQuest(quest);
-                
+
                 return QuestEvaluationResult.QuestFailed;
             }
 
@@ -129,6 +138,7 @@ namespace DynamicBox.Quest.Core
         NoChange,
         ObjectiveCompleted,
         QuestCompleted,
-        QuestFailed
+        QuestFailed,
+        ObjectiveRetried
     }
 }

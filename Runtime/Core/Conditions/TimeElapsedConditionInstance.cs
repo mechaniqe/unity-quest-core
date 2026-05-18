@@ -59,6 +59,12 @@ namespace DynamicBox.Quest.Core.Conditions
             _isInitialized = false;
         }
 
+        public void Reset()
+        {
+            _elapsedTime = 0f;
+            _isInitialized = false;
+        }
+
         public void Refresh(QuestContext context, Action onChanged)
         {
             if (!_isInitialized || context?.TimeService == null)

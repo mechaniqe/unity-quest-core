@@ -13,6 +13,7 @@ namespace DynamicBox.Quest.Editor
         private SerializedProperty _titleProp;
         private SerializedProperty _descriptionProp;
         private SerializedProperty _isOptionalProp;
+        private SerializedProperty _isRetryableProp;
         private SerializedProperty _prerequisitesProp;
         private SerializedProperty _completionConditionProp;
         private SerializedProperty _failConditionProp;
@@ -25,6 +26,7 @@ namespace DynamicBox.Quest.Editor
             _titleProp = serializedObject.FindProperty("title");
             _descriptionProp = serializedObject.FindProperty("description");
             _isOptionalProp = serializedObject.FindProperty("isOptional");
+            _isRetryableProp = serializedObject.FindProperty("isRetryable");
             _prerequisitesProp = serializedObject.FindProperty("prerequisites");
             _completionConditionProp = serializedObject.FindProperty("completionCondition");
             _failConditionProp = serializedObject.FindProperty("failCondition");
@@ -70,6 +72,8 @@ namespace DynamicBox.Quest.Editor
             // Configuration
             EditorGUILayout.LabelField("Configuration", EditorStyles.miniLabel);
             EditorGUILayout.PropertyField(_isOptionalProp, new GUIContent("Is Optional", "Optional objectives don't block quest completion"));
+            if (_isRetryableProp != null)
+                EditorGUILayout.PropertyField(_isRetryableProp, new GUIContent("Is Retryable", "If true, a failed objective resets and can be retried instead of failing the quest"));
             
             EditorGUILayout.Space();
 

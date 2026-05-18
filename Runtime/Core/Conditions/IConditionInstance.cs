@@ -31,6 +31,13 @@ namespace DynamicBox.Quest.Core
         /// <param name="eventBus">The event bus to unsubscribe from.</param>
         /// <param name="context">Game services context.</param>
         void Unbind(IEventBus eventBus, QuestContext context);
+
+        /// <summary>
+        /// Resets this condition to its initial state.
+        /// Called before rebinding when a retryable objective is retried.
+        /// Must only clear semantic state; subscription state is managed by Bind/Unbind.
+        /// </summary>
+        void Reset();
     }
 
     /// <summary>
