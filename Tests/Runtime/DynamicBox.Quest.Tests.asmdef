@@ -2,13 +2,16 @@
     "name": "DynamicBox.Quest.Tests",
     "rootNamespace": "DynamicBox.Quest.Tests",
     "references": [
-        "DynamicBox.Quest.Core"
+        "DynamicBox.Quest.Core",
+        "UnityEngine.TestRunner"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
-    "precompiledReferences": [],
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
     "autoReferenced": false,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
