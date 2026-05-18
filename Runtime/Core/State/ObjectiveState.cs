@@ -36,6 +36,12 @@ namespace DynamicBox.Quest.Core
         /// </summary>
         public IRemainingTimeCondition? RemainingTime => CompletionInstance as IRemainingTimeCondition;
 
+        /// <summary>
+        /// Returns remaining-time access for the fail condition, if it is time-based.
+        /// Returns <c>null</c> when there is no timed fail condition.
+        /// </summary>
+        public IRemainingTimeCondition? FailRemainingTime => FailInstance as IRemainingTimeCondition;
+
         public ObjectiveState(ObjectiveAsset definition)
         {
             Definition = definition;
