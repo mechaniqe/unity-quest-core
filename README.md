@@ -238,7 +238,47 @@ Create → Quests → Quest: "Stealth Mission"
 │   └─ Fail Condition: Custom Flag (alarm_triggered, true)
 ```
 
-#### Quest with Optional Objectives
+When the fail condition is met on a **non-retryable** objective, the entire quest immediately transitions to `QuestStatus.Failed` and fires the `OnQuestFailed` event.
+
+#### Quest with Retryable Objectives
+
+Enable **Is Retryable** on an objective to allow the player to recover instead of failing the whole quest:
+
+```
+Create → Quests → Quest: "Sneak Mission"
+├─ Objective: "Reach the Target Undetected" (Is Retryable = true)
+│   ├─ Completion: Area Entered (target_zone)
+│   └─ Fail Condition: Custom Flag (alarm_triggered, true)
+```
+
+When a retryable objective's fail condition is met:
+1. Both the completion and fail conditions are **reset** to their initial state.
+2. The objective reverts to `ObjectiveStatus.InProgress` and is re-bound to its conditions.
+3. `OnObjectiveRetried` fires — use this to reset game state (e.g. clear the alarm flag, respawn the player).
+4. The quest stays active; the player can try again immediately.
+
+```csharp
+questManager.OnObjectiveRetried += objective =>
+{
+    Debug.Log($"Objective '{objective.Definition.DisplayName}' failed — resetting for retry.");
+    // Reset your game state here, e.g.:
+    flagService.SetFlag("alarm_triggered", false);
+};
+```
+
+The **fail → retry → succeed** cycle:
+
+```
+Fail condition met  →  ObjectiveRetried event  →  Conditions reset
+                                                        ↓
+                                               Objective re-activates
+                                                        ↓
+                                          Player attempts again …
+                                                        ↓
+                                      Completion condition met  →  QuestCompleted
+```
+
+
 ```
 Create → Quests → Quest: "Explore the Forest"
 ├─ Objective 1: "Find the Main Path" (Required)
