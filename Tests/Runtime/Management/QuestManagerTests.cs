@@ -261,5 +261,108 @@ namespace DynamicBox.Quest.Tests.Management
 
             Assert.That(questState.Objectives["obj2"].Status, Is.EqualTo(ObjectiveStatus.InProgress));
         }
+
+        // ── Retryable objective: fail → retry → succeed ───────────────────────
+
+        [Test]
+        public void RetryableObjective_AfterRetry_ObjectiveIsActiveAgainNotFailed()
+        {
+            var failAsset = ScriptableObject.CreateInstance<MockConditionAsset>();
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .WithFailCondition(failAsset)
+                .AsRetryable().Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            var questState = _questManager.StartQuest(questAsset);
+            var failInstance = questState.Objectives["obj1"].FailInstance as MockConditionInstance;
+
+            failInstance!.SetMet(true);
+            _questManager.ProcessPendingEvaluations();
+
+            // ActivateReadyObjectives runs as part of processing the retry result,
+            // so the objective is InProgress (not Failed or NotStarted) after the call returns.
+            Assert.That(questState.Objectives["obj1"].Status, Is.EqualTo(ObjectiveStatus.InProgress));
+        }
+
+        [Test]
+        public void RetryableObjective_AfterRetry_ObjectiveStatusIsNotFailed()
+        {
+            var completionAsset = ScriptableObject.CreateInstance<MockConditionAsset>();
+            var failAsset = ScriptableObject.CreateInstance<MockConditionAsset>();
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .WithCompletionCondition(completionAsset)
+                .WithFailCondition(failAsset)
+                .AsRetryable().Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            var questState = _questManager.StartQuest(questAsset);
+            var failInstance = questState.Objectives["obj1"].FailInstance as MockConditionInstance;
+
+            // Fail the objective — triggers retry
+            failInstance!.SetMet(true);
+            _questManager.ProcessPendingEvaluations();
+
+            // Retry must not leave the objective in a terminal Failed state
+            Assert.That(questState.Objectives["obj1"].Status, Is.Not.EqualTo(ObjectiveStatus.Failed));
+        }
+
+        [Test]
+        public void RetryableObjective_FailThenSucceed_QuestCompletes()
+        {
+            var completionAsset = ScriptableObject.CreateInstance<MockConditionAsset>();
+            var failAsset = ScriptableObject.CreateInstance<MockConditionAsset>();
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .WithCompletionCondition(completionAsset)
+                .WithFailCondition(failAsset)
+                .AsRetryable().Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            bool questCompleted = false;
+            _questManager.OnQuestCompleted += _ => questCompleted = true;
+
+            var questState = _questManager.StartQuest(questAsset);
+
+            // Retrieve instances after StartQuest (binding creates them)
+            var failInstance = questState.Objectives["obj1"].FailInstance as MockConditionInstance;
+            Assert.That(failInstance, Is.Not.Null);
+
+            // Step 1: fail → retry
+            failInstance!.SetMet(true);
+            _questManager.ProcessPendingEvaluations();
+            Assert.That(questState.Objectives["obj1"].Status, Is.EqualTo(ObjectiveStatus.InProgress));
+
+            // Step 2: succeed — retrieve fresh completion instance after rebind
+            var completionInstance = questState.Objectives["obj1"].CompletionInstance as MockConditionInstance;
+            Assert.That(completionInstance, Is.Not.Null);
+            completionInstance!.SetMet(true);
+            _questManager.ProcessPendingEvaluations();
+
+            Assert.That(questCompleted, Is.True);
+            Assert.That(questState.Status, Is.EqualTo(QuestStatus.Completed));
+        }
+
+        [Test]
+        public void RetryableObjective_MultipleFailures_QuestRemainsActive()
+        {
+            var failAsset = ScriptableObject.CreateInstance<MockConditionAsset>();
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .WithFailCondition(failAsset)
+                .AsRetryable().Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            var questState = _questManager.StartQuest(questAsset);
+
+            for (int i = 0; i < 3; i++)
+            {
+                var failInstance = questState.Objectives["obj1"].FailInstance as MockConditionInstance;
+                failInstance!.SetMet(true);
+                _questManager.ProcessPendingEvaluations();
+                // Each retry re-activates the objective
+                Assert.That(questState.Status, Is.EqualTo(QuestStatus.InProgress),
+                    $"Quest should still be active after failure #{i + 1}");
+            }
+
+            Assert.That(_questManager.ActiveQuests.Count, Is.EqualTo(1));
+        }
     }
 }
