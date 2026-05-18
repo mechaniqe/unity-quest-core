@@ -22,6 +22,14 @@ namespace DynamicBox.Quest.Core
         internal IConditionInstance? CompletionInstance { get; }
         internal IConditionInstance? FailInstance { get; }
 
+        /// <summary>
+        /// Returns progress reporting for the completion condition, if it supports it.
+        /// Use <see cref="IProgressReportingCondition.Progress"/> (0–1) for a slider
+        /// and <see cref="IProgressReportingCondition.ProgressDescription"/> for a readable label
+        /// (e.g. "9.5 seconds remaining").
+        /// </summary>
+        public IProgressReportingCondition? CompletionProgress => CompletionInstance as IProgressReportingCondition;
+
         public ObjectiveState(ObjectiveAsset definition)
         {
             Definition = definition;
