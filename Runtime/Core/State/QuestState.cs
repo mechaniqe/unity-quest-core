@@ -49,6 +49,12 @@ namespace DynamicBox.Quest.Core
         public IEnumerable<ObjectiveState> GetObjectiveStates() => _objectives.Values;
 
         /// <summary>
+        /// Objectives currently InProgress for this quest.
+        /// </summary>
+        public IEnumerable<ObjectiveState> ActiveObjectives =>
+            GetObjectiveStates().Where(o => o.Status == ObjectiveStatus.InProgress);
+
+        /// <summary>
         /// Attempts to get an objective state by its ID.
         /// </summary>
         /// <param name="objectiveId">The unique identifier of the objective.</param>

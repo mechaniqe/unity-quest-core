@@ -238,6 +238,43 @@ namespace DynamicBox.Quest.Core
             => EndQuest(questState, QuestStatus.Failed, OnQuestFailed);
 
         /// <summary>
+        /// Reports that the given objective has failed for a reason outside the condition system
+        /// (e.g. player death). Applies the same outcome as a bound Fail Condition becoming met:
+        /// retryable objectives reset their completion progress and reactivate (firing
+        /// OnObjectiveRetried); non-retryable objectives fail the parent quest (firing OnQuestFailed).
+        /// No-op if the objective can't currently progress (already terminal, quest already ended, etc).
+        /// </summary>
+        /// <param name="objective">The objective that has failed.</param>
+        public void ReportObjectiveFailed(ObjectiveState objective)
+        {
+            Debug.Assert(_log != null, "QuestManager._log should be initialized in Awake()");
+            Debug.Assert(_evaluator != null, "QuestManager._evaluator should be initialized in Awake()");
+
+            var quest = _log!.Active.FirstOrDefault(q => q.GetObjectiveStates().Contains(objective));
+            if (quest == null)
+                return;
+
+            if (quest.Status.IsTerminal() || !objective.CanProgress(quest))
+                return;
+
+            var result = _evaluator!.FailObjective(quest, objective);
+
+            switch (result)
+            {
+                case QuestEvaluationResult.ObjectiveRetried:
+                    SafeInvoke(OnObjectiveStatusChanged, objective);
+                    SafeInvoke(OnObjectiveRetried, objective);
+                    _evaluator.ActivateReadyObjectives(quest);
+                    break;
+
+                case QuestEvaluationResult.QuestFailed:
+                    SafeInvoke(OnObjectiveStatusChanged, objective);
+                    SafeInvoke(OnQuestFailed, quest);
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Internal helper to end a quest with a specific status.
         /// Handles cleanup and event notification.
         /// </summary>

@@ -56,24 +56,7 @@ namespace DynamicBox.Quest.Core
 
             // Check failure condition first
             if (objective.FailInstance != null && objective.FailInstance.IsMet)
-            {
-                _bindingService.UnbindObjective(objective);
-
-                if (objective.Definition.IsRetryable)
-                {
-                    objective.CompletionInstance?.Reset();
-                    objective.FailInstance.Reset();
-                    objective.SetStatus(ObjectiveStatus.NotStarted);
-                    return QuestEvaluationResult.ObjectiveRetried;
-                }
-
-                objective.SetStatus(ObjectiveStatus.Failed);
-
-                quest.SetStatus(QuestStatus.Failed);
-                _log.RemoveQuest(quest);
-
-                return QuestEvaluationResult.QuestFailed;
-            }
+                return FailObjective(quest, objective);
 
             // Check completion condition
             if (objective.CompletionInstance != null && objective.CompletionInstance.IsMet)
@@ -108,6 +91,28 @@ namespace DynamicBox.Quest.Core
                     _onStatusChanged?.Invoke(obj);
                 }
             }
+        }
+
+        /// <summary>
+        /// Applies the retry-vs-fail outcome for a failed objective.
+        /// Called both from the condition-driven path and from <see cref="QuestManager.ReportObjectiveFailed"/>.
+        /// </summary>
+        internal QuestEvaluationResult FailObjective(QuestState quest, ObjectiveState objective)
+        {
+            _bindingService.UnbindObjective(objective);
+
+            if (objective.Definition.IsRetryable)
+            {
+                objective.CompletionInstance?.Reset();
+                objective.FailInstance?.Reset();
+                objective.SetStatus(ObjectiveStatus.NotStarted);
+                return QuestEvaluationResult.ObjectiveRetried;
+            }
+
+            objective.SetStatus(ObjectiveStatus.Failed);
+            quest.SetStatus(QuestStatus.Failed);
+            _log.RemoveQuest(quest);
+            return QuestEvaluationResult.QuestFailed;
         }
 
         private QuestEvaluationResult CheckQuestCompletion(QuestState quest)
