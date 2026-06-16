@@ -262,14 +262,14 @@ namespace DynamicBox.Quest.Core
             switch (result)
             {
                 case QuestEvaluationResult.ObjectiveRetried:
-                    SafeInvoke(OnObjectiveStatusChanged, objective);
-                    SafeInvoke(OnObjectiveRetried, objective);
+                    SafeInvoke(OnObjectiveStatusChanged, objective, "OnObjectiveStatusChanged");
+                    SafeInvoke(OnObjectiveRetried, objective, "OnObjectiveRetried");
                     _evaluator.ActivateReadyObjectives(quest);
                     break;
 
                 case QuestEvaluationResult.QuestFailed:
-                    SafeInvoke(OnObjectiveStatusChanged, objective);
-                    SafeInvoke(OnQuestFailed, quest);
+                    SafeInvoke(OnObjectiveStatusChanged, objective, "OnObjectiveStatusChanged");
+                    SafeInvoke(OnQuestFailed, quest, "OnQuestFailed");
                     break;
             }
         }
