@@ -88,6 +88,63 @@ namespace DynamicBox.Quest.Tests.State
             Assert.That(all.Count, Is.EqualTo(2));
         }
 
+        // ── ActiveObjectives ───────────────────────────────────────────────────
+
+        [Test]
+        public void ActiveObjectives_NoObjectives_ReturnsEmpty()
+        {
+            var quest = new QuestBuilder().Build();
+            var state = new QuestState(quest);
+
+            Assert.That(state.ActiveObjectives, Is.Empty);
+        }
+
+        [Test]
+        public void ActiveObjectives_AllNotStarted_ReturnsEmpty()
+        {
+            var obj1 = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
+            var quest = new QuestBuilder().AddObjective(obj1).Build();
+            var state = new QuestState(quest);
+
+            Assert.That(state.ActiveObjectives, Is.Empty);
+        }
+
+        [Test]
+        public void ActiveObjectives_ReturnsOnlyInProgressObjectives()
+        {
+            var obj1 = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
+            var obj2 = new ObjectiveBuilder().WithObjectiveId("obj2").Build();
+            var quest = new QuestBuilder().AddObjective(obj1).AddObjective(obj2).Build();
+            var state = new QuestState(quest);
+
+            state.Objectives["obj1"].SetStatus(ObjectiveStatus.InProgress);
+            // obj2 stays NotStarted
+
+            var active = new List<ObjectiveState>(state.ActiveObjectives);
+
+            Assert.That(active.Count, Is.EqualTo(1));
+            Assert.That(active[0], Is.SameAs(state.Objectives["obj1"]));
+        }
+
+        [Test]
+        public void ActiveObjectives_ExcludesCompletedAndFailed()
+        {
+            var obj1 = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
+            var obj2 = new ObjectiveBuilder().WithObjectiveId("obj2").Build();
+            var obj3 = new ObjectiveBuilder().WithObjectiveId("obj3").Build();
+            var quest = new QuestBuilder().AddObjective(obj1).AddObjective(obj2).AddObjective(obj3).Build();
+            var state = new QuestState(quest);
+
+            state.Objectives["obj1"].SetStatus(ObjectiveStatus.Completed);
+            state.Objectives["obj2"].SetStatus(ObjectiveStatus.Failed);
+            state.Objectives["obj3"].SetStatus(ObjectiveStatus.InProgress);
+
+            var active = new List<ObjectiveState>(state.ActiveObjectives);
+
+            Assert.That(active.Count, Is.EqualTo(1));
+            Assert.That(active[0], Is.SameAs(state.Objectives["obj3"]));
+        }
+
         [Test]
         public void Definition_MatchesAsset()
         {

@@ -364,5 +364,175 @@ namespace DynamicBox.Quest.Tests.Management
 
             Assert.That(_questManager.ActiveQuests.Count, Is.EqualTo(1));
         }
+
+        // ── ReportObjectiveFailed ─────────────────────────────────────────────
+
+        [Test]
+        public void ReportObjectiveFailed_Retryable_FiresOnObjectiveRetried()
+        {
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .AsRetryable().Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            bool retriedFired = false;
+            _questManager.OnObjectiveRetried += _ => retriedFired = true;
+
+            var questState = _questManager.StartQuest(questAsset);
+            _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]);
+
+            Assert.That(retriedFired, Is.True);
+        }
+
+        [Test]
+        public void ReportObjectiveFailed_Retryable_QuestStaysActive()
+        {
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .AsRetryable().Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            var questState = _questManager.StartQuest(questAsset);
+            _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]);
+
+            Assert.That(_questManager.ActiveQuests.Count, Is.EqualTo(1));
+            Assert.That(questState.Status, Is.EqualTo(QuestStatus.InProgress));
+        }
+
+        [Test]
+        public void ReportObjectiveFailed_Retryable_ObjectiveReactivatesToInProgress()
+        {
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .AsRetryable().Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            var questState = _questManager.StartQuest(questAsset);
+            _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]);
+
+            Assert.That(questState.Objectives["obj1"].Status, Is.EqualTo(ObjectiveStatus.InProgress));
+        }
+
+        [Test]
+        public void ReportObjectiveFailed_Retryable_ResetsCompletionProgress()
+        {
+            var completionAsset = ScriptableObject.CreateInstance<MockConditionAsset>();
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .WithCompletionCondition(completionAsset)
+                .AsRetryable().Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            var questState = _questManager.StartQuest(questAsset);
+            var completionInstance = questState.Objectives["obj1"].CompletionInstance as MockConditionInstance;
+            completionInstance!.SetMet(true); // advance progress without processing
+
+            _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]);
+
+            // After retry the instance is rebound; the original instance should have been reset
+            Assert.That(completionInstance.IsMet, Is.False);
+        }
+
+        [Test]
+        public void ReportObjectiveFailed_NonRetryable_FiresOnQuestFailed()
+        {
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            QuestState? failedQuest = null;
+            _questManager.OnQuestFailed += q => failedQuest = q;
+
+            var questState = _questManager.StartQuest(questAsset);
+            _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]);
+
+            Assert.That(failedQuest, Is.SameAs(questState));
+        }
+
+        [Test]
+        public void ReportObjectiveFailed_NonRetryable_SetsQuestFailed()
+        {
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            var questState = _questManager.StartQuest(questAsset);
+            _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]);
+
+            Assert.That(questState.Status, Is.EqualTo(QuestStatus.Failed));
+            Assert.That(_questManager.ActiveQuests.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void ReportObjectiveFailed_NonRetryable_FiresOnObjectiveStatusChanged()
+        {
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            ObjectiveState? changedObjective = null;
+            _questManager.OnObjectiveStatusChanged += o => changedObjective = o;
+
+            var questState = _questManager.StartQuest(questAsset);
+            _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]);
+
+            Assert.That(changedObjective, Is.SameAs(questState.Objectives["obj1"]));
+        }
+
+        [Test]
+        public void ReportObjectiveFailed_AlreadyTerminalQuest_IsNoOp()
+        {
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1").Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            var questState = _questManager.StartQuest(questAsset);
+            _questManager.FailQuest(questState);
+
+            // Should not throw and should not fire any events
+            bool anyEvent = false;
+            _questManager.OnQuestFailed += _ => anyEvent = true;
+            _questManager.OnObjectiveRetried += _ => anyEvent = true;
+
+            Assert.DoesNotThrow(() => _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]));
+            Assert.That(anyEvent, Is.False);
+        }
+
+        [Test]
+        public void ReportObjectiveFailed_AlreadyTerminalObjective_IsNoOp()
+        {
+            var completionAsset = ScriptableObject.CreateInstance<MockConditionAsset>();
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .WithCompletionCondition(completionAsset).Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            var questState = _questManager.StartQuest(questAsset);
+            var conditionInstance = questState.Objectives["obj1"].CompletionInstance as MockConditionInstance;
+            conditionInstance!.SetMet(true);
+            _questManager.ProcessPendingEvaluations(); // objective is now Completed
+
+            bool anyEvent = false;
+            _questManager.OnQuestFailed += _ => anyEvent = true;
+            _questManager.OnObjectiveRetried += _ => anyEvent = true;
+
+            Assert.DoesNotThrow(() => _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]));
+            Assert.That(anyEvent, Is.False);
+        }
+
+        [Test]
+        public void ReportObjectiveFailed_Retryable_ThenSucceeds_QuestCompletes()
+        {
+            var completionAsset = ScriptableObject.CreateInstance<MockConditionAsset>();
+            var objAsset = new ObjectiveBuilder().WithObjectiveId("obj1")
+                .WithCompletionCondition(completionAsset)
+                .AsRetryable().Build();
+            var questAsset = new QuestBuilder().AddObjective(objAsset).Build();
+
+            bool questCompleted = false;
+            _questManager.OnQuestCompleted += _ => questCompleted = true;
+
+            var questState = _questManager.StartQuest(questAsset);
+            _questManager.ReportObjectiveFailed(questState.Objectives["obj1"]);
+
+            // After retry, retrieve the rebound completion instance and complete it
+            var completionInstance = questState.Objectives["obj1"].CompletionInstance as MockConditionInstance;
+            Assert.That(completionInstance, Is.Not.Null);
+            completionInstance!.SetMet(true);
+            _questManager.ProcessPendingEvaluations();
+
+            Assert.That(questCompleted, Is.True);
+        }
     }
 }
